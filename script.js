@@ -21,6 +21,10 @@ function updatePlan() {
         alert("Height should be between 0 to 300 cm")
         return;
     }
+    else if (w<0 ||w>250){
+        alert("Weight should not more than 250 kg and less than 0 kg");
+        return;
+    }
     else if (w && h && a) {
         currentTarget = Math.round((10 * w + 6.25 * h - 5 * a + 5) * 1.2);
         document.getElementById('target-val').innerText = currentTarget;
