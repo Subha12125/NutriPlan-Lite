@@ -1,14 +1,14 @@
 // You can add more in food items and calories as needed
 const foodDB = {
-    'apple': { cal: 52 },
-    'banana': { cal: 89 },
-    'chicken breast': { cal: 165 },
-    'rice': { cal: 130 },
-    'egg': { cal: 155 },
-    'oats': { cal: 389 },
-    'milk': { cal: 42 },
-    'paneer': { cal: 265 },
-    'tofu': { cal: 76 }
+  apple: { cal: 52 },
+  banana: { cal: 89 },
+  "chicken breast": { cal: 165 },
+  rice: { cal: 130 },
+  egg: { cal: 155 },
+  oats: { cal: 389 },
+  milk: { cal: 42 },
+  paneer: { cal: 265 },
+  tofu: { cal: 76 },
 };
 
 let currentTarget = 2000;
@@ -33,23 +33,24 @@ function updatePlan() {
 
 // Add
 function addEntry() {
-    const inputEl = document.getElementById('food-input');
-    const qtyEl = document.getElementById('qty-input');
-    const name = inputEl.value.toLowerCase().trim();
-    const qty = parseFloat(qtyEl.value) || 100;
+  const inputEl = document.getElementById("food-input");
+  const qtyEl = document.getElementById("qty-input");
+  const name = inputEl.value.toLowerCase().trim();
+  const qty = parseFloat(qtyEl.value) || 100;
 
-    if (!name) return;
-    const baseCal = foodDB[name] ? foodDB[name].cal : 150;
-    const totalAdded = Math.round((baseCal * qty) / 100);
+  if (!name) return;
+  const baseCal = foodDB[name] ? foodDB[name].cal : 150;
+  const totalAdded = Math.round((baseCal * qty) / 100);
 
-    currentConsumed += totalAdded;
+  currentConsumed += totalAdded;
 
-    const list = document.getElementById('log-list');
-    if (currentConsumed === totalAdded) list.innerHTML = '';
+  const list = document.getElementById("log-list");
+  if (currentConsumed === totalAdded) list.innerHTML = "";
 
-    const div = document.createElement('div');
-    div.className = "flex justify-between items-center bg-white/5 p-5 rounded-2xl border border-white/10 hover:bg-white/10 transition-all group";
-    div.innerHTML = `
+  const div = document.createElement("div");
+  div.className =
+    "flex justify-between items-center bg-white/5 p-5 rounded-2xl border border-white/10 hover:bg-white/10 transition-all group";
+  div.innerHTML = `
                 <div class="flex flex-col">
                     <span class="capitalize font-bold text-base tracking-tight">${name}</span>
                     <span class="text-[10px] text-white/40 uppercase font-black tracking-widest mt-1">${qty}g Served</span>
@@ -59,16 +60,20 @@ function addEntry() {
                     <span class="text-[10px] text-green-400/50 uppercase font-black ml-1">kcal</span>
                 </div>
             `;
-    list.prepend(div);
+  list.prepend(div);
 
-    refreshUI();
-    inputEl.value = '';
-    qtyEl.value = '';
+  refreshUI();
+  inputEl.value = "";
+  qtyEl.value = "";
+
+  if (currentConsumed >= currentTarget) {
+    document.getElementById("target-message").classList.remove("hidden");
+  }
 }
 
 // Update the Progress UI
 function refreshUI() {
-    document.getElementById('consumed-val').innerText = currentConsumed;
-    const percentage = Math.min(100, (currentConsumed / currentTarget) * 100);
-    document.getElementById('progress-bar').style.width = percentage + '%';
+  document.getElementById("consumed-val").innerText = currentConsumed;
+  const percentage = Math.min(100, (currentConsumed / currentTarget) * 100);
+  document.getElementById("progress-bar").style.width = percentage + "%";
 }
