@@ -12,13 +12,13 @@
 </head>
 <body class="p-4 md:p-8">
 
-    <div class="max-w-4xl mx-auto space-y-8">
+    <div class="max-w-5xl mx-auto space-y-8">
         <header class="flex items-center justify-center space-x-3 py-6">
             <i class="fas fa-leaf text-green-400 text-4xl"></i>
             <h1 class="text-4xl font-extrabold tracking-tight">NutriPlan <span class="text-green-400">Lite</span></h1>
         </header>
 
-        <div class="grid md:grid-cols-2 gap-8">
+        <div class="grid md:grid-cols-3 gap-8">
             <section class="glass-effect rounded-3xl p-8 space-y-6">
                 <h2 class="text-xl font-bold flex items-center">
                     <i class="fas fa-user-circle mr-3 text-green-400"></i>Your Profile
@@ -37,6 +37,25 @@
                     <label class="text-[10px] uppercase font-black tracking-widest text-white/50 ml-1">Height (cm)</label>
                     <input type="number" id="height" placeholder="175" class="w-full bg-white/10 border border-white/20 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-green-400 transition-all">
                 </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1">
+                        <label class="text-[10px] uppercase font-black tracking-widest text-white/50 ml-1">Gender</label>
+                        <select id="gender" class="w-full bg-white/10 border border-white/20 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-green-400 transition-all text-white cursor-pointer">
+                            <option value="male" selected>Male</option>
+                            <option value="female">Female</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] uppercase font-black tracking-widest text-white/50 ml-1">Activity Level</label>
+                        <select id="activity" class="w-full bg-white/10 border border-white/20 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-green-400 transition-all text-white cursor-pointer">
+                            <option value="1.2" selected>Sedentary</option>
+                            <option value="1.375">Lightly Active</option>
+                            <option value="1.55">Moderately Active</option>
+                            <option value="1.725">Very Active</option>
+                            <option value="1.9">Extra Active</option>
+                        </select>
+                    </div>
+                </div>
                 <button onclick="updatePlan()" class="w-full bg-green-500 hover:bg-green-600 font-black py-4 rounded-2xl transition shadow-xl transform active:scale-95 text-sm uppercase tracking-widest">
                     Update My Goals
                 </button>
@@ -51,6 +70,59 @@
                     <div class="w-full bg-white/10 rounded-full h-4 mt-8 shadow-inner p-1">
                         <div id="progress-bar" class="nutrition-bar bg-gradient-to-r from-green-400 to-emerald-500 h-full rounded-full" style="width: 0%"></div>
                     </div>
+                    
+                    <!-- Macronutrient Bars -->
+                    <div class="grid grid-cols-3 gap-3 mt-6 pt-6 border-t border-white/10 text-center">
+                        <div class="space-y-1">
+                            <span class="text-[10px] uppercase font-bold text-white/50 block">Protein</span>
+                            <div class="w-full bg-white/10 h-2 rounded-full overflow-hidden">
+                                <div id="protein-bar" class="nutrition-bar bg-amber-400 h-full" style="width: 0%"></div>
+                            </div>
+                            <span class="text-xs font-semibold block text-amber-300"><span id="protein-consumed" class="font-bold">0</span> / <span id="protein-target">125</span>g</span>
+                        </div>
+                        <div class="space-y-1">
+                            <span class="text-[10px] uppercase font-bold text-white/50 block">Carbs</span>
+                            <div class="w-full bg-white/10 h-2 rounded-full overflow-hidden">
+                                <div id="carbs-bar" class="nutrition-bar bg-indigo-400 h-full" style="width: 0%"></div>
+                            </div>
+                            <span class="text-xs font-semibold block text-indigo-300"><span id="carbs-consumed" class="font-bold">0</span> / <span id="carbs-target">225</span>g</span>
+                        </div>
+                        <div class="space-y-1">
+                            <span class="text-[10px] uppercase font-bold text-white/50 block">Fats</span>
+                            <div class="w-full bg-white/10 h-2 rounded-full overflow-hidden">
+                                <div id="fats-bar" class="nutrition-bar bg-rose-400 h-full" style="width: 0%"></div>
+                            </div>
+                            <span class="text-xs font-semibold block text-rose-300"><span id="fats-consumed" class="font-bold">0</span> / <span id="fats-target">67</span>g</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="glass-effect rounded-3xl p-8 flex flex-col justify-between items-center text-center">
+                <div class="w-full">
+                    <h2 class="text-xl font-bold flex items-center justify-center">
+                        <i class="fas fa-glass-water mr-3 text-cyan-400"></i>Water Tracker
+                    </h2>
+                    <p class="text-white/60 uppercase text-[10px] font-black tracking-[0.3em] mt-6">Daily Intake</p>
+                    <div class="text-sm font-semibold text-cyan-200 mt-1"><span id="water-consumed" class="text-white font-black text-2xl">0</span> / <span id="water-target" class="text-white/70">2500</span> ml</div>
+                </div>
+
+                <div class="water-glass my-6">
+                    <div id="water-fill" class="water-fill" style="height: 0%"></div>
+                </div>
+
+                <div class="w-full space-y-3">
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="addWater(250)" class="bg-cyan-500/20 hover:bg-cyan-500/30 active:scale-95 text-cyan-200 font-black py-3 rounded-xl transition flex items-center justify-center text-xs gap-2">
+                            <i class="fas fa-glass-water"></i> +250ml
+                        </button>
+                        <button onclick="addWater(500)" class="bg-cyan-500/20 hover:bg-cyan-500/30 active:scale-95 text-cyan-200 font-black py-3 rounded-xl transition flex items-center justify-center text-xs gap-2">
+                            <i class="fas fa-bottle-water"></i> +500ml
+                        </button>
+                    </div>
+                    <button onclick="resetWater()" class="text-[10px] text-white/30 hover:text-white/60 transition uppercase tracking-widest font-black">
+                        Reset Intake
+                    </button>
                 </div>
             </section>
         </div>
@@ -60,8 +132,9 @@
                 <i class="fas fa-utensils mr-3 text-blue-400"></i>Log Nutrition
             </h2>
             <div class="flex flex-col md:flex-row gap-4 mb-10">
-                <div class="flex-1 space-y-1">
-                    <input type="text" id="food-input" placeholder="Search (e.g. Apple, Chicken breast...)" class="w-full bg-white/10 border border-white/20 rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all">
+                <div class="flex-1 space-y-1 relative">
+                    <input type="text" id="food-input" oninput="showSuggestions()" onfocus="showSuggestions()" autocomplete="off" placeholder="Search (e.g. Apple, Chicken breast...)" class="w-full bg-white/10 border border-white/20 rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all">
+                    <div id="autocomplete-list" class="hidden absolute top-full left-0 right-0 bg-slate-900/95 border border-white/20 rounded-xl mt-2 overflow-hidden z-50 backdrop-blur-md shadow-2xl"></div>
                 </div>
                 <div class="md:w-32 space-y-1">
                     <input type="number" id="qty-input" placeholder="Grams" class="w-full bg-white/10 border border-white/20 rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all">
