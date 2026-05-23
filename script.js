@@ -87,7 +87,7 @@ function calculateMacros() {
     }
 }
 
-// Update Profile & Calorie Goals from inputs
+// Update Profile & Calorie Goals from inputs with validation limits
 function updatePlan() {
     const ageEl = document.getElementById('age');
     const weightEl = document.getElementById('weight');
@@ -101,7 +101,13 @@ function updatePlan() {
     const gender = genderEl.value;
     const activity = activityEl.value;
 
-    if (age && weight && height) {
+    if (height < 0 || height > 300) {
+        alert("Height should be between 0 to 300 cm");
+        return;
+    } else if (weight < 0 || weight > 250) {
+        alert("Weight should not exceed 250 kg and must be greater than 0 kg");
+        return;
+    } else if (age && weight && height) {
         appState.profile = { age, weight, height, gender, activity };
         calculateMacros();
         saveToLocalStorage();
@@ -165,6 +171,35 @@ function addEntry() {
     inputEl.value = '';
     qtyEl.value = '';
     hideSuggestions();
+}
+
+// Edit Log Entry
+function editEntry(id) {
+    const entry = appState.loggedEntries.find(e => e.id === id);
+    if (!entry) return;
+
+    const newQtyStr = prompt(`Enter new quantity in grams for ${entry.name}:`, entry.qty);
+    if (newQtyStr === null) return; // user cancelled
+
+    const newQty = parseFloat(newQtyStr);
+    if (isNaN(newQty) || newQty <= 0) {
+        alert("Please enter a valid positive weight in grams.");
+        return;
+    }
+
+    // Get food item base info
+    let baseInfo = foodDB[entry.name] || { cal: 150, carbs: 15, protein: 10, fat: 5 };
+
+    const factor = newQty / 100;
+    entry.qty = newQty;
+    entry.cal = Math.round(baseInfo.cal * factor);
+    entry.carbs = Math.round(baseInfo.carbs * factor * 10) / 10;
+    entry.protein = Math.round(baseInfo.protein * factor * 10) / 10;
+    entry.fat = Math.round(baseInfo.fat * factor * 10) / 10;
+
+    recalculateTotals();
+    saveToLocalStorage();
+    refreshUI();
 }
 
 // Delete Log Entry
@@ -257,6 +292,16 @@ function refreshUI() {
     const caloriePct = Math.min(100, (appState.currentConsumed / appState.currentTarget) * 100);
     document.getElementById('progress-bar').style.width = caloriePct + '%';
 
+    // Toggle target achieved congratulatory message
+    const msgEl = document.getElementById('target-message');
+    if (msgEl) {
+        if (appState.currentConsumed >= appState.currentTarget && appState.currentTarget > 0) {
+            msgEl.classList.remove('hidden');
+        } else {
+            msgEl.classList.add('hidden');
+        }
+    }
+
     // Macronutrients updates
     document.getElementById('protein-consumed').innerText = Math.round(appState.consumedMacros.protein);
     document.getElementById('protein-target').innerText = appState.targetMacros.protein;
@@ -303,13 +348,18 @@ function refreshUI() {
                     </div>
                 </div>
                 <div class="flex items-center">
-                    <div class="text-right">
+                    <div class="text-right mr-2">
                         <span class="text-green-400 font-black text-lg">+${entry.cal}</span>
                         <span class="text-[10px] text-green-400/50 uppercase font-black ml-1">kcal</span>
                     </div>
-                    <button onclick="deleteEntry('${entry.id}')" class="text-white/20 hover:text-rose-400 p-2 ml-4 rounded-xl hover:bg-white/5 transition-all" title="Delete entry">
-                        <i class="fas fa-trash-alt"></i>
-                    </button>
+                    <div class="flex gap-1">
+                        <button onclick="editEntry('${entry.id}')" class="text-white/20 hover:text-amber-400 p-2 rounded-xl hover:bg-white/5 transition-all" title="Edit entry">
+                            <i class="fas fa-pen text-sm"></i>
+                        </button>
+                        <button onclick="deleteEntry('${entry.id}')" class="text-white/20 hover:text-rose-400 p-2 rounded-xl hover:bg-white/5 transition-all" title="Delete entry">
+                            <i class="fas fa-trash-alt text-sm"></i>
+                        </button>
+                    </div>
                 </div>
             `;
             logList.appendChild(div);
