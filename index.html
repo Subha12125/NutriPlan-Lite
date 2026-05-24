@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>NutriPlan AI - Fitness &amp; Nutrition Tracker</title>
-  <meta name="description" content="AI-powered nutrition tracker for calories, macros, hydration, and wellness.">
+  <title>NutriPlan Lite - Fitness Nutrition Planner</title>
+  <meta name="description" content="A fitness nutrition planner for calories, macros, hydration, and personal goals.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
@@ -19,6 +19,7 @@
   <link rel="stylesheet" href="styles/components.css">
   <link rel="stylesheet" href="styles/landing.css">
   <link rel="stylesheet" href="styles/ai.css">
+  <link rel="stylesheet" href="styles/memact.css">
   
   <!-- GSAP & ScrollTrigger -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer></script>
@@ -31,6 +32,7 @@
   <script src="scripts/hydration.js" defer></script>
   <script src="scripts/dashboard.js" defer></script>
   <script src="scripts/ai.js" defer></script>
+  <script src="scripts/memact.js" defer></script>
   <script src="scripts/navigation.js" defer></script>
   <script src="scripts/app.js" defer></script>
   <script src="scripts/landing-animations.js" defer></script>
@@ -43,16 +45,16 @@
     <!-- ── Landing Header ──────────────────────────────────────── -->
     <header id="landing-header" class="landing-header">
       <div class="landing-header-container">
-        <a class="landing-brand" href="#landing" aria-label="NutriPlan AI Home">
+        <a class="landing-brand" href="#landing" aria-label="NutriPlan Lite Home">
           <span class="brand-mark small-mark">N</span>
-          <strong>NutriPlan AI</strong>
+          <strong>NutriPlan Lite</strong>
         </a>
 
         <nav class="landing-nav-center" aria-label="Landing Navigation">
           <a href="#landing" data-nav="landing">Home</a>
           <a href="#features">Features</a>
           <a href="#dashboard" data-nav="dashboard">Dashboard</a>
-          <a href="#ai-helper" data-nav="ai-helper">AI Coach</a>
+          <a href="#ai-helper" data-nav="ai-helper">Coach</a>
         </nav>
 
         <div class="landing-header-actions">
@@ -65,10 +67,10 @@
 
     <!-- ── Dashboard Header ──────────────────────────────────────── -->
     <header id="app-header" class="app-header">
-      <a class="brand" href="#" aria-label="NutriPlan AI dashboard">
+      <a class="brand" href="#" aria-label="NutriPlan Lite dashboard">
         <span class="brand-mark">N</span>
         <span>
-          <strong>NutriPlan AI</strong>
+          <strong>NutriPlan Lite</strong>
           <small>Fitness &amp; nutrition companion</small>
         </span>
       </a>
@@ -85,7 +87,7 @@
       <nav class="desktop-nav" aria-label="Primary">
         <a href="#landing" data-nav="landing">Home</a>
         <a href="#dashboard" data-nav="dashboard">Dashboard</a>
-        <a href="#ai-helper" data-nav="ai-helper">AI Coach</a>
+        <a href="#ai-helper" data-nav="ai-helper">Coach</a>
       </nav>
 
       <div class="header-actions">
@@ -103,7 +105,7 @@
       <a href="#landing" data-nav="landing">🏠<span>Home</span></a>
       <a href="#dashboard" data-nav="dashboard">📊<span>Dashboard</span></a>
       <button type="button" data-open-food-drawer class="bottom-nav-add">＋</button>
-      <a href="#ai-helper" data-nav="ai-helper">🤖<span>AI</span></a>
+      <a href="#ai-helper" data-nav="ai-helper">💬<span>Coach</span></a>
     </nav>
   </div>
 
@@ -180,7 +182,7 @@
     <aside class="drawer-card">
       <div class="drawer-header">
         <div>
-          <p class="eyebrow">Welcome to NutriPlan AI</p>
+          <p class="eyebrow">Welcome to NutriPlan Lite</p>
           <h2 id="onboarding-title">Set up your profile</h2>
         </div>
       </div>
@@ -209,16 +211,30 @@
             </select>
           </label>
         </div>
-        <label>
-          <span>Activity level</span>
-          <select id="activity">
+          <label>
+            <span>Activity level</span>
+            <select id="activity">
             <option value="1.2">Sedentary (desk job)</option>
             <option value="1.375">Light (1-3 days/week)</option>
             <option value="1.55" selected>Moderate (3-5 days)</option>
             <option value="1.725">Active (6-7 days)</option>
             <option value="1.9">Very active (athlete)</option>
-          </select>
-        </label>
+            </select>
+          </label>
+          <label data-context-key="dietaryPreference">
+            <span>Diet preference</span>
+            <select id="dietaryPreference">
+              <option value="balanced" selected>Balanced</option>
+              <option value="vegetarian">Vegetarian</option>
+              <option value="vegan">Vegan</option>
+              <option value="high-protein">High protein</option>
+              <option value="low-carb">Low carb</option>
+            </select>
+          </label>
+          <label data-context-key="allergies">
+            <span>Allergies or restrictions</span>
+            <input id="allergies" type="text" placeholder="e.g. lactose, peanuts, none">
+          </label>
         <div class="form-row-2">
           <label>
             <span>Goal</span>
@@ -249,6 +265,18 @@
           <span>Water target (ml)</span>
           <input id="waterTarget" type="number" min="500" max="10000" step="100" value="2500">
         </label>
+        <section class="memact-onboarding-panel">
+          <div>
+            <p class="eyebrow">Optional Memact</p>
+            <h3>Use your fitness context</h3>
+            <p>Connect Memact to reuse approved fitness preferences. If there is enough context, NutriPlan skips setup questions it already knows.</p>
+          </div>
+          <div class="memact-actions">
+            <button id="memact-connect-btn" class="secondary-button full-width" type="button">Connect Memact</button>
+            <button id="memact-skip-btn" class="text-button" type="button">Set up manually</button>
+          </div>
+          <p id="memact-status" class="memact-status" role="status" aria-live="polite" aria-atomic="true">Private by default. API keys stay on the server.</p>
+        </section>
         <button id="save-profile-btn" class="primary-button full-width" type="button">Complete Setup</button>
       </div>
     </aside>
@@ -261,11 +289,11 @@
       <section class="landing-hero">
         <div class="container hero-content">
           <div class="hero-text-block">
-            <h1 class="landing-title">NutriPlan AI.<br><span class="text-gradient">Track smarter, eat better.</span></h1>
-            <p class="landing-subtitle">The ultimate AI-powered dashboard for calories, macros, hydration, and intelligent meal recommendations.</p>
+            <h1 class="landing-title">NutriPlan Lite.<br><span class="text-gradient">Plan meals around your goal.</span></h1>
+            <p class="landing-subtitle">A cleaner fitness dashboard for calories, macros, hydration, and personal nutrition routines.</p>
             <div class="hero-cta">
               <a href="#dashboard" class="primary-button cta-button">Go to Dashboard</a>
-              <a href="#ai-helper" class="secondary-button cta-button">Chat with AI</a>
+              <a href="#ai-helper" class="secondary-button cta-button">Open Coach</a>
             </div>
           </div>
           <div class="hero-visual">
@@ -277,8 +305,8 @@
               <div class="mock-progress progress-fill fill-green" style="width: 92%"></div>
             </div>
             <div class="glass-panel mock-card ai-mock">
-              <strong>AI Coach</strong>
-              <p>You hit your protein goal! Remember to drink 500ml of water before bed.</p>
+              <strong>Daily coach</strong>
+              <p>You hit your protein goal. Add one glass of water before bed.</p>
             </div>
           </div>
         </div>
@@ -322,7 +350,7 @@
       <footer class="landing-footer container">
         <div class="footer-content text-center">
           <span class="brand-mark">N</span>
-          <strong>NutriPlan AI</strong>
+          <strong>NutriPlan Lite</strong>
           <p class="muted">© 2026 NutriPlan. All rights reserved.</p>
         </div>
       </footer>
@@ -336,7 +364,7 @@
         <div class="hero-text">
           <p class="eyebrow">Daily Readiness</p>
           <h1>Track smarter.<br>Eat with intent.</h1>
-          <p class="hero-copy">A unified dashboard for calories, macros, hydration, and AI-powered meal recommendations.</p>
+          <p class="hero-copy">A unified dashboard for calories, macros, hydration, and goal-aware meal guidance.</p>
           <div class="hero-badges">
             <span class="streak-badge">🔥 <span id="streak-count">0</span>-day streak</span>
           </div>
@@ -433,6 +461,56 @@
             <span>Water target</span>
             <strong id="water-target-display">—</strong>
           </div>
+          <div class="goal-actions">
+            <button id="update-goal-button" class="secondary-button full-width green-button" type="button">Update My Goal</button>
+          </div>
+          <div id="target-goal-panel" class="goal-form-panel hidden">
+            <div class="section-heading compact">
+              <div>
+                <p class="eyebrow">Goal Builder</p>
+                <h3>Set your daily targets</h3>
+              </div>
+            </div>
+            <div class="form-row-2">
+              <label>
+                <span>Goal type</span>
+                <select id="target-goal-type">
+                  <option value="lose">Lose weight</option>
+                  <option value="maintain">Maintain</option>
+                  <option value="gain">Gain muscle</option>
+                </select>
+              </label>
+              <label>
+                <span>Daily calories</span>
+                <input id="target-calories" type="number" min="800" max="6000" step="50" placeholder="e.g. 2000">
+              </label>
+            </div>
+            <div class="form-row-2">
+              <label>
+                <span>Protein target (g)</span>
+                <input id="target-protein" type="number" min="0" max="500" step="1" placeholder="e.g. 120">
+              </label>
+              <label>
+                <span>Carbs target (g)</span>
+                <input id="target-carbs" type="number" min="0" max="500" step="1" placeholder="e.g. 180">
+              </label>
+            </div>
+            <div class="form-row-2">
+              <label>
+                <span>Fats target (g)</span>
+                <input id="target-fats" type="number" min="0" max="300" step="1" placeholder="e.g. 60">
+              </label>
+              <label>
+                <span>Water target (ml)</span>
+                <input id="target-water" type="number" min="500" max="10000" step="100" placeholder="e.g. 2500">
+              </label>
+            </div>
+            <div class="form-row-2" style="gap:0.75rem; margin-top:1rem;">
+              <button id="analyze-targets-btn" class="secondary-button full-width" type="button">Analyze Targets</button>
+              <button id="save-targets-btn" class="primary-button full-width" type="button">Save Targets</button>
+            </div>
+            <div id="goal-suggestion-list" class="recommendation-list" style="margin-top:1rem"></div>
+          </div>
         </article>
       </section>
     
@@ -488,6 +566,22 @@
       <!-- ── Sidebar ─────────────────────────────────────────── -->
       <aside class="side-column">
     
+        <section class="memact-context-card glass-panel">
+          <div class="section-heading compact">
+            <div>
+              <p class="eyebrow">Memact</p>
+              <h2>Fitness context</h2>
+            </div>
+            <span id="memact-connection-pill" class="memact-pill">Manual</span>
+          </div>
+          <p id="memact-context-copy">NutriPlan can use approved Memact fitness context, or continue with manual preferences if consent is denied.</p>
+          <div class="memact-context-list" id="memact-context-list"></div>
+          <div class="memact-actions">
+            <button id="dashboard-memact-connect" class="secondary-button" type="button">Connect Memact</button>
+            <button id="dashboard-memact-disconnect" class="secondary-button hidden" type="button">Disconnect</button>
+          </div>
+        </section>
+
         <!-- Recommendations -->
         <section class="recommendations glass-panel">
           <div class="section-heading compact">
@@ -536,7 +630,7 @@
           <div class="ai-bot-info">
             <span class="bot-avatar">🤖</span>
             <div>
-              <h2>NutriPlan AI Coach</h2>
+              <h2>NutriPlan Coach</h2>
               <small class="status-online">● Online and ready to help</small>
             </div>
           </div>
@@ -559,7 +653,7 @@
         </div>
     
         <form class="ai-chat-input-area" id="main-ai-form">
-          <input type="text" id="main-ai-input" placeholder="Message NutriPlan AI..." autocomplete="off">
+          <input type="text" id="main-ai-input" placeholder="Ask about meals, macros, or hydration..." autocomplete="off">
           <button type="submit" class="primary-button send-btn" aria-label="Send message">↑</button>
         </form>
       </div>

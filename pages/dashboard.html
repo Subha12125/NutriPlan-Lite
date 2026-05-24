@@ -4,7 +4,7 @@
     <div class="hero-text">
       <p class="eyebrow">Daily Readiness</p>
       <h1>Track smarter.<br>Eat with intent.</h1>
-      <p class="hero-copy">A unified dashboard for calories, macros, hydration, and AI-powered meal recommendations.</p>
+      <p class="hero-copy">A unified dashboard for calories, macros, hydration, and goal-aware meal guidance.</p>
       <div class="hero-badges">
         <span class="streak-badge">🔥 <span id="streak-count">0</span>-day streak</span>
       </div>
@@ -155,6 +155,22 @@
 
   <!-- ── Sidebar ─────────────────────────────────────────── -->
   <aside class="side-column">
+
+    <section class="memact-context-card glass-panel">
+      <div class="section-heading compact">
+        <div>
+          <p class="eyebrow">Memact</p>
+          <h2>Fitness context</h2>
+        </div>
+        <span id="memact-connection-pill" class="memact-pill">Manual</span>
+      </div>
+      <p id="memact-context-copy">NutriPlan can use approved Memact fitness context, or continue with manual preferences if consent is denied.</p>
+      <div class="memact-context-list" id="memact-context-list"></div>
+      <div class="memact-actions">
+        <button id="dashboard-memact-connect" class="secondary-button" type="button">Connect Memact</button>
+        <button id="dashboard-memact-disconnect" class="secondary-button hidden" type="button">Disconnect</button>
+      </div>
+    </section>
 
     <!-- Recommendations -->
     <section class="recommendations glass-panel">
