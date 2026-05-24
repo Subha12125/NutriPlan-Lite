@@ -6,7 +6,7 @@
 [![AI-Coach: Gemini](https://img.shields.io/badge/AI--Coach-Gemini-blue)](https://deepmind.google/technologies/gemini/)
 [![Vanilla JS](https://img.shields.io/badge/Vanilla-JS-yellow)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 
-NutriplanLite is a modern, lightweight, and privacy-first single-page web application (SPA) designed to help users log food, track daily macronutrients, monitor hydration, and receive intelligent advice from an AI nutrition coach. 
+NutriplanLite is a modern, lightweight, and privacy-first single-page web application (SPA) designed to help users log food, track daily macronutrients, monitor hydration, and receive intelligent advice from an AI nutrition coach.
 
 The application operates in a dual-mode model: by default, it functions as a local-first application using browser `localStorage` ("Local Demo Mode"), enabling instant offline use with zero setup. When configured with a **Supabase** backend, it seamlessly upgrades to "Online Sync Mode", providing secure multi-user authentication and real-time cloud data synchronization.
 
@@ -45,7 +45,7 @@ The application operates in a dual-mode model: by default, it functions as a loc
 
 **Other Tools**:
 - **GSAP (GreenSock Animation Platform)**: Handles premium landing page page-load and scroll-triggered animations.
-- **Google Gemini API** (`gemini-1.5-flash`): Powers natural language instruction parsing and conversational chat coach feedback.
+- **Google Gemini API** (`gemini-2.5-flash`): Powers natural language instruction parsing and conversational chat coach feedback.
 - **Google Fonts (Inter)**: Delivers clean typography.
 - **FontAwesome / Emojis**: Integrated for semantic micro-iconography.
 
@@ -100,13 +100,13 @@ NutriplanLite is organized as a lightweight Single Page Application (SPA) that s
 ### Installation
 1. Clone the repository from GitHub:
    ```bash
-   git clone https://github.com/Jayavel2005/NutriPlan-Lite.git
+   git clone https://github.com/Subha12125/NutriPlan-Lite.git
    ```
 2. Navigate to the project directory:
    ```bash
    cd NutriPlan-Lite
    ```
-   
+
 > [!NOTE]
    > No dependencies are required out of the box. NutriplanLite is structured as a static, zero-compilation project. It can be opened directly without `npm install`.
 
@@ -133,8 +133,8 @@ npx serve .
 Open your browser and visit `http://localhost:3000`.
 
 ### Build for Production
-No build command is necessary since the source HTML, CSS, and JS files can be run natively by web servers. 
-For production performance improvements (minification, file bundling, and environment variable configuration), please refer to the integration details inside [production-improvements.md](file:///c:/Users/jayav/Desktop/nutriapp/NutriPlan-Lite/production-improvements.md).
+No build command is necessary since the source HTML, CSS, and JS files can be run natively by web servers.
+For production performance improvements (minification, file bundling, and environment variable configuration), please refer to the integration details inside [production-improvements.md].
 
 ---
 
@@ -256,7 +256,7 @@ We welcome contributions from the open-source community! To contribute to Nutrip
 > [!TIP]
 > **First-Time Contributors Guide:**
 > - You don't need a Supabase configuration to work on frontend aesthetics or local modules! Simply launch the app in **Local Demo Mode** (default state when settings are blank) to modify trackers, styles, and dashboard modules.
-> - Review [pr_instructions_for_maintainers.md](file:///c:/Users/jayav/Desktop/nutriapp/NutriPlan-Lite/pr_instructions_for_maintainers.md) to inspect testing expectations before opening a PR.
+> - Review [pr_instructions_for_maintainers.md] to inspect testing expectations before opening a PR.
 
 ---
 
@@ -291,7 +291,7 @@ NutriplanLite is validated using a manual regression testing plan:
 - **Log Aggregations**: Asserting food quantities compile totals, timelines update UI lists, and water reset commands purge logs correctly.
 - **Gemini NLP**: Verification that natural language inputs reliably populate food entries with estimated calorie/macro parameters.
 
-*Note: Plans to introduce Jest unit tests and Cypress E2E scripts are detail-mapped inside [production-improvements.md](file:///c:/Users/jayav/Desktop/nutriapp/NutriPlan-Lite/production-improvements.md).*
+*Note: Plans to introduce Jest unit tests and Cypress E2E scripts are detail-mapped inside [production-improvements.md].*
 
 ---
 
@@ -323,11 +323,6 @@ Once live, visit the deployed site, open the top-right Settings Cog, and write y
 This project is licensed under the MIT License. See the [LICENSE](TODO: Add LICENSE file link) file for details.
 
 ---
-
-## Maintainers
-
-- **Jayavel2005** — Project Creator & Lead Developer - [GitHub](https://github.com/Jayavel2005)
-- [TODO: Add core team members here]
 
 ---
 
