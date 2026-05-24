@@ -1,3 +1,5 @@
+import { fetchWithTimeout, isAbortError, verifyConnectionRequest } from "./_auth.js";
+
 const MEMACT_BASE_URL = process.env.MEMACT_BASE_URL || "https://api.memact.com";
 const MEMACT_API_KEY = process.env.MEMACT_API_KEY || "";
 const MEMACT_APP_ID = process.env.MEMACT_APP_ID || "nutriplan-lite";
@@ -11,6 +13,11 @@ export default async function handler(request, response) {
   const body = request.body || {};
   const connectionId = body.connection_id || "";
   if (!connectionId) return response.status(400).json({ error: "missing_connection_id" });
+
+  const auth = verifyConnectionRequest(request, connectionId);
+  if (!auth.ok) {
+    return response.status(auth.status).json({ error: auth.error });
+  }
 
   const proposal = {
     schema_version: "memact.app_context_proposal.v0",
@@ -33,7 +40,7 @@ export default async function handler(request, response) {
   }
 
   try {
-    const memactResponse = await fetch(new URL("/v1/wiki/proposals", MEMACT_BASE_URL), {
+    const memactResponse = await fetchWithTimeout(new URL("/v1/wiki/proposals", MEMACT_BASE_URL), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -44,8 +51,15 @@ export default async function handler(request, response) {
     });
 
     const payload = await memactResponse.json().catch(() => ({}));
-    return response.status(memactResponse.ok ? 200 : memactResponse.status).json(payload);
+    return response.status(memactResponse.ok ? 200 : memactResponse.status).json({
+      accepted: memactResponse.ok,
+      ...payload
+    });
   } catch (error) {
+    if (isAbortError(error)) {
+      return response.status(504).json({ error: "memact_timeout" });
+    }
+
     return response.status(502).json({
       error: "memact_proposal_failed",
       message: error instanceof Error ? error.message : String(error)

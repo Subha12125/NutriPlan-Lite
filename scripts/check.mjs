@@ -7,8 +7,10 @@ const required = [
   "scripts/dashboard.js",
   "scripts/memact.js",
   "styles/memact.css",
+  "api/memact/_auth.js",
   "api/memact/fitness-context.js",
-  "api/memact/propose-context.js"
+  "api/memact/propose-context.js",
+  "api/memact/session.js"
 ];
 
 for (const file of required) {
@@ -23,7 +25,7 @@ for (const needle of ["scripts/memact.js", "styles/memact.css", "memact-connect-
 }
 
 const memactScript = await readFile("scripts/memact.js", "utf8");
-for (const needle of ["buildConnectUrl", "proposeMissingContextToMemact", "fitness"]) {
+for (const needle of ["async function buildConnectUrl", "async function proposeMissingContextToMemact", "/api/memact/fitness-context"]) {
   if (!memactScript.includes(needle)) {
     throw new Error(`memact.js is missing ${needle}`);
   }

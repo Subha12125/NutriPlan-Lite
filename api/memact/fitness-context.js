@@ -1,3 +1,5 @@
+import { fetchWithTimeout, isAbortError, verifyConnectionRequest } from "./_auth.js";
+
 const MEMACT_BASE_URL = process.env.MEMACT_BASE_URL || "https://api.memact.com";
 const MEMACT_API_KEY = process.env.MEMACT_API_KEY || "";
 
@@ -10,6 +12,11 @@ export default async function handler(request, response) {
   const connectionId = request.query?.connection_id || "";
   if (!connectionId) {
     return response.status(400).json({ error: "missing_connection_id" });
+  }
+
+  const auth = verifyConnectionRequest(request, connectionId);
+  if (!auth.ok) {
+    return response.status(auth.status).json({ error: auth.error });
   }
 
   if (!MEMACT_API_KEY) {
@@ -25,7 +32,7 @@ export default async function handler(request, response) {
     const url = new URL("/v1/memory", MEMACT_BASE_URL);
     url.searchParams.set("connection_id", connectionId);
     url.searchParams.set("category", "fitness");
-    const memactResponse = await fetch(url, {
+    const memactResponse = await fetchWithTimeout(url, {
       headers: {
         Authorization: `Bearer ${MEMACT_API_KEY}`,
         "X-Memact-Connection-Id": connectionId
@@ -43,6 +50,10 @@ export default async function handler(request, response) {
       source: "memact"
     });
   } catch (error) {
+    if (isAbortError(error)) {
+      return response.status(504).json({ error: "memact_timeout" });
+    }
+
     return response.status(502).json({
       error: "memact_unavailable",
       message: error instanceof Error ? error.message : String(error)

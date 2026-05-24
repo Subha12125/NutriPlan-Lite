@@ -22,6 +22,7 @@ const DEFAULT_PROFILE = {
   dietaryPreference: 'balanced',
   allergies: '',
   memactConnectionId: '',
+  memactConnectionState: '',
   memactContextSource: 'manual',
   memactContextUpdatedAt: ''
 };
@@ -197,6 +198,7 @@ function clearMemactConnection() {
   db.profile = {
     ...db.profile,
     memactConnectionId: '',
+    memactConnectionState: '',
     memactContextSource: 'manual',
     memactContextUpdatedAt: ''
   };
