@@ -1,0 +1,11 @@
+{
+  "name": "nutriplan-lite",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "node scripts/check.mjs",
+    "start": "npx serve ."
+  },
+  "description": "Local-first fitness nutrition planner with optional Memact fitness context integration."
+}

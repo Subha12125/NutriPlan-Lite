@@ -1,0 +1,122 @@
+/* Memact fitness context integration */
+
+.memact-onboarding-panel,
+.memact-context-card {
+  display: grid;
+  gap: 1rem;
+  border: 1px solid rgba(56, 242, 166, 0.18);
+  background:
+    linear-gradient(135deg, rgba(56, 242, 166, 0.08), rgba(34, 211, 238, 0.04)),
+    rgba(13, 22, 37, 0.82);
+}
+
+.memact-onboarding-panel {
+  padding: 1rem;
+  border-radius: 18px;
+}
+
+.memact-onboarding-panel h3,
+.memact-onboarding-panel p {
+  margin: 0;
+}
+
+.memact-onboarding-panel p,
+.memact-context-card p {
+  color: var(--soft);
+}
+
+.memact-context-card {
+  padding: 1.25rem;
+}
+
+.memact-actions {
+  display: flex;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.memact-actions > * {
+  flex: 1 1 150px;
+}
+
+.text-button {
+  color: var(--soft);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  min-height: 42px;
+  font-weight: 850;
+}
+
+.text-button:hover {
+  color: var(--text);
+  border-color: var(--line-strong);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.memact-status {
+  margin: 0;
+  font-size: 0.84rem;
+  color: var(--muted);
+}
+
+.memact-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  padding: 0 0.75rem;
+  border-radius: 999px;
+  color: var(--green);
+  background: rgba(56, 242, 166, 0.09);
+  border: 1px solid rgba(56, 242, 166, 0.22);
+  font-size: 0.78rem;
+  font-weight: 850;
+}
+
+.memact-context-list {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.memact-context-list div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.memact-context-list span {
+  color: var(--muted);
+}
+
+.memact-context-list strong {
+  text-align: right;
+}
+
+[data-context-key].context-filled {
+  opacity: 0.72;
+}
+
+[data-context-key].context-filled::after {
+  content: "Filled from Memact";
+  display: inline-flex;
+  margin-top: 0.4rem;
+  color: var(--green);
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+@media (max-width: 640px) {
+  .memact-context-list div {
+    display: grid;
+    gap: 0.25rem;
+  }
+
+  .memact-context-list strong {
+    text-align: left;
+  }
+}

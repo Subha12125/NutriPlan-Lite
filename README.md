@@ -1,72 +1,67 @@
-# 🌿 NutriPlan Lite
+# NutriPlan Lite
 
-A streamlined, high-performance nutrition planning and tracking application built with a focus on clean UI and glassmorphism design. This project is a "Lite" version of the original NutriPlan, designed for fast calorie calculation and daily food logging.
+NutriPlan Lite is a local-first fitness nutrition planner for calories, macros, hydration, and personal goals.
 
----
+The app keeps the original lightweight project kernel: static HTML, CSS, and vanilla JavaScript. It works without an account through `localStorage`, and it can be connected to Supabase or Memact later.
 
-## 🚀 Features
+## What It Does
 
-- **Personalized Goal Setting**: Uses the Mifflin-St Jeor Equation to calculate daily calorie targets based on user vitals.
-- **Glassmorphism UI**: A modern, aesthetic interface matching the original NutriPlan theme.
-- **Real-time Nutrition Tracking**: Log food items and see your progress bar update instantly.
-- **Responsive Design**: Built with Tailwind CSS to work seamlessly on mobile and desktop.
----
+- Calculates nutrition targets from age, height, weight, activity level, and goal.
+- Tracks meals, calories, protein, carbs, fat, and water.
+- Shows daily progress, weekly charts, and simple coach-style recommendations.
+- Runs locally by default with no required signup.
+- Can optionally use Memact fitness context after user consent.
 
-## 🛠️ Tech Stack
+## Memact Integration
 
-- **HTML5** & **Modern JavaScript (ES6+)**
-- **Tailwind CSS**: For rapid, responsive styling.
-- **Google Fonts (Inter)**: For professional typography.
-- **FontAwesome**: For intuitive iconography.
+Memact is optional. NutriPlan still works if the user denies consent.
 
----
+Flow:
 
-## 📂 Project Structure
+1. User opens NutriPlan setup.
+2. User may connect Memact.
+3. If Memact has enough approved fitness context, NutriPlan fills setup fields and skips repeated questions.
+4. If context is missing, NutriPlan asks only the missing fitness questions.
+5. When the user saves those answers, NutriPlan proposes the new fitness context back to Memact Wiki for user control.
 
-```text
-nutriplan-lite/
-│── index.html    
-│── style.css    
-│── script.js    
-│── README.md     # Project documentation
----
+Server environment variables:
+
+```env
+MEMACT_BASE_URL=https://api.memact.com
+MEMACT_API_KEY=mka_your_server_side_key
+MEMACT_APP_ID=nutriplan-lite
 ```
 
-## 🛠️ Contribution Guide
+Frontend configuration can be set before `scripts/memact.js` loads:
 
-We welcome all developers! If you are not familiar with Tailwind CSS, you can still contribute easily:
-1. Assign a unique `id` or `class` to the HTML components you want to style.
-2. Write your custom styles within the `<style>` block in `index.html`.
-3. Ensure your CSS follows the existing glassmorphism aesthetic.
-
-### 1. Report Bugs
-
-If you find a bug, please open an issue describing the problem and steps to reproduce it.
-
-### 2. Suggest Features
-
-Have an idea to make NutriPlan Lite better? Open an issue with the "feature request" tag.
-
-### 3. Submit Pull Requests
-
-1. **Fork** the repository.
-2. **Clone** your fork: `git clone https://github.com/your-username/nutriplan-lite.git`
-3. **Create a Branch**: `git checkout -b feature/YourFeatureName`
-4. **Commit Changes**: `git commit -m 'Add some feature'`
-5. **Push to Branch**: `git push origin feature/YourFeatureName`
-6. **Open a Pull Request** against the main branch.
-
----
-
-## 📜 License
-
-This project is open-source and available for learning and development purposes.
-
----
-
-## 👨‍💻 Author
-
-**Subhabrata Paul**
-**Engineering Student**
-
+```html
+<script>
+  window.NUTRIPLAN_MEMACT_CONNECT_URL = "https://www.memact.com/connect";
+  window.NUTRIPLAN_MEMACT_APP_ID = "nutriplan-lite";
+  window.NUTRIPLAN_MEMACT_REDIRECT_URI = "https://your-domain.com/";
+</script>
 ```
+
+Never put a private Memact API key in browser code.
+
+## Tech Stack
+
+- HTML5
+- CSS custom properties and responsive layouts
+- Vanilla JavaScript
+- LocalStorage fallback
+- Optional Supabase tables in `supabase_setup.sql`
+- Optional Vercel-style API routes in `api/memact/`
+
+## Local Development
+
+```bash
+npm install
+npm run check
+```
+
+Then open `index.html` or serve the folder with any static server.
+
+## Notes
+
+The coach is rule-based in this version. It does not require an AI API. Future API integrations can be added behind server-side routes without breaking the local-first app.

@@ -18,7 +18,12 @@ const DEFAULT_PROFILE = {
   customProtein: 25,
   customCarbs: 45,
   customFat: 30,
-  waterTarget: 2500
+  waterTarget: 2500,
+  dietaryPreference: 'balanced',
+  allergies: '',
+  memactConnectionId: '',
+  memactContextSource: 'manual',
+  memactContextUpdatedAt: ''
 };
 
 function loadDB() {
@@ -29,6 +34,7 @@ function loadDB() {
     if (!db.profile) db.profile = { ...DEFAULT_PROFILE };
     if (!db.logs) db.logs = {};
     if (!db.settings) db.settings = { theme: 'dark', notifications: true };
+    db.profile = { ...DEFAULT_PROFILE, ...db.profile };
     return db;
   } catch {
     return createEmptyDB();
@@ -186,6 +192,18 @@ function saveSettings(updates) {
   saveDB(db);
 }
 
+function clearMemactConnection() {
+  const db = loadDB();
+  db.profile = {
+    ...db.profile,
+    memactConnectionId: '',
+    memactContextSource: 'manual',
+    memactContextUpdatedAt: ''
+  };
+  saveDB(db);
+  return db.profile;
+}
+
 // ── Streak calculation ────────────────────────────────────────────
 
 function getStreak() {
@@ -214,6 +232,7 @@ window.Storage = {
   getDayLog, saveDayLog,
   getWeeklyData,
   getSettings, saveSettings,
+  clearMemactConnection,
   getStreak,
   todayKey, getLocalDateString
 };

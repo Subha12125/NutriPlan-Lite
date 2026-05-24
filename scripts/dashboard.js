@@ -123,7 +123,8 @@ window.Dashboard = (() => {
       gender: 'gender', activity: 'activity', goal: 'goal',
       macroSplit: 'macroSplit', customProtein: 'customProtein',
       customCarbs: 'customCarbs', customFat: 'customFat',
-      waterTarget: 'waterTarget'
+      waterTarget: 'waterTarget', dietaryPreference: 'dietaryPreference',
+      allergies: 'allergies'
     };
     Object.entries(fieldMap).forEach(([key, id]) => {
       const el = document.getElementById(id);
@@ -144,12 +145,14 @@ window.Dashboard = (() => {
         newProfile.isSetup = true;
         Storage.saveProfile(newProfile);
         Toast.show('Profile saved! Targets updated.', 'success');
+        if (window.MemactIntegration) window.MemactIntegration.proposeMissingContextToMemact(Storage.getProfile());
         
         // Hide onboarding modal if it was open
         const modal = document.getElementById('onboarding-modal');
         if (modal) modal.classList.add('hidden');
         
         refresh();
+        if (window.MemactIntegration) window.MemactIntegration.render();
       });
     }
 
@@ -160,6 +163,7 @@ window.Dashboard = (() => {
     }
 
     initTargetPanel();
+    if (window.MemactIntegration) window.MemactIntegration.init();
   }
 
   function initTargetPanel() {
