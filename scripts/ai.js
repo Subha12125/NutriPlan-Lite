@@ -1,5 +1,5 @@
 // ================================================================
-// ai.js — Rule-based AI Coach with context-aware nutrition insights
+// ai.js — Rule-based coach with context-aware nutrition insights
 // NutriPlan-Lite
 // ================================================================
 
@@ -9,7 +9,7 @@ window.AI = (() => {
   const rules = [
     {
       test: /^(hi|hello|hey|good morning|good evening|good afternoon)/i,
-      reply: (ctx) => `Hey there! 👋 I'm your AI Nutrition Coach. You've logged **${ctx.calories} kcal** today with **${Math.round(ctx.calPct)}%** of your goal hit. How can I help you today?`
+      reply: (ctx) => `Hey there. I'm your nutrition coach. You've logged **${ctx.calories} kcal** today with **${Math.round(ctx.calPct)}%** of your goal hit. How can I help you today?`
     },
     {
       test: /how.*doing|progress|status|summary/i,
@@ -134,10 +134,10 @@ window.AI = (() => {
     const matched = rules.find(r => r.test.test(prompt));
     if (matched) return matched.reply(ctx);
     // Default fallback
-    return `I'm here to help with your nutrition! You've logged **${ctx.calories} kcal** today (${Math.round(ctx.calPct * 100)}% of goal). Ask me about meals, macros, hydration, recipes, or your progress! 🥗`;
+    return `I'm here to help with your nutrition. You've logged **${ctx.calories} kcal** today (${Math.round(ctx.calPct * 100)}% of goal). Ask me about meals, macros, hydration, recipes, or your progress.`;
   }
 
-  // ── Mini AI chat panel ─────────────────────────────────────────
+  // Mini coach chat panel
   function initMainChat() {
     const feed = document.getElementById('main-ai-feed');
     const form = document.getElementById('main-ai-form');
@@ -212,7 +212,7 @@ window.AI = (() => {
       .replace(/\n/g, '<br>');
   }
 
-  // ── Dashboard AI Insights panel ─────────────────────────────────
+  // Dashboard coach insights panel
   function generateInsights() {
     const container = document.getElementById('ai-insights');
     if (!container) return;
