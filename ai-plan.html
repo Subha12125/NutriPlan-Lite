@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart AI Routine Diet Plan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            background: radial-gradient(circle at center, #0c1a13 0%, #030504 100%) !important;
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+        .neon-glow {
+            box-shadow: 0 0 25px rgba(0, 255, 102, 0.2);
+        }
+        .neon-glow-btn:hover {
+            box-shadow: 0 0 35px rgba(0, 255, 102, 0.6);
+        }
+        /* Custom slide-up animation */
+        .slide-up {
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 flex flex-col justify-center items-center min-h-screen">
+
+    <div class="w-full flex flex-col justify-center items-center py-8">
+        <!-- Onboarding Summary Card -->
+        <div id="onboard-card" class="w-full max-w-md bg-[#0a0f0c] rounded-2xl overflow-hidden border border-[#00ff66]/20 shadow-[0_0_40px_rgba(0,255,102,0.15)] slide-up">
+            
+            <!-- Header (Green Bar with White Text) -->
+            <div class="bg-[#00ff66] px-6 py-5">
+                <h2 class="text-black font-black text-base uppercase tracking-wider">YOUR PLAN</h2>
+            </div>
+
+            <!-- List Items -->
+            <div class="divide-y divide-white/5">
+                
+                <!-- Goals & Focus -->
+                <div class="flex items-center gap-4 px-6 py-4 hover:bg-white/[0.02] transition-colors group">
+                    <div class="w-10 h-10 rounded-full border border-[#00ff66]/30 flex items-center justify-center group-hover:border-[#00ff66] group-hover:bg-[#00ff66]/10 transition-all shrink-0">
+                        <i class="fas fa-bullseye text-[#00ff66] text-sm drop-shadow-[0_0_6px_rgba(0,255,102,0.4)]"></i>
+                    </div>
+                    <span class="text-white/80 font-bold text-sm group-hover:text-white transition-colors">Goals & Focus</span>
+                    <div class="ml-auto w-5 h-5 rounded-full border border-white/10 flex items-center justify-center shrink-0 step-check opacity-0 transition-all duration-300">
+                        <i class="fas fa-check text-[#00ff66] text-[10px]"></i>
+                    </div>
+                </div>
+
+                <!-- Metabolic Analysis -->
+                <div class="flex items-center gap-4 px-6 py-4 hover:bg-white/[0.02] transition-colors group">
+                    <div class="w-10 h-10 rounded-full border border-[#00ff66]/30 flex items-center justify-center group-hover:border-[#00ff66] group-hover:bg-[#00ff66]/10 transition-all shrink-0">
+                        <i class="fas fa-child text-[#00ff66] text-sm drop-shadow-[0_0_6px_rgba(0,255,102,0.4)]"></i>
+                    </div>
+                    <span class="text-white/80 font-bold text-sm group-hover:text-white transition-colors">Metabolic Analysis</span>
+                    <div class="ml-auto w-5 h-5 rounded-full border border-white/10 flex items-center justify-center shrink-0 step-check opacity-0 transition-all duration-300">
+                        <i class="fas fa-check text-[#00ff66] text-[10px]"></i>
+                    </div>
+                </div>
+
+                <!-- Macronutrient Targets -->
+                <div class="flex items-center gap-4 px-6 py-4 hover:bg-white/[0.02] transition-colors group">
+                    <div class="w-10 h-10 rounded-full border border-[#00ff66]/30 flex items-center justify-center group-hover:border-[#00ff66] group-hover:bg-[#00ff66]/10 transition-all shrink-0">
+                        <i class="fas fa-chart-pie text-[#00ff66] text-sm drop-shadow-[0_0_6px_rgba(0,255,102,0.4)]"></i>
+                    </div>
+                    <span class="text-white/80 font-bold text-sm group-hover:text-white transition-colors">Macronutrient Targets</span>
+                    <div class="ml-auto w-5 h-5 rounded-full border border-white/10 flex items-center justify-center shrink-0 step-check opacity-0 transition-all duration-300">
+                        <i class="fas fa-check text-[#00ff66] text-[10px]"></i>
+                    </div>
+                </div>
+
+                <!-- Meal Plan Personalization -->
+                <div class="flex items-center gap-4 px-6 py-4 hover:bg-white/[0.02] transition-colors group">
+                    <div class="w-10 h-10 rounded-full border border-[#00ff66]/30 flex items-center justify-center group-hover:border-[#00ff66] group-hover:bg-[#00ff66]/10 transition-all shrink-0">
+                        <i class="fas fa-utensils text-[#00ff66] text-sm drop-shadow-[0_0_6px_rgba(0,255,102,0.4)]"></i>
+                    </div>
+                    <span class="text-white/80 font-bold text-sm group-hover:text-white transition-colors">Meal Plan Personalization</span>
+                    <div class="ml-auto w-5 h-5 rounded-full border border-white/10 flex items-center justify-center shrink-0 step-check opacity-0 transition-all duration-300">
+                        <i class="fas fa-check text-[#00ff66] text-[10px]"></i>
+                    </div>
+                </div>
+
+                <!-- Training Profile -->
+                <div class="flex items-center gap-4 px-6 py-4 hover:bg-white/[0.02] transition-colors group">
+                    <div class="w-10 h-10 rounded-full border border-[#00ff66]/30 flex items-center justify-center group-hover:border-[#00ff66] group-hover:bg-[#00ff66]/10 transition-all shrink-0">
+                        <i class="fas fa-id-card text-[#00ff66] text-sm drop-shadow-[0_0_6px_rgba(0,255,102,0.4)]"></i>
+                    </div>
+                    <span class="text-white/80 font-bold text-sm group-hover:text-white transition-colors">Training Profile</span>
+                    <div class="ml-auto w-5 h-5 rounded-full border border-white/10 flex items-center justify-center shrink-0 step-check opacity-0 transition-all duration-300">
+                        <i class="fas fa-check text-[#00ff66] text-[10px]"></i>
+                    </div>
+                </div>
+
+                <!-- Workout Plan Personalization -->
+                <div class="flex items-center gap-4 px-6 py-4 hover:bg-white/[0.02] transition-colors group">
+                    <div class="w-10 h-10 rounded-full border border-[#00ff66]/30 flex items-center justify-center group-hover:border-[#00ff66] group-hover:bg-[#00ff66]/10 transition-all shrink-0">
+                        <i class="fas fa-dumbbell text-[#00ff66] text-sm drop-shadow-[0_0_6px_rgba(0,255,102,0.4)]"></i>
+                    </div>
+                    <span class="text-white/80 font-bold text-sm group-hover:text-white transition-colors">Workout Plan Personalization</span>
+                    <div class="ml-auto w-5 h-5 rounded-full border border-white/10 flex items-center justify-center shrink-0 step-check opacity-0 transition-all duration-300">
+                        <i class="fas fa-check text-[#00ff66] text-[10px]"></i>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Footer Button -->
+            <div class="p-6">
+                <button id="lets-go-btn" class="w-full bg-[#00ff66] hover:bg-[#00e55c] text-black font-black py-4 rounded-xl transition-all shadow-[0_0_20px_rgba(0,255,102,0.2)] hover:shadow-[0_0_35px_rgba(0,255,102,0.5)] active:scale-95 text-xs uppercase tracking-widest border-none cursor-pointer">
+                    Let's go!
+                </button>
+            </div>
+
+        </div>
+
+        <!-- Goal Selection Screen (Mockup strongrfastr.com/app/onboard/4) -->
+        <div id="goal-card" class="hidden w-full max-w-md bg-[#0a0f0c] rounded-2xl p-8 border border-[#00ff66]/20 shadow-[0_0_40px_rgba(0,255,102,0.15)] text-center space-y-8">
+            <h3 class="text-2xl font-bold text-white tracking-tight">What's your primary goal?</h3>
+            <div class="space-y-4">
+                <button data-goal="Lose Fat" class="goal-option-btn w-full bg-[#00ff66] hover:bg-[#00e55c] text-black font-black py-4 rounded-xl transition-all shadow-[0_0_15px_rgba(0,255,102,0.15)] hover:shadow-[0_0_25px_rgba(0,255,102,0.4)] active:scale-95 text-xs uppercase tracking-widest border-none cursor-pointer">
+                    Lose Fat
+                </button>
+                <button data-goal="Build Muscle" class="goal-option-btn w-full bg-[#00ff66] hover:bg-[#00e55c] text-black font-black py-4 rounded-xl transition-all shadow-[0_0_15px_rgba(0,255,102,0.15)] hover:shadow-[0_0_25px_rgba(0,255,102,0.4)] active:scale-95 text-xs uppercase tracking-widest border-none cursor-pointer">
+                    Build Muscle
+                </button>
+                <button data-goal="Get Toned" class="goal-option-btn w-full bg-[#00ff66] hover:bg-[#00e55c] text-black font-black py-4 rounded-xl transition-all shadow-[0_0_15px_rgba(0,255,102,0.15)] hover:shadow-[0_0_25px_rgba(0,255,102,0.4)] active:scale-95 text-xs uppercase tracking-widest border-none cursor-pointer">
+                    Get Toned
+                </button>
+            </div>
+        </div>
+
+        <!-- Detailed Plan View (Initially Hidden) -->
+        <div id="detail-view" class="hidden w-full max-w-3xl space-y-8">
+            <header class="flex flex-col items-center justify-center space-y-3 py-6 text-center">
+                <i class="fas fa-robot text-[#00ff66] text-5xl drop-shadow-[0_0_12px_rgba(0,255,102,0.4)]"></i>
+                <h1 class="text-4xl font-extrabold tracking-tight text-white">Smart AI <span class="bg-gradient-to-r from-[#00ff66] to-[#00f0ff] bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(0,255,102,0.3)]">Diet Plan</span></h1>
+                <p class="text-xs uppercase font-black tracking-[0.2em] text-[#00f0ff] pt-1 flex items-center justify-center gap-2">
+                    <span id="profile-indicator">Customized Profile Plan</span>
+                    <span class="text-white/30">•</span>
+                    <span id="goal-indicator" class="text-[#00ff66] font-black">Lose Fat</span>
+                </p>
+            </header>
+
+            <main class="space-y-8">
+                <!-- Meal Plan Section -->
+                <section class="glass-effect rounded-3xl p-8 space-y-6">
+                    <h2 class="text-xl font-bold flex items-center justify-between text-white border-b border-white/10 pb-4">
+                        <span class="flex items-center">
+                            <i class="fas fa-utensils mr-3 text-[#00ff66] drop-shadow-[0_0_8px_rgba(0,255,102,0.4)]"></i>
+                            <span class="bg-gradient-to-r from-[#00ff66] to-[#00f0ff] bg-clip-text text-transparent uppercase tracking-wider font-black text-sm">Meal Routine</span>
+                        </span>
+                        <span class="text-[10px] text-white/40 uppercase font-black tracking-widest bg-white/5 px-3 py-1 rounded-full">Daily Intake</span>
+                    </h2>
+                    <div id="meal-plan-container" class="space-y-4">
+                        <!-- Dynamic Meals -->
+                    </div>
+                </section>
+
+                <!-- Workout Section -->
+                <section class="glass-effect rounded-3xl p-8 space-y-6">
+                    <h2 class="text-xl font-bold flex items-center justify-between text-white border-b border-white/10 pb-4">
+                        <span class="flex items-center">
+                            <i class="fas fa-dumbbell mr-3 text-[#00f0ff] drop-shadow-[0_0_8px_rgba(0,240,255,0.4)]"></i>
+                            <span class="bg-gradient-to-r from-[#00f0ff] to-[#00ff66] bg-clip-text text-transparent uppercase tracking-wider font-black text-sm">Workout Tips</span>
+                        </span>
+                        <span class="text-[10px] text-white/40 uppercase font-black tracking-widest bg-white/5 px-3 py-1 rounded-full">Routine</span>
+                    </h2>
+                    <div id="workout-routine-container" class="grid gap-4 md:grid-cols-1">
+                        <!-- Dynamic Workout Steps -->
+                    </div>
+                </section>
+            </main>
+
+            <footer class="text-center py-8">
+                <button onclick="window.close()" class="bg-white/5 border border-white/10 hover:border-[#ff375f]/30 hover:bg-[#ff375f]/5 text-white/60 hover:text-[#ff375f] px-8 py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition-all">
+                    Close Report Tab
+                </button>
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        // Custom dynamic loader for the plan report
+        const aiDietDatabase = {
+            women: {
+                title: "Personalized Plan for Women",
+                mealPlan: [
+                    { time: "08:00 AM", meal: "Hormone Balancing Oats", desc: "Warm lemon water followed by organic rolled oats with chia seeds, ground flaxseeds, raw pumpkin seeds, and wild berries.", icon: "fa-seedling", color: "text-[#00ff66]" },
+                    { time: "01:00 PM", meal: "Iron-Rich Quinoa Salad", desc: "Baby spinach greens, roasted chickpeas, Hass avocado, grilled tofu or wild salmon, pumpkin seeds, and tahini lemon dressing.", icon: "fa-leaf", color: "text-[#00f0ff]" },
+                    { time: "05:00 PM", meal: "Antioxidant Berry Smoothie", desc: "Organic Greek yogurt or almond milk base, plant protein powder, mixed berries, and baby spinach.", icon: "fa-blender", color: "text-[#ff9f0a]" },
+                    { time: "08:30 PM", meal: "Restorative Salmon & Broccoli", desc: "Pan-seared wild salmon or tempeh with roasted sweet potato slices, grilled asparagus, and steamed broccoli spears.", icon: "fa-utensils", color: "text-[#ff375f]" }
+                ],
+                workout: [
+                    { day: "Phase 1: Resistance Strength", focus: "Low-impact resistance training (bodyweight squats, glute bridges, pushups) - 3 sets of 12 reps focusing on posture.", icon: "fa-dumbbell" },
+                    { day: "Phase 2: LISS Cardiovascular", focus: "Low Intensity Steady State (LISS) cardio (brisk walking/cycling) for 35 minutes, keeping heart rate around 125 BPM.", icon: "fa-running" },
+                    { day: "Phase 3: Restorative Mobility", focus: "Vinyasa flow yoga or pilates focusing on deep core stabilization, pelvic control, and stress reduction.", icon: "fa-spa" }
+                ]
+            },
+            man: {
+                title: "Personalized Plan for Men",
+                mealPlan: [
+                    { time: "07:30 AM", meal: "High-Protein Energy Starter", desc: "3 organic scrambled eggs (or seasoned tofu scramble) with spinach, cherry tomatoes, and sliced avocado on sourdough toast.", icon: "fa-egg", color: "text-[#ff9f0a]" },
+                    { time: "01:00 PM", meal: "Lean Mass Builder Plate", desc: "Grilled organic chicken breast or baked tempeh, brown basmati rice, steamed broccoli, and roasted baby carrots drizzled with cold-pressed olive oil.", icon: "fa-drumstick-bite", color: "text-[#00ff66]" },
+                    { time: "04:30 PM", meal: "Mass Gain Fuel Shake", desc: "Clean whey or vegan protein powder, natural peanut butter, organic banana, rolled oats, and unsweetened oat milk blended.", icon: "fa-coffee", color: "text-[#00f0ff]" },
+                    { time: "08:30 PM", meal: "Zinc-Rich Recovery Feast", desc: "Grilled lean grass-fed beef steak or black bean quinoa patties, baked sweet potato, and roasted asparagus.", icon: "fa-utensils", color: "text-[#ff375f]" }
+                ],
+                workout: [
+                    { day: "Hypertrophy Program A", focus: "Heavy compound lifting (squats, bench press, deadlifts, barbell rows) - 4 sets of 8 reps focusing on progression.", icon: "fa-dumbbell" },
+                    { day: "Hypertrophy Program B", focus: "Isolation work (barbell curls, lateral raises, tricep extensions) - 3 sets of 12 reps focusing on volume.", icon: "fa-dumbbell" },
+                    { day: "High-Intensity Recovery", focus: "15 minutes of sprint interval training on assault bike or rowing machine (30s sprint, 45s recovery).", icon: "fa-running" }
+                ]
+            },
+            bisexual: {
+                title: "Personalized Plan for Bisexual Profile",
+                mealPlan: [
+                    { time: "07:45 AM", meal: "Dynamic Nutrient Smoothie", desc: "Vegan pea protein, organic chia seeds, frozen blueberries, banana, baby kale, and coconut water.", icon: "fa-blender", color: "text-[#00f0ff]" },
+                    { time: "01:00 PM", meal: "Mediterranean Quinoa Bowl", desc: "Tri-color quinoa, hummus, Kalamata olives, cherry tomatoes, cucumbers, grilled chicken breast or tofu chunks, and light feta.", icon: "fa-leaf", color: "text-[#00ff66]" },
+                    { time: "05:00 PM", meal: "Neuro-Booster Fuel Snack", desc: "Handful of raw activated walnuts, pumpkin seeds, and a sliced candy green apple.", icon: "fa-apple-alt", color: "text-[#ff9f0a]" },
+                    { time: "08:30 PM", meal: "Ginger Soy Stir-Fry Bowl", desc: "Stir-fried bell peppers, mushrooms, snap peas, and shrimp or tofu chunks over wild rice in a ginger garlic soy sauce.", icon: "fa-utensils", color: "text-[#ff375f]" }
+                ],
+                workout: [
+                    { day: "Functional Hybrid Core", focus: "Kettlebell swings, thrusters, pullups, and hanging leg raises for athletic agility and posture control.", icon: "fa-dumbbell" },
+                    { day: "Agility Cardio Training", focus: "Jump rope intervals, box jumps, and lateral shuffle drills - 20 minutes for anaerobic capacity.", icon: "fa-running" },
+                    { day: "Nervous System Reset", focus: "Dynamic mobility exercises, restorative yoga stretching, and foam rolling for active recovery.", icon: "fa-spa" }
+                ]
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const identity = urlParams.get('identity') || 'women';
+            const data = aiDietDatabase[identity];
+
+            if (data) {
+                // Populate plan data
+                document.getElementById('profile-indicator').innerText = data.title;
+
+                const mealContainer = document.getElementById('meal-plan-container');
+                data.mealPlan.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = "flex flex-col sm:flex-row sm:items-center gap-4 bg-white/5 border border-white/10 hover:border-[#00ff66]/30 p-5 rounded-2xl transition-all duration-300 group";
+                    card.innerHTML = `
+                        <div class="flex items-center gap-3 sm:w-1/3 min-w-0">
+                            <div class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/5 group-hover:border-[#00ff66]/30 transition-colors shrink-0">
+                                <i class="fas ${item.icon} ${item.color} text-sm drop-shadow-[0_0_8px_rgba(0,255,102,0.25)]"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <span class="text-[10px] text-white/40 uppercase font-black tracking-widest block">${item.time}</span>
+                                <h4 class="text-white font-bold text-sm truncate">${item.meal}</h4>
+                            </div>
+                        </div>
+                        <div class="flex-1 text-slate-300 text-xs leading-relaxed">
+                            ${item.desc}
+                        </div>
+                    `;
+                    mealContainer.appendChild(card);
+                });
+
+                const workoutContainer = document.getElementById('workout-routine-container');
+                data.workout.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = "flex gap-4 bg-white/5 border border-white/10 hover:border-[#00f0ff]/30 p-5 rounded-2xl transition-all duration-300 group";
+                    card.innerHTML = `
+                        <div class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/5 group-hover:border-[#00f0ff]/30 transition-colors shrink-0">
+                            <i class="fas ${item.icon} text-[#00f0ff] text-sm drop-shadow-[0_0_8px_rgba(0,240,255,0.25)]"></i>
+                        </div>
+                        <div class="space-y-1">
+                            <h4 class="text-white font-black text-sm uppercase tracking-wider">${item.day}</h4>
+                            <p class="text-slate-300 text-xs leading-relaxed">${item.focus}</p>
+                        </div>
+                    `;
+                    workoutContainer.appendChild(card);
+                });
+            }
+
+            // Onboarding checklist checkmark fade-in sequence
+            const steps = document.querySelectorAll('.step-check');
+            steps.forEach((step, idx) => {
+                setTimeout(() => {
+                    step.classList.remove('opacity-0');
+                    step.classList.add('scale-110');
+                    setTimeout(() => step.classList.remove('scale-110'), 200);
+                }, (idx + 1) * 350);
+            });
+
+            // Action button listener to transition to goal selection
+            const letsGoBtn = document.getElementById('lets-go-btn');
+            const onboardCard = document.getElementById('onboard-card');
+            const goalCard = document.getElementById('goal-card');
+            const detailView = document.getElementById('detail-view');
+
+            letsGoBtn.addEventListener('click', () => {
+                // Animate onboard-card out
+                onboardCard.classList.add('opacity-0', 'scale-95', 'transition-all', 'duration-500', 'pointer-events-none');
+                
+                setTimeout(() => {
+                    onboardCard.classList.add('hidden');
+                    goalCard.classList.remove('hidden');
+                    goalCard.classList.add('slide-up');
+                }, 500);
+            });
+
+            // Action listeners for Goal options to transition to detail-view
+            const goalBtns = document.querySelectorAll('.goal-option-btn');
+            goalBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const selectedGoal = btn.getAttribute('data-goal');
+                    
+                    if (selectedGoal === "Lose Fat") {
+                        // Open body type page in a new browser tab
+                        window.open('body-type.html?identity=' + identity + '&goal=lose', '_blank');
+                        
+                        // Transition the current tab page to standard detailed plan
+                        document.getElementById('goal-indicator').innerText = "Lose Fat (Body Type Survey Opened)";
+                        goalCard.classList.add('opacity-0', 'scale-95', 'transition-all', 'duration-500', 'pointer-events-none');
+
+                        setTimeout(() => {
+                            goalCard.classList.add('hidden');
+                            detailView.classList.remove('hidden');
+                            detailView.classList.add('slide-up');
+                        }, 500);
+                    } else {
+                        // For other goals, go straight to the plan
+                        document.getElementById('goal-indicator').innerText = selectedGoal;
+                        goalCard.classList.add('opacity-0', 'scale-95', 'transition-all', 'duration-500', 'pointer-events-none');
+
+                        setTimeout(() => {
+                            goalCard.classList.add('hidden');
+                            detailView.classList.remove('hidden');
+                            detailView.classList.add('slide-up');
+                        }, 500);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

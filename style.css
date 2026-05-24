@@ -1,56 +1,99 @@
-body{
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+body {
+  background: radial-gradient(circle at top, #0c1a13 0%, #040705 100%);
   min-height: 100vh;
   font-family: "Inter", sans-serif;
-  color: white;
+  color: #ffffff;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
-.glass-effect{
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+
+/* Glassmorphism card effects */
+.glass-effect {
+  background: rgba(10, 15, 12, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(0, 255, 102, 0.15);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.05);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.nutrition-bar{
-  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+
+.glass-effect:hover {
+  border-color: rgba(0, 255, 102, 0.35);
+  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.6), 0 0 20px rgba(0, 255, 102, 0.08), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
 }
-input::placeholder{
-  color: rgba(255, 255, 255, 0.6) !important;
+
+/* Smooth transition for animation progress bars */
+.nutrition-bar {
+  transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Input placeholder text customization */
+input::placeholder {
+  color: rgba(255, 255, 255, 0.3) !important;
   font-family: "Inter", sans-serif;
   font-weight: 400;
 }
-input:focus::placeholder{
-  color: rgba(255, 255, 255, 0.4);
+
+input:focus::placeholder {
+  color: rgba(255, 255, 255, 0.15);
 }
-#log-list::-webkit-scrollbar{
+
+/* Custom Scrollbar for Logged items */
+#log-list::-webkit-scrollbar {
   width: 6px;
 }
-#log-list::-webkit-scrollbar-thumb{
-  background: rgba(255, 255, 255, 0.2);
+
+#log-list::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.03);
   border-radius: 10px;
 }
-select option {
-  background-color: #1e1b4b; /* dark indigo background */
-  color: white;
+
+#log-list::-webkit-scrollbar-thumb {
+  background: rgba(0, 255, 102, 0.25);
+  border-radius: 10px;
+  transition: background 0.3s ease;
 }
+
+#log-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 255, 102, 0.45);
+}
+
+/* Select options */
+select option {
+  background-color: #0d120f;
+  color: #ffffff;
+}
+
+/* Neon Water tracker glass */
 .water-glass {
   position: relative;
   width: 80px;
   height: 120px;
-  border: 4px solid rgba(255, 255, 255, 0.3);
+  border: 4px solid rgba(0, 240, 255, 0.3);
   border-top: none;
   border-radius: 4px 4px 20px 20px;
   overflow: hidden;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2), inset 0 0 15px rgba(255, 255, 255, 0.05);
-  background: rgba(255, 255, 255, 0.02);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(0, 240, 255, 0.1);
+  background: rgba(0, 240, 255, 0.03);
+  transition: all 0.3s ease;
 }
+
+.water-glass:hover {
+  border-color: rgba(0, 240, 255, 0.5);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 15px rgba(0, 240, 255, 0.15), inset 0 0 20px rgba(0, 240, 255, 0.2);
+}
+
 .water-fill {
   position: absolute;
   bottom: 0;
   left: 0;
   width: 100%;
-  background: linear-gradient(180deg, rgba(6, 182, 212, 0.75) 0%, rgba(14, 165, 233, 0.8) 100%);
-  transition: height 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: inset 0 4px 6px rgba(255, 255, 255, 0.3);
+  background: linear-gradient(180deg, rgba(0, 240, 255, 0.85) 0%, rgba(0, 140, 255, 0.9) 100%);
+  transition: height 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: inset 0 4px 10px rgba(255, 255, 255, 0.4);
 }
+
 .water-fill::before {
   content: "";
   position: absolute;
@@ -58,11 +101,25 @@ select option {
   height: 220%;
   top: -212%;
   left: -60%;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.25);
   border-radius: 38%;
   animation: wave-motion 8s infinite linear;
 }
+
 @keyframes wave-motion {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
+}
+
+/* Custom inputs, buttons, and badges */
+input, select {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+input:focus, select:focus {
+  border-color: #00ff66 !important;
+  box-shadow: 0 0 12px rgba(0, 255, 102, 0.3) !important;
+  outline: none;
 }

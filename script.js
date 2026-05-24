@@ -334,29 +334,29 @@ function refreshUI() {
         for (let i = appState.loggedEntries.length - 1; i >= 0; i--) {
             const entry = appState.loggedEntries[i];
             const div = document.createElement('div');
-            div.className = "flex justify-between items-center bg-white/5 p-4 rounded-2xl border border-white/10 hover:bg-white/10 transition-all group";
+            div.className = "flex justify-between items-center bg-white/5 p-4 rounded-2xl border border-white/10 hover:bg-white/10 transition-all group hover:border-[#00ff66]/30";
             div.innerHTML = `
                 <div class="flex-1 min-w-0">
                     <div class="flex items-center gap-2">
-                        <span class="capitalize font-bold text-base tracking-tight truncate">${entry.name}</span>
+                        <span class="capitalize font-bold text-base tracking-tight truncate text-white">${entry.name}</span>
                         <span class="text-[10px] text-white/40 uppercase font-black tracking-widest bg-white/5 px-2 py-0.5 rounded-full">${entry.qty}g</span>
                     </div>
                     <div class="text-[11px] text-white/40 mt-1 flex gap-2">
-                        <span>P: <strong class="text-amber-400">${entry.protein}g</strong></span>
-                        <span>C: <strong class="text-indigo-400">${entry.carbs}g</strong></span>
-                        <span>F: <strong class="text-rose-400">${entry.fat}g</strong></span>
+                        <span>P: <strong class="text-[#ff9f0a]">${entry.protein}g</strong></span>
+                        <span>C: <strong class="text-[#00d2ff]">${entry.carbs}g</strong></span>
+                        <span>F: <strong class="text-[#ff375f]">${entry.fat}g</strong></span>
                     </div>
                 </div>
                 <div class="flex items-center">
                     <div class="text-right mr-2">
-                        <span class="text-green-400 font-black text-lg">+${entry.cal}</span>
-                        <span class="text-[10px] text-green-400/50 uppercase font-black ml-1">kcal</span>
+                        <span class="text-[#00ff66] font-black text-lg drop-shadow-[0_0_10px_rgba(0,255,102,0.2)]">+${entry.cal}</span>
+                        <span class="text-[10px] text-[#00ff66]/50 uppercase font-black ml-1">kcal</span>
                     </div>
                     <div class="flex gap-1">
-                        <button onclick="editEntry('${entry.id}')" class="text-white/20 hover:text-amber-400 p-2 rounded-xl hover:bg-white/5 transition-all" title="Edit entry">
+                        <button onclick="editEntry('${entry.id}')" class="text-white/20 hover:text-[#ff9f0a] p-2 rounded-xl hover:bg-white/5 transition-all" title="Edit entry">
                             <i class="fas fa-pen text-sm"></i>
                         </button>
-                        <button onclick="deleteEntry('${entry.id}')" class="text-white/20 hover:text-rose-400 p-2 rounded-xl hover:bg-white/5 transition-all" title="Delete entry">
+                        <button onclick="deleteEntry('${entry.id}')" class="text-white/20 hover:text-[#ff375f] p-2 rounded-xl hover:bg-white/5 transition-all" title="Delete entry">
                             <i class="fas fa-trash-alt text-sm"></i>
                         </button>
                     </div>
@@ -366,3 +366,50 @@ function refreshUI() {
         }
     }
 }
+
+// Custom Identity Dropdown & Tab Logic for Smart AI Routine Diet Planner
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. Dropdown Controls
+    const dropdownBtn = document.getElementById('identity-dropdown-btn');
+    const dropdownMenu = document.getElementById('identity-dropdown-menu');
+    const dropdownChevron = document.getElementById('identity-dropdown-chevron');
+    const selectedLabel = document.getElementById('identity-selected-label');
+    const hiddenInput = document.getElementById('identity-input');
+    const options = document.querySelectorAll('.identity-option');
+
+    if (dropdownBtn && dropdownMenu) {
+        dropdownBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dropdownMenu.classList.toggle('hidden');
+            dropdownChevron.classList.toggle('rotate-180');
+        });
+
+        options.forEach(option => {
+            option.addEventListener('click', () => {
+                const val = option.getAttribute('data-value');
+                const label = option.textContent;
+                selectedLabel.textContent = label;
+                hiddenInput.value = val;
+                dropdownMenu.classList.add('hidden');
+                dropdownChevron.classList.remove('rotate-180');
+            });
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!dropdownBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                dropdownMenu.classList.add('hidden');
+                dropdownChevron.classList.remove('rotate-180');
+            }
+        });
+    }
+
+    // 2. AI Planner Form Submit (Open in new browser tab)
+    const plannerForm = document.getElementById('ai-planner-form');
+    if (plannerForm) {
+        plannerForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const identity = document.getElementById('identity-input').value;
+            window.open('ai-plan.html?identity=' + identity, '_blank');
+        });
+    }
+});

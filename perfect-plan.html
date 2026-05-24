@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfect Plan - AI Diet Planner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            background: radial-gradient(circle at center, #0c1a13 0%, #030504 100%) !important;
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+        /* Custom slide-up animation */
+        .slide-up {
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 flex flex-col justify-center items-center min-h-screen">
+
+    <div class="w-full max-w-3xl mx-auto space-y-8 py-8 slide-up">
+        
+        <header class="flex flex-col items-center justify-center space-y-3 py-6 text-center">
+            <i class="fas fa-medal text-[#00ff66] text-5xl drop-shadow-[0_0_12px_rgba(0,255,102,0.4)] animate-bounce"></i>
+            <h1 class="text-4xl font-extrabold tracking-tight text-white">Your Perfect <span class="bg-gradient-to-r from-[#00ff66] to-[#00f0ff] bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(0,255,102,0.3)]">Diet Plan</span></h1>
+            <p class="text-xs uppercase font-black tracking-[0.2em] text-[#00f0ff] pt-1 flex flex-col sm:flex-row items-center justify-center gap-2">
+                <span id="profile-indicator">Customized Profile Plan</span>
+                <span class="hidden sm:inline text-white/30">•</span>
+                <span id="goal-indicator" class="text-[#00ff66] font-black">Lose Fat</span>
+                <span class="hidden sm:inline text-white/30">•</span>
+                <span id="bodytype-indicator" class="text-white/80 font-bold uppercase">Endomorph</span>
+            </p>
+        </header>
+
+        <main class="space-y-8">
+            
+            <!-- Summary Badge -->
+            <div class="bg-white/5 border border-[#00ff66]/20 p-6 rounded-2xl flex flex-col sm:flex-row items-center gap-4 hover:border-[#00ff66]/40 transition-colors">
+                <div class="w-12 h-12 rounded-xl bg-[#00ff66]/10 flex items-center justify-center border border-[#00ff66]/20 shrink-0">
+                    <i class="fas fa-info-circle text-[#00ff66] text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-white text-sm uppercase tracking-wider">AI Dietitian Summary</h3>
+                    <p id="bodytype-desc" class="text-slate-300 text-xs mt-1 leading-relaxed">
+                        Generating customized dietary profile...
+                    </p>
+                </div>
+            </div>
+
+            <!-- Meal Plan Section -->
+            <section class="glass-effect rounded-3xl p-8 space-y-6">
+                <h2 class="text-xl font-bold flex items-center justify-between text-white border-b border-white/10 pb-4">
+                    <span class="flex items-center">
+                        <i class="fas fa-utensils mr-3 text-[#00ff66] drop-shadow-[0_0_8px_rgba(0,255,102,0.4)]"></i>
+                        <span class="bg-gradient-to-r from-[#00ff66] to-[#00f0ff] bg-clip-text text-transparent uppercase tracking-wider font-black text-sm">Custom Meal Routine</span>
+                    </span>
+                    <span class="text-[10px] text-white/40 uppercase font-black tracking-widest bg-white/5 px-3 py-1 rounded-full">Daily Intake</span>
+                </h2>
+                <div id="meal-plan-container" class="space-y-4">
+                    <!-- Dynamic Meals -->
+                </div>
+            </section>
+
+            <!-- Workout Section -->
+            <section class="glass-effect rounded-3xl p-8 space-y-6">
+                <h2 class="text-xl font-bold flex items-center justify-between text-white border-b border-white/10 pb-4">
+                    <span class="flex items-center">
+                        <i class="fas fa-dumbbell mr-3 text-[#00f0ff] drop-shadow-[0_0_8px_rgba(0,240,255,0.4)]"></i>
+                        <span class="bg-gradient-to-r from-[#00f0ff] to-[#00ff66] bg-clip-text text-transparent uppercase tracking-wider font-black text-sm">Targeted Training Tips</span>
+                    </span>
+                    <span class="text-[10px] text-white/40 uppercase font-black tracking-widest bg-white/5 px-3 py-1 rounded-full">Silhouette Custom</span>
+                </h2>
+                <div id="workout-routine-container" class="grid gap-4 md:grid-cols-1">
+                    <!-- Dynamic Workout Steps -->
+                </div>
+            </section>
+        </main>
+
+        <footer class="text-center py-8">
+            <button onclick="window.close()" class="bg-white/5 border border-white/10 hover:border-[#ff375f]/30 hover:bg-[#ff375f]/5 text-white/60 hover:text-[#ff375f] px-8 py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition-all">
+                Close Report Tab
+            </button>
+        </footer>
+
+    </div>
+
+    <script>
+        const perfectDatabase = {
+            women: {
+                endomorph: {
+                    title: "Women's Onboarding Profile Plan",
+                    bodyTitle: "Endomorph Shape",
+                    desc: "Targeted at maximizing caloric deficit and enhancing insulin sensitivity. The plan features low-carb meals combined with high-intensity metabolic circuits.",
+                    mealPlan: [
+                        { time: "08:00 AM", meal: "Keto Chia & Pumpkin Seed Oats", desc: "Low-carb almond flour & seed warm porridge with coconut cream, pumpkin seeds, and a pinch of cinnamon.", icon: "fa-seedling", color: "text-[#00ff66]" },
+                        { time: "01:00 PM", meal: "Avocado & Salmon Keto Salad", desc: "Wild-caught salmon, Hass avocado, spinach leaves, cucumber slice, walnuts, and lemon olive oil dressing.", icon: "fa-leaf", color: "text-[#00f0ff]" },
+                        { time: "05:00 PM", meal: "L-Carnitine Matcha & Walnuts", desc: "Antioxidant rich matcha green tea served with 5 raw activated walnuts.", icon: "fa-blender", color: "text-[#ff9f0a]" },
+                        { time: "08:30 PM", meal: "Lean Chicken Breast & Asparagus", desc: "Pan-seared chicken breast or grilled tofu, steamed asparagus, and grilled zucchini spears drizzled with flaxseed oil.", icon: "fa-utensils", color: "text-[#ff375f]" }
+                    ],
+                    workout: [
+                        { day: "Metabolic Resistance Circuit", focus: "Kettlebell squats, push-ups, and mountain climbers done back-to-back with minimal rest. 4 sets of 15 reps.", icon: "fa-dumbbell" },
+                        { day: "HIIT Cardiovascular Burn", focus: "Sprint intervals on treadmill or stationary bike (30 seconds sprint, 60 seconds easy) for 20 minutes.", icon: "fa-running" },
+                        { day: "Core & Lymphatic Yoga", focus: "Vinyasa yoga with dynamic stretching to promote circulation, core stability, and sweat recovery.", icon: "fa-spa" }
+                    ]
+                },
+                mesomorph: {
+                    title: "Women's Onboarding Profile Plan",
+                    bodyTitle: "Mesomorph Shape",
+                    desc: "Balanced protein and moderate carbs support athletic recovery and muscle tone. The layout uses hypertrophy training and moderate steady-state cardio.",
+                    mealPlan: [
+                        { time: "08:00 AM", meal: "High-Protein Berry Oatmeal", desc: "Rolled oats, organic whey/vegan protein powder, wild berries, and a tablespoon of flaxseed.", icon: "fa-seedling", color: "text-[#00ff66]" },
+                        { time: "01:00 PM", meal: "Quinoa Turkey Bowl", desc: "Lean turkey breast or baked tempeh, tri-color quinoa, baby spinach, roasted red peppers, and hummus.", icon: "fa-leaf", color: "text-[#00f0ff]" },
+                        { time: "05:00 PM", meal: "Greek Yogurt & Almonds", desc: "Organic unsweetened Greek yogurt with 10 raw almonds and a dash of honey.", icon: "fa-blender", color: "text-[#ff9f0a]" },
+                        { time: "08:30 PM", meal: "Bake Salmon & Sweet Potato", desc: "Baked wild salmon, roasted sweet potato cubes, and garlic-sautéed broccoli spears.", icon: "fa-utensils", color: "text-[#ff375f]" }
+                    ],
+                    workout: [
+                        { day: "Hypertrophy Lift Program", focus: "Squats, deadlifts, and dumbbell presses. 3 sets of 10 reps focusing on progressive weight.", icon: "fa-dumbbell" },
+                        { day: "Steady State LISS Cardio", focus: "Incline treadmill walk or brisk outdoor walk keeping heart rate at 130 BPM for 35 minutes.", icon: "fa-running" },
+                        { day: "Pilates Mobility Stretch", focus: "Pilates reformer or mat work focusing on deep core strength, hamstring flexibility, and spinal health.", icon: "fa-spa" }
+                    ]
+                },
+                ectomorph: {
+                    title: "Women's Onboarding Profile Plan",
+                    bodyTitle: "Ectomorph Shape",
+                    desc: "High metabolic burn requires structural carbs and steady amino acid inputs to protect lean tissues. Strength overload and yin yoga stretches are prioritized.",
+                    mealPlan: [
+                        { time: "08:00 AM", meal: "Double Peanut Butter Smoothie", desc: "Banana, peanut butter, whole oats, protein powder, and coconut milk blended together.", icon: "fa-seedling", color: "text-[#00ff66]" },
+                        { time: "01:00 PM", meal: "Brown Rice Teriyaki Tofu Bowl", desc: "Teriyaki baked tofu or chicken breast, brown jasmine rice, steamed broccoli, and avocado slices.", icon: "fa-leaf", color: "text-[#00f0ff]" },
+                        { time: "05:00 PM", meal: "Mixed Nuts & Fresh Fruits", desc: "Handful of walnuts, cashews, and a sliced crisp organic green apple.", icon: "fa-blender", color: "text-[#ff9f0a]" },
+                        { time: "08:30 PM", meal: "Pasta with Turkey Meatballs", desc: "Gluten-free pasta, homemade lean turkey meatballs, sugar-free marinara sauce, and a side spinach salad.", icon: "fa-utensils", color: "text-[#ff375f]" }
+                    ],
+                    workout: [
+                        { day: "Heavy Strength Overload", focus: "Barbell bench press, weighted squats, and lat pulldowns. 4 sets of 6-8 reps with heavier resistance.", icon: "fa-dumbbell" },
+                        { day: "Minimal LISS Recovery", focus: "Light walking or active recovery cycling for 15-20 minutes to improve blood flow without fat catabolism.", icon: "fa-running" },
+                        { day: "Restorative Yin Yoga", focus: "Deep static stretching held for 3-5 minutes to calm the nervous system and promote recovery.", icon: "fa-spa" }
+                    ]
+                }
+            },
+            man: {
+                endomorph: {
+                    title: "Men's Onboarding Profile Plan",
+                    bodyTitle: "Endomorph Shape",
+                    desc: "Maximizes thermic effects and regulates insulin. Features higher protein intake, fiber density, and super-set heavy resistance circuit workouts.",
+                    mealPlan: [
+                        { time: "07:30 AM", meal: "Tofu Scramble & Avocado", desc: "Spiced seasoned tofu or 3 organic eggs scrambled with spinach, cherry tomatoes, and sliced avocado.", icon: "fa-egg", color: "text-[#ff9f0a]" },
+                        { time: "01:00 PM", meal: "Low-Carb Tuna Avocado Salad", desc: "Wild tuna or grilled chicken breast, mixed greens, Hass avocado, pumpkin seeds, and MCT oil dressing.", icon: "fa-drumstick-bite", color: "text-[#00ff66]" },
+                        { time: "04:30 PM", meal: "Whey Protein & Pumpkin Seeds", desc: "Clean whey protein powder shaken with unsweetened almond milk and a small handful of pumpkin seeds.", icon: "fa-coffee", color: "text-[#00f0ff]" },
+                        { time: "08:30 PM", meal: "Lean Beef Steak & Asparagus", desc: "Grilled lean grass-fed beef steak, roasted asparagus spears, and steamed cauliflower mash.", icon: "fa-utensils", color: "text-[#ff375f]" }
+                    ],
+                    workout: [
+                        { day: "Heavy Compound Metabolic Lift", focus: "Barbell squats, deadlifts, and overhead presses done in super-sets. 4 sets of 12 reps.", icon: "fa-dumbbell" },
+                        { day: "Sprint Interval HIIT", focus: "Assault bike or rowing machine intervals: 30s maximum effort sprint, 45s recovery. 15 intervals.", icon: "fa-running" },
+                        { day: "Nervous System Recovery Mobility", focus: "Dynamic stretching, foam rolling, and deep breathing exercises for full muscle recovery.", icon: "fa-spa" }
+                    ]
+                },
+                mesomorph: {
+                    title: "Men's Onboarding Profile Plan",
+                    bodyTitle: "Mesomorph Shape",
+                    desc: "High protein loading combined with clean compound movements optimizes hypertrophy while shedding body fat layers systematically.",
+                    mealPlan: [
+                        { time: "07:30 AM", meal: "Eggs & Sourdough Plate", desc: "3 organic eggs scrambled in grass-fed butter, with cherry tomatoes and 2 slices of toasted sourdough bread.", icon: "fa-egg", color: "text-[#ff9f0a]" },
+                        { time: "01:00 PM", meal: "Lean Mass Chicken & Rice", desc: "Grilled chicken breast, brown basmati rice, steamed broccoli, and roasted baby carrots with cold-pressed olive oil.", icon: "fa-drumstick-bite", color: "text-[#00ff66]" },
+                        { time: "04:30 PM", meal: "Mass Gain Fuel Shake", desc: "Clean whey protein powder, natural peanut butter, organic banana, and unsweetened oat milk blended.", icon: "fa-coffee", color: "text-[#00f0ff]" },
+                        { time: "08:30 PM", meal: "Salmon, Asparagus & Yam", desc: "Pan-seared wild salmon, baked sweet potato slices, and roasted asparagus.", icon: "fa-utensils", color: "text-[#ff375f]" }
+                    ],
+                    workout: [
+                        { day: "Hypertrophy Strength Progression", focus: "Squats, bench press, rows, and shoulder presses. 4 sets of 8-10 reps focusing on progressive weight load.", icon: "fa-dumbbell" },
+                        { day: "HIIT Cardio Sprints", focus: "15 minutes of sprint interval training on assault bike or rowing machine (30s sprint, 45s recovery).", icon: "fa-running" },
+                        { day: "Mobility & Core Recovery", focus: "Planks, bird-dogs, and foam rolling to improve spine and hip flexibility.", icon: "fa-spa" }
+                    ]
+                },
+                ectomorph: {
+                    title: "Men's Onboarding Profile Plan",
+                    bodyTitle: "Ectomorph Shape",
+                    desc: "Requires continuous glycogen saturation to sustain protein synthesis. Minimizes fat burning catabolism by isolating work to heavy low-rep load cycles.",
+                    mealPlan: [
+                        { time: "07:30 AM", meal: "Nut Butter Banana Oats", desc: "Rolled oats made with whole milk, loaded with 2 tablespoons of organic peanut butter, sliced banana, and chia seeds.", icon: "fa-egg", color: "text-[#ff9f0a]" },
+                        { time: "01:00 PM", meal: "Teriyaki Beef Rice Bowl", desc: "Lean ground beef stir-fry, white jasmine rice, snap peas, and mushrooms in a sweet ginger garlic teriyaki glaze.", icon: "fa-drumstick-bite", color: "text-[#00ff66]" },
+                        { time: "04:30 PM", meal: "High-Calorie Nut Shake", desc: "Whey protein, raw almonds, dry oats, honey, and whole milk blended for high calorie uptake.", icon: "fa-coffee", color: "text-[#00f0ff]" },
+                        { time: "08:30 PM", meal: "Salmon with Yam & Broccoli", desc: "Baked salmon filet, extra large roasted sweet potato, and steamed broccoli drizzled with olive oil.", icon: "fa-utensils", color: "text-[#ff375f]" }
+                    ],
+                    workout: [
+                        { day: "Heavy Low-Volume Strength", focus: "Deadlifts, weighted pull-ups, and heavy barbell presses. 4 sets of 5-7 reps focusing on maximal power.", icon: "fa-dumbbell" },
+                        { day: "Active LISS Rest Walk", focus: "Brisk outdoor walking for 20 minutes to maintain general cardiovascular fitness without depleting glycogen stores.", icon: "fa-running" },
+                        { day: "Deep Static Yoga Stretch", focus: "Yin yoga focusing on lengthening hamstrings, calves, and hip flexors for better lifting mechanics.", icon: "fa-spa" }
+                    ]
+                }
+            },
+            bisexual: {
+                endomorph: {
+                    title: "Bisexual Onboarding Profile Plan",
+                    bodyTitle: "Endomorph Shape",
+                    desc: "Maximizes metabolic adaptability with a focus on thermogenesis. Features a plant-rich keto routine and kettlebell metabolic super-sets.",
+                    mealPlan: [
+                        { time: "07:45 AM", meal: "Matcha Spinach Protein Fuel", desc: "Unsweetened hemp milk, protein powder, spinach, almond butter, and matcha tea powder blended.", icon: "fa-blender", color: "text-[#00f0ff]" },
+                        { time: "01:00 PM", meal: "Mediterranean Tofu Keto Salad", desc: "Seasoned tofu chunks, cucumber, feta cheese, Kalamata olives, hummus, and extra virgin olive oil dressing.", icon: "fa-leaf", color: "text-[#00ff66]" },
+                        { time: "05:00 PM", meal: "Walnuts & Pumpkin Seeds", desc: "Handful of walnuts, pumpkin seeds, and a cucumber with a squeeze of lime juice.", icon: "fa-apple-alt", color: "text-[#ff9f0a]" },
+                        { time: "08:30 PM", meal: "Sesame Baked Tofu & Stir Fry", desc: "Stir-fried bell peppers, mushrooms, and asparagus spears with sesame seed crusted baked tofu.", icon: "fa-utensils", color: "text-[#ff375f]" }
+                    ],
+                    workout: [
+                        { day: "Kettlebell Metabolic Circuit", focus: "Kettlebell swings, thrusters, push-ups, and bicycle crunches. 4 rounds of 45 seconds work, 15 seconds rest.", icon: "fa-dumbbell" },
+                        { day: "Anaerobic Agility Work", focus: "Jump rope intervals and speed shuffles - 20 minutes to raise heart rate and burn body fat.", icon: "fa-running" },
+                        { day: "Active Rest Yoga Recovery", focus: "Full body myofascial release using a foam roller and static stretching for muscle length.", icon: "fa-spa" }
+                    ]
+                },
+                mesomorph: {
+                    title: "Bisexual Onboarding Profile Plan",
+                    bodyTitle: "Mesomorph Shape",
+                    desc: "Combines athletic functional lifting with macronutrient density to fuel fast recovery and lean maintenance.",
+                    mealPlan: [
+                        { time: "07:45 AM", meal: "Dynamic Chia Berry Shake", desc: "Whey or vegan protein powder, chia seeds, wild berries, banana, and coconut water blended.", icon: "fa-blender", color: "text-[#00f0ff]" },
+                        { time: "01:00 PM", meal: "Mediterranean Quinoa Bowl", desc: "Tri-color quinoa, hummus, Kalamata olives, cucumbers, cherry tomatoes, and grilled chicken breast or tofu chunks.", icon: "fa-leaf", color: "text-[#00ff66]" },
+                        { time: "05:00 PM", meal: "Walnuts & Crisp Green Apple", desc: "Handful of raw activated walnuts with a sliced crisp organic green apple.", icon: "fa-apple-alt", color: "text-[#ff9f0a]" },
+                        { time: "08:30 PM", meal: "Ginger Soy Stir-Fry Bowl", desc: "Stir-fried bell peppers, mushrooms, snap peas, and shrimp or tofu chunks over wild rice in a ginger soy sauce.", icon: "fa-utensils", color: "text-[#ff375f]" }
+                    ],
+                    workout: [
+                        { day: "Functional Hybrid Power", focus: "Kettlebell swings, thrusters, pullups, and hanging leg raises for core control and functional muscle mass.", icon: "fa-dumbbell" },
+                        { day: "Agility Cardio Training", focus: "Jump rope intervals, box jumps, and lateral shuffle drills - 20 minutes for anaerobic speed.", icon: "fa-running" },
+                        { day: "Nervous System Reset stretching", focus: "Dynamic mobility drills, yoga stretches, and foam rolling for recovery.", icon: "fa-spa" }
+                    ]
+                },
+                ectomorph: {
+                    title: "Bisexual Onboarding Profile Plan",
+                    bodyTitle: "Ectomorph Shape",
+                    desc: "High caloric density and amino acid supply to counteract active dynamic caloric expenditure. Heavy weight lifts are utilized.",
+                    mealPlan: [
+                        { time: "07:45 AM", meal: "Avocado Peanut Butter Shake", desc: "Vegan pea protein, organic chia seeds, whole banana, Hass avocado, natural peanut butter, and oat milk.", icon: "fa-blender", color: "text-[#00f0ff]" },
+                        { time: "01:00 PM", meal: "Brown Rice Hummus Plate", desc: "Teriyaki baked tempeh or beef chunks, double serving of brown basmati rice, hummus, and kalamata olives.", icon: "fa-leaf", color: "text-[#00ff66]" },
+                        { time: "05:00 PM", meal: "Almond Butter Celery & Apple", desc: "Organic apple slices dipped in creamy raw almond butter with organic celery sticks.", icon: "fa-apple-alt", color: "text-[#ff9f0a]" },
+                        { time: "08:30 PM", meal: "Wild Salmon & Sweet Potato Mash", desc: "Wild salmon steak, twice-baked yams, stir-fried broccoli, and mushrooms.", icon: "fa-utensils", color: "text-[#ff375f]" }
+                    ],
+                    workout: [
+                        { day: "Functional Heavy Lift Circuit", focus: "Weighted squats, chin-ups, push-presses. 3 sets of 8 reps focusing on strength.", icon: "fa-dumbbell" },
+                        { day: "Active LISS Walk Cardio", focus: "Brisk outdoor walking for 25 minutes to maintain mobility and cardiovascular health.", icon: "fa-running" },
+                        { day: "Restorative Yin Stretch", focus: "Deep holds in yoga poses for hip openers and thoracic spine mobility.", icon: "fa-spa" }
+                    ]
+                }
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const identity = urlParams.get('identity') || 'women';
+            const goal = urlParams.get('goal') || 'lose';
+            const bodytype = urlParams.get('bodytype') || 'mesomorph';
+
+            // Resolve data
+            const genderData = perfectDatabase[identity] || perfectDatabase.women;
+            const data = genderData[bodytype] || genderData.mesomorph;
+
+            // Populate text indicators
+            document.getElementById('profile-indicator').innerText = data.title;
+            document.getElementById('goal-indicator').innerText = goal === 'lose' ? 'Lose Fat' : goal;
+            document.getElementById('bodytype-indicator').innerText = data.bodyTitle;
+            document.getElementById('bodytype-desc').innerText = data.desc;
+
+            // Populate meals
+            const mealContainer = document.getElementById('meal-plan-container');
+            data.mealPlan.forEach(item => {
+                const card = document.createElement('div');
+                card.className = "flex flex-col sm:flex-row sm:items-center gap-4 bg-white/5 border border-white/10 hover:border-[#00ff66]/30 p-5 rounded-2xl transition-all duration-300 group";
+                card.innerHTML = `
+                    <div class="flex items-center gap-3 sm:w-1/3 min-w-0">
+                        <div class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/5 group-hover:border-[#00ff66]/30 transition-colors shrink-0">
+                            <i class="fas ${item.icon} ${item.color} text-sm drop-shadow-[0_0_8px_rgba(0,255,102,0.25)]"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <span class="text-[10px] text-white/40 uppercase font-black tracking-widest block">${item.time}</span>
+                            <h4 class="text-white font-bold text-sm truncate">${item.meal}</h4>
+                        </div>
+                    </div>
+                    <div class="flex-1 text-slate-300 text-xs leading-relaxed">
+                        ${item.desc}
+                    </div>
+                `;
+                mealContainer.appendChild(card);
+            });
+
+            // Populate workouts
+            const workoutContainer = document.getElementById('workout-routine-container');
+            data.workout.forEach(item => {
+                const card = document.createElement('div');
+                card.className = "flex gap-4 bg-white/5 border border-white/10 hover:border-[#00f0ff]/30 p-5 rounded-2xl transition-all duration-300 group";
+                card.innerHTML = `
+                    <div class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/5 group-hover:border-[#00f0ff]/30 transition-colors shrink-0">
+                        <i class="fas ${item.icon} text-[#00f0ff] text-sm drop-shadow-[0_0_8px_rgba(0,240,255,0.25)]"></i>
+                    </div>
+                    <div class="space-y-1">
+                        <h4 class="text-white font-black text-sm uppercase tracking-wider">${item.day}</h4>
+                        <p class="text-slate-300 text-xs leading-relaxed">${item.focus}</p>
+                    </div>
+                `;
+                workoutContainer.appendChild(card);
+            });
+        });
+    </script>
+</body>
+</html>

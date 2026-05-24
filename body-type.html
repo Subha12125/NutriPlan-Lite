@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Body Type - AI Planner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            background: radial-gradient(circle at center, #0c1a13 0%, #030504 100%) !important;
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+        /* Custom slide-up animation */
+        .slide-up {
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 flex flex-col justify-center items-center min-h-screen">
+
+    <div class="w-full max-w-4xl mx-auto space-y-8 py-8 slide-up">
+        
+        <!-- Header Section -->
+        <header class="text-center space-y-4">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-white">Identify Your <span class="bg-gradient-to-r from-[#00ff66] to-[#00f0ff] bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(0,255,102,0.3)]">Body Silhouette</span></h1>
+            <p class="text-xs uppercase font-black tracking-[0.2em] text-[#00f0ff]">Onboarding Step 3: Body Type Assessment</p>
+        </header>
+
+        <!-- Body Type Selection Cards -->
+        <div class="grid md:grid-cols-3 gap-6 pt-4">
+            
+            <!-- Endomorph (Curvy) -->
+            <div data-bodytype="endomorph" class="body-card bg-[#0a0f0c] hover:bg-black/85 rounded-2xl p-6 border border-[#00ff66]/15 hover:border-[#00ff66]/60 shadow-[0_0_20px_rgba(0,0,0,0.6)] hover:shadow-[0_0_30px_rgba(0,255,102,0.15)] transition-all duration-300 transform hover:-translate-y-1 cursor-pointer flex flex-col items-center text-center space-y-4 group">
+                <div class="py-4">
+                    <!-- Endomorph SVG -->
+                    <svg viewBox="0 0 100 160" class="w-24 h-36 stroke-[#00ff66]/60 fill-none stroke-[2.5] group-hover:stroke-[#00ff66] transition-colors drop-shadow-[0_0_8px_rgba(0,255,102,0.2)]">
+                        <circle cx="50" cy="18" r="8" />
+                        <path d="M46,26 L54,26 M40,32 L60,32" />
+                        <path d="M40,32 C44,48 37,70 36,92 C35,110 39,122 42,145 L42,155" />
+                        <path d="M60,32 C56,48 63,70 64,92 C65,110 61,122 58,145 L58,155" />
+                        <path d="M40,32 C37,50 35,70 34,85" />
+                        <path d="M60,32 C63,50 65,70 66,85" />
+                    </svg>
+                </div>
+                <div class="space-y-1">
+                    <h3 class="text-lg font-black text-white group-hover:text-[#00ff66] transition-colors">Endomorph</h3>
+                    <p class="text-[10px] text-white/40 uppercase font-black tracking-wider">Curvy & Fuller Silhouette</p>
+                </div>
+                <p class="text-xs text-slate-400 leading-relaxed">
+                    Slower metabolic rate, naturally stores more fat, wider waist-to-hip ratio, and retains solid bone mass.
+                </p>
+            </div>
+
+            <!-- Mesomorph (Athletic) -->
+            <div data-bodytype="mesomorph" class="body-card bg-[#0a0f0c] hover:bg-black/85 rounded-2xl p-6 border border-[#00ff66]/15 hover:border-[#00ff66]/60 shadow-[0_0_20px_rgba(0,0,0,0.6)] hover:shadow-[0_0_30px_rgba(0,255,102,0.15)] transition-all duration-300 transform hover:-translate-y-1 cursor-pointer flex flex-col items-center text-center space-y-4 group">
+                <div class="py-4">
+                    <!-- Mesomorph SVG -->
+                    <svg viewBox="0 0 100 160" class="w-24 h-36 stroke-[#00ff66]/60 fill-none stroke-[2.5] group-hover:stroke-[#00ff66] transition-colors drop-shadow-[0_0_8px_rgba(0,255,102,0.2)]">
+                        <circle cx="50" cy="18" r="8" />
+                        <path d="M47,26 L53,26 M38,32 L62,32" />
+                        <path d="M38,32 C42,50 45,68 43,84 C41,95 40,110 44,145 L44,155" />
+                        <path d="M62,32 C58,50 55,68 57,84 C59,95 60,110 56,145 L56,155" />
+                        <path d="M38,32 C35,50 35,70 37,85" />
+                        <path d="M62,32 C65,50 65,70 63,85" />
+                    </svg>
+                </div>
+                <div class="space-y-1">
+                    <h3 class="text-lg font-black text-white group-hover:text-[#00ff66] transition-colors">Mesomorph</h3>
+                    <p class="text-[10px] text-white/40 uppercase font-black tracking-wider">Toned & Athletic Silhouette</p>
+                </div>
+                <p class="text-xs text-slate-400 leading-relaxed">
+                    Efficient metabolic rate, retains lean muscle easily, symmetrical bone structure, and responsive to fitness routines.
+                </p>
+            </div>
+
+            <!-- Ectomorph (Slim) -->
+            <div data-bodytype="ectomorph" class="body-card bg-[#0a0f0c] hover:bg-black/85 rounded-2xl p-6 border border-[#00ff66]/15 hover:border-[#00ff66]/60 shadow-[0_0_20px_rgba(0,0,0,0.6)] hover:shadow-[0_0_30px_rgba(0,255,102,0.15)] transition-all duration-300 transform hover:-translate-y-1 cursor-pointer flex flex-col items-center text-center space-y-4 group">
+                <div class="py-4">
+                    <!-- Ectomorph SVG -->
+                    <svg viewBox="0 0 100 160" class="w-24 h-36 stroke-[#00ff66]/60 fill-none stroke-[2.5] group-hover:stroke-[#00ff66] transition-colors drop-shadow-[0_0_8px_rgba(0,255,102,0.2)]">
+                        <circle cx="50" cy="18" r="8" />
+                        <path d="M48,26 L52,26 M42,32 L58,32" />
+                        <path d="M42,32 C43,50 44,70 44,90 C44,105 43,120 45,145 L45,155" />
+                        <path d="M58,32 C57,50 56,70 56,90 C56,105 57,120 55,145 L55,155" />
+                        <path d="M42,32 C40,50 39,70 39,90" />
+                        <path d="M58,32 C60,50 61,70 61,90" />
+                    </svg>
+                </div>
+                <div class="space-y-1">
+                    <h3 class="text-lg font-black text-white group-hover:text-[#00ff66] transition-colors">Ectomorph</h3>
+                    <p class="text-[10px] text-white/40 uppercase font-black tracking-wider">Slim & Slender Silhouette</p>
+                </div>
+                <p class="text-xs text-slate-400 leading-relaxed">
+                    Ultra-fast metabolic rate, hyper-active calorie burning, narrow bone frame, and naturally lower body fat storage.
+                </p>
+            </div>
+
+        </div>
+
+        <footer class="text-center pt-8">
+            <button onclick="window.close()" class="bg-white/5 border border-white/10 hover:border-[#ff375f]/30 hover:bg-[#ff375f]/5 text-white/60 hover:text-[#ff375f] px-8 py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition-all">
+                Cancel Assessment
+            </button>
+        </footer>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const identity = urlParams.get('identity') || 'women';
+            const goal = urlParams.get('goal') || 'lose';
+
+            const cards = document.querySelectorAll('.body-card');
+            cards.forEach(card => {
+                card.addEventListener('click', () => {
+                    const bodytype = card.getAttribute('data-bodytype');
+                    // Open the perfect-plan.html screen in a new tab!
+                    window.open(`perfect-plan.html?identity=${identity}&goal=${goal}&bodytype=${bodytype}`, '_blank');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
