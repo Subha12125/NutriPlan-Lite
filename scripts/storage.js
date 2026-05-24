@@ -51,6 +51,142 @@ function saveDB(db) {
   }
 }
 
+// ── API Sync Service Configuration ───────────────────────────────
+const API_BASE_URL = 'http://localhost:4000/api/v1';
+let authToken = localStorage.getItem('np_auth_token') || null;
+
+async function initAuth() {
+  if (authToken) return true;
+  try {
+    const creds = { email: 'user@nutriplan.com', password: 'DefaultPassword123!' };
+    
+    // Attempt Login
+    let res = await fetch(`${API_BASE_URL}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(creds)
+    });
+    
+    if (res.status === 200) {
+      const data = await res.json();
+      authToken = data.data.token;
+      localStorage.setItem('np_auth_token', authToken);
+      return true;
+    }
+    
+    // Attempt Registration if Login fails
+    res = await fetch(`${API_BASE_URL}/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(creds)
+    });
+    
+    if (res.status === 201) {
+      const data = await res.json();
+      authToken = data.data.token;
+      localStorage.setItem('np_auth_token', authToken);
+      return true;
+    }
+    
+    return false;
+  } catch (error) {
+    console.error('[API Sync] Auth initialization failed:', error);
+    return false;
+  }
+}
+
+async function syncFromServer(dateKey) {
+  const authed = await initAuth();
+  if (!authed) {
+    console.warn('[API Sync] Server offline or unauthorized. Running in Local-Only Demo mode.');
+    return;
+  }
+  
+  try {
+    console.log(`[API Sync] Starting remote fetch for date: ${dateKey}...`);
+    
+    // 1. Fetch Remote Profile
+    const profileRes = await fetch(`${API_BASE_URL}/profile`, {
+      headers: { 'Authorization': `Bearer ${authToken}` }
+    });
+    
+    if (profileRes.ok) {
+      const profileData = await profileRes.json();
+      const p = profileData.data;
+      if (p) {
+        const mappedProfile = {
+          age: p.age,
+          weight: Number(p.weight),
+          height: Number(p.height),
+          gender: p.gender,
+          activity: Number(p.activity_level),
+          goal: p.fitness_goal,
+          macroSplit: p.macro_split,
+          customProtein: p.custom_protein !== null ? Number(p.custom_protein) : 25,
+          customCarbs: p.custom_carbs !== null ? Number(p.custom_carbs) : 45,
+          customFat: p.custom_fat !== null ? Number(p.custom_fat) : 30,
+          waterTarget: p.water_target,
+          isSetup: true
+        };
+        const db = loadDB();
+        db.profile = { ...db.profile, ...mappedProfile };
+        saveDB(db);
+      }
+    }
+    
+    // 2. Fetch Remote Food Logs
+    const foodRes = await fetch(`${API_BASE_URL}/food-logs?date=${dateKey}`, {
+      headers: { 'Authorization': `Bearer ${authToken}` }
+    });
+    
+    if (foodRes.ok) {
+      const foodData = await foodRes.json();
+      const rows = foodData.data;
+      if (Array.isArray(rows)) {
+        const mappedFoods = rows.map(r => ({
+          id: r.id,
+          timestamp: r.created_at || new Date().toISOString(),
+          name: r.food_name,
+          meal: r.meal_type,
+          quantity: Number(r.quantity_grams),
+          calories: Number(r.calories),
+          protein: Number(r.protein),
+          carbs: Number(r.carbs),
+          fat: Number(r.fat)
+        }));
+        const db = loadDB();
+        if (!db.logs[dateKey]) db.logs[dateKey] = { foods: [], water: 0 };
+        db.logs[dateKey].foods = mappedFoods;
+        saveDB(db);
+      }
+    }
+    
+    // 3. Fetch Remote Water Logs
+    const waterRes = await fetch(`${API_BASE_URL}/water-logs?date=${dateKey}`, {
+      headers: { 'Authorization': `Bearer ${authToken}` }
+    });
+    
+    if (waterRes.ok) {
+      const waterData = await waterRes.json();
+      const rows = waterData.data;
+      if (Array.isArray(rows)) {
+        const totalWater = rows.reduce((acc, r) => acc + Number(r.amount_ml), 0);
+        const db = loadDB();
+        if (!db.logs[dateKey]) db.logs[dateKey] = { foods: [], water: 0 };
+        db.logs[dateKey].water = totalWater;
+        saveDB(db);
+      }
+    }
+    
+    console.log('[API Sync] Synchronization complete.');
+    if (window.App && window.App.refresh) {
+      window.App.refresh();
+    }
+  } catch (error) {
+    console.error('[API Sync] Sync failed:', error);
+  }
+}
+
 // ── Profile ──────────────────────────────────────────────────────
 
 function getProfile() {
@@ -61,6 +197,39 @@ function saveProfile(updates) {
   const db = loadDB();
   db.profile = { ...db.profile, ...updates };
   saveDB(db);
+  
+  // Asynchronously save profile to remote server
+  (async () => {
+    const authed = await initAuth();
+    if (!authed) return;
+    try {
+      const p = db.profile;
+      const apiBody = {
+        age: p.age,
+        weight: p.weight,
+        height: p.height,
+        gender: p.gender,
+        activity_level: p.activity,
+        fitness_goal: p.goal,
+        macro_split: p.macroSplit,
+        custom_protein: p.customProtein,
+        custom_carbs: p.customCarbs,
+        custom_fat: p.customFat,
+        water_target: p.waterTarget
+      };
+      await fetch(`${API_BASE_URL}/profile`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(apiBody)
+      });
+    } catch (e) {
+      console.error('[API Sync] Failed to update profile on server:', e);
+    }
+  })();
+  
   return db.profile;
 }
 
@@ -106,6 +275,50 @@ function addFood(dateKey, entry) {
   };
   db.logs[dateKey].foods.push(food);
   saveDB(db);
+  
+  // Asynchronously save food log to remote server
+  (async () => {
+    const authed = await initAuth();
+    if (!authed) return;
+    try {
+      const apiBody = {
+        log_date: dateKey,
+        meal_type: entry.meal,
+        food_name: entry.name,
+        quantity_grams: entry.quantity,
+        calories: entry.calories,
+        protein: entry.protein,
+        carbs: entry.carbs,
+        fat: entry.fat
+      };
+      
+      const res = await fetch(`${API_BASE_URL}/food-logs`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(apiBody)
+      });
+      if (res.ok) {
+        const data = await res.json();
+        // Update local id to map to database UUID
+        if (data.data && data.data.id) {
+          const freshDb = loadDB();
+          const list = freshDb.logs[dateKey].foods;
+          const idx = list.findIndex(f => f.id === food.id);
+          if (idx !== -1) {
+            list[idx].id = data.data.id;
+            saveDB(freshDb);
+            if (window.App && window.App.refresh) window.App.refresh();
+          }
+        }
+      }
+    } catch (e) {
+      console.error('[API Sync] Failed to save food entry on server:', e);
+    }
+  })();
+  
   return food;
 }
 
@@ -116,6 +329,35 @@ function updateFood(dateKey, id, updates) {
   if (idx !== -1) {
     db.logs[dateKey].foods[idx] = { ...db.logs[dateKey].foods[idx], ...updates };
     saveDB(db);
+    
+    // Asynchronously update food log on remote server
+    (async () => {
+      const authed = await initAuth();
+      if (!authed) return;
+      try {
+        const entry = db.logs[dateKey].foods[idx];
+        const apiBody = {
+          meal_type: entry.meal,
+          food_name: entry.name,
+          quantity_grams: entry.quantity,
+          calories: entry.calories,
+          protein: entry.protein,
+          carbs: entry.carbs,
+          fat: entry.fat
+        };
+        
+        await fetch(`${API_BASE_URL}/food-logs/${id}`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${authToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(apiBody)
+        });
+      } catch (e) {
+        console.error('[API Sync] Failed to update food entry on server:', e);
+      }
+    })();
   }
 }
 
@@ -124,6 +366,20 @@ function deleteFood(dateKey, id) {
   if (!db.logs[dateKey]) return;
   db.logs[dateKey].foods = db.logs[dateKey].foods.filter(f => f.id !== id);
   saveDB(db);
+  
+  // Asynchronously delete food log on remote server
+  (async () => {
+    const authed = await initAuth();
+    if (!authed) return;
+    try {
+      await fetch(`${API_BASE_URL}/food-logs/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${authToken}` }
+      });
+    } catch (e) {
+      console.error('[API Sync] Failed to delete food entry on server:', e);
+    }
+  })();
 }
 
 // ── Hydration ─────────────────────────────────────────────────────
@@ -137,6 +393,28 @@ function addWater(dateKey, ml) {
   if (!db.logs[dateKey]) db.logs[dateKey] = { foods: [], water: 0 };
   db.logs[dateKey].water = (db.logs[dateKey].water || 0) + ml;
   saveDB(db);
+  
+  // Asynchronously save water log on remote server
+  (async () => {
+    const authed = await initAuth();
+    if (!authed) return;
+    try {
+      await fetch(`${API_BASE_URL}/water-logs`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          log_date: dateKey,
+          amount_ml: ml
+        })
+      });
+    } catch (e) {
+      console.error('[API Sync] Failed to save water log on server:', e);
+    }
+  })();
+  
   return db.logs[dateKey].water;
 }
 
@@ -145,6 +423,22 @@ function setWater(dateKey, ml) {
   if (!db.logs[dateKey]) db.logs[dateKey] = { foods: [], water: 0 };
   db.logs[dateKey].water = ml;
   saveDB(db);
+  
+  // Asynchronously reset water logs on remote server if set to 0
+  if (ml === 0) {
+    (async () => {
+      const authed = await initAuth();
+      if (!authed) return;
+      try {
+        await fetch(`${API_BASE_URL}/water-logs?date=${dateKey}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+      } catch (e) {
+        console.error('[API Sync] Failed to reset water logs on server:', e);
+      }
+    })();
+  }
 }
 
 // ── Weekly data for analytics ─────────────────────────────────────
@@ -215,5 +509,6 @@ window.Storage = {
   getWeeklyData,
   getSettings, saveSettings,
   getStreak,
-  todayKey, getLocalDateString
+  todayKey, getLocalDateString,
+  syncFromServer
 };

@@ -16,13 +16,13 @@
    - AI Quick Log: Natural language food parsing
    - AI Coach: Context-aware nutrition advice
 
-4. **Visualization Layer** (Chart.js)
+4. **Visualization Layer** (Custom CSS/HTML Bar Charts)
    - Real-time nutrition metrics
    - Weekly trend analysis
    - Progress tracking
 
 ### Data Flow Architecture
-```
+```text
 User Input → Client Validation → API Gateway → 
 ├─ Supabase (if configured)
 └─ localStorage (fallback)
@@ -38,7 +38,7 @@ User Input → Client Validation → API Gateway →
 5. Initialize dashboard with default metrics
 
 ### 2. Food Logging Workflow
-```
+```text
 User Input → Food Form Validation → 
 ├─ AI Quick Log (if enabled) → Gemini API → Parsed Food Data
 └─ Manual Input → Direct Food Entry
@@ -48,7 +48,7 @@ User Input → Food Form Validation →
 → Trigger weekly chart updates
 
 ### 3. Data Synchronization Flow
-```
+```text
 Local Changes → Dequeuing System → 
 ├─ Supabase Sync (if online)
 └─ localStorage persistence
@@ -59,9 +59,9 @@ Local Changes → Dequeuing System →
 ### 1. Database Configuration Errors
 **Risk Level**: High
 - **Error**: Missing Supabase keys
-- **Impact**: App fails to start
-- **Solution**: Check `storage.js` for proper initialization
-- **Prevention**: Validate keys before app load
+- **Impact**: App falls back to local demo mode; online features (auth, remote storage, syncing) will be unavailable/degraded.
+- **Solution**: Check `scripts/storage.js` for proper initialization and key retrieval validation.
+- **Prevention**: Enable setupLocalDemoMode() and loadLocalFallbackData() in `script.js` to gracefully run locally.
 
 ### 2. Network Dependency Issues
 **Risk Level**: Medium

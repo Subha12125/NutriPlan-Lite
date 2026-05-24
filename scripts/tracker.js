@@ -294,6 +294,9 @@ window.Tracker = (() => {
   // ── Wire up drawer events ────────────────────────────────────────
   async function init() {
     currentDate = Storage.todayKey(); // safe now — Storage is fully loaded
+    if (window.Storage && window.Storage.syncFromServer) {
+      window.Storage.syncFromServer(currentDate);
+    }
     if (initialized) return;
     initialized = true;
     
@@ -370,6 +373,9 @@ window.Tracker = (() => {
     if (d > today) return;
     currentDate = Storage.getLocalDateString(d);
     updateDateLabel();
+    if (window.Storage && window.Storage.syncFromServer) {
+      window.Storage.syncFromServer(currentDate);
+    }
     App.refresh();
   }
 

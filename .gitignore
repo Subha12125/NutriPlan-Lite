@@ -1,0 +1,8 @@
+backend/node_modules/
+backend/.env
+backend/.env.example
+backend/.env.local
+backend/.env.development
+backend/.env.production
+backend/.env.staging
+backend/.env.*

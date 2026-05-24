@@ -55,7 +55,7 @@ The application operates in a dual-mode model: by default, it functions as a loc
 
 NutriplanLite is organized as a lightweight Single Page Application (SPA) that structures data flow, navigation, and API gateways fully on the client-side.
 
-```
+```text
                   ┌───────────────────────────────┐
                   │      User UI Interaction      │
                   └───────────────┬───────────────┘
@@ -134,7 +134,7 @@ Open your browser and visit `http://localhost:3000`.
 
 ### Build for Production
 No build command is necessary since the source HTML, CSS, and JS files can be run natively by web servers.
-For production performance improvements (minification, file bundling, and environment variable configuration), please refer to the integration details inside [production-improvements.md].
+For production performance improvements (minification, file bundling, and environment variable configuration), please refer to the integration details inside [production-improvements.md](production-improvements.md).
 
 ---
 
@@ -142,7 +142,7 @@ For production performance improvements (minification, file bundling, and enviro
 
 The codebase is organized cleanly to separate layout templates, application scripts, database configuration schemas, and UI styling files:
 
-```
+```text
 .
 ├── foodDB.json                       # Local fallback database containing 43+ food items
 ├── index.html                        # Main shell page containing app skeleton and SPA templates
@@ -256,7 +256,7 @@ We welcome contributions from the open-source community! To contribute to Nutrip
 > [!TIP]
 > **First-Time Contributors Guide:**
 > - You don't need a Supabase configuration to work on frontend aesthetics or local modules! Simply launch the app in **Local Demo Mode** (default state when settings are blank) to modify trackers, styles, and dashboard modules.
-> - Review [pr_instructions_for_maintainers.md] to inspect testing expectations before opening a PR.
+> - Review [pr_instructions_for_maintainers.md](pr_instructions_for_maintainers.md) to inspect testing expectations before opening a PR.
 
 ---
 
@@ -291,7 +291,7 @@ NutriplanLite is validated using a manual regression testing plan:
 - **Log Aggregations**: Asserting food quantities compile totals, timelines update UI lists, and water reset commands purge logs correctly.
 - **Gemini NLP**: Verification that natural language inputs reliably populate food entries with estimated calorie/macro parameters.
 
-*Note: Plans to introduce Jest unit tests and Cypress E2E scripts are detail-mapped inside [production-improvements.md].*
+*Note: Plans to introduce Jest unit tests and Cypress E2E scripts are detail-mapped inside [production-improvements.md](production-improvements.md).*
 
 ---
 
@@ -320,14 +320,18 @@ Once live, visit the deployed site, open the top-right Settings Cog, and write y
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](TODO: Add LICENSE file link) file for details.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ---
+
+## Maintainers
+
+- **Jayavel2005** — Project Creator & Lead Developer - [GitHub](https://github.com/Jayavel2005)
 
 ---
 
 ## Support
 
-- Open a bug report or feature request on the GitHub repository issue tracker.
-- Engage with developers in the discussions forum: [TODO: Add discussion board link]
-- For support inquiries, contact the maintenance team: [TODO: Add support email address]
+- Open a bug report or feature request on the GitHub repository [Issue Tracker](https://github.com/Jayavel2005/NutriPlan-Lite/issues).
+- Engage with developers in the discussions forum: [GitHub Discussions](https://github.com/Jayavel2005/NutriPlan-Lite/discussions).
+- For support inquiries, contact the maintenance team: support@nutriplanlite.org

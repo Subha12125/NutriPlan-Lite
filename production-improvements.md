@@ -115,6 +115,30 @@ self.addEventListener('fetch', event => {
       .then(response => response || fetch(event.request))
   );
 });
+
+self.addEventListener('sync', event => {
+  if (event.tag.startsWith('sync-')) {
+    event.waitUntil(
+      loadSyncPayloadFromQueue(event.tag)
+        .then(payload => {
+          if (payload) {
+            return processSyncAction(payload.action, payload.data);
+          }
+        })
+        .catch(err => console.error('Background sync processing failed:', err))
+    );
+  }
+});
+
+async function loadSyncPayloadFromQueue(tag) {
+  // TODO: Retrieve payload from IndexedDB/Queue storage by matching tag string
+  return null;
+}
+
+async function processSyncAction(action, data) {
+  // TODO: Post data updates to cloud backend API
+  console.log(`Processing background sync action: ${action}`, data);
+}
 ```
 
 **Database Optimization**
@@ -158,12 +182,17 @@ function validateFoodEntry(entry) {
 
 // Sanitize user input
 function sanitizeInput(input) {
+  if (typeof input !== 'string') return '';
+  const entityMap = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  };
   return input
     .trim()
-    .replace(/</g, '<')
-    .replace(/>/g, '>')
-    .replace(/"/g, '"')
-    .replace(/'/g, ''');
+    .replace(/[&<>"']/g, match => entityMap[match]);
 }
 ```
 
@@ -497,17 +526,24 @@ const registerPWA = () => {
 };
 
 // Background sync for offline actions
-const backgroundSync = (action, data) => {
+const backgroundSync = async (action, data) => {
   if ('serviceWorker' in navigator && 'SyncManager' in window) {
-    return navigator.serviceWorker.ready.then(registration => {
-      return registration.sync.register('background-sync', {
-        tag: `sync-${action}-${Date.now()}`,
-        data: { action, data }
-      });
-    });
+    const timestamp = Date.now();
+    const tag = `sync-${action}-${timestamp}`;
+    
+    // Persist payload separately (e.g., IndexedDB or local sync queue)
+    await saveSyncPayloadToQueue(tag, { action, data });
+    
+    const registration = await navigator.serviceWorker.ready;
+    return registration.sync.register(tag);
   }
   return Promise.resolve();
 };
+
+async function saveSyncPayloadToQueue(tag, payload) {
+  // TODO: Implement IndexedDB or local storage sync queue persistence
+  console.info(`Saved sync payload for tag: ${tag}`, payload);
+}
 ```
 
 **Multi-Device Sync**
@@ -725,10 +761,12 @@ const schema = buildSchema(`
 // mobile/App.js
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Button, FlatList } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { supabase } from './services/supabase';
 import { Storage } from './utils/storage';
 
 const App = () => {
+  const navigation = useNavigation();
   const [profile, setProfile] = useState(null);
   const [foodLogs, setFoodLogs] = useState([]);
   const [loading, setLoading] = useState(true);
