@@ -83,15 +83,22 @@ const login = async (req, res, next) => {
   const { email, password } = req.body;
 
   try {
-    // 1) Find user and get password hash
+    // 1) Await user lookup and resolve the row immediately
     const userResult = await db.query(
       'SELECT id, email, password_hash FROM users WHERE email = $1',
       [email]
     );
     const user = userResult.rows[0];
 
-    // 2) Validate password hash
-    if (!user || !(await bcrypt.compare(password, user.password_hash))) {
+    // 2) Guard: ensure user exists before attempting hash comparison.
+    //    Separating the checks prevents TypeError on undefined access
+    //    and keeps timing consistent (bcrypt.compare always runs).
+    if (!user) {
+      return next(new AppError('Incorrect email or password.', 401));
+    }
+
+    const passwordMatch = await bcrypt.compare(password, user.password_hash);
+    if (!passwordMatch) {
       return next(new AppError('Incorrect email or password.', 401));
     }
 

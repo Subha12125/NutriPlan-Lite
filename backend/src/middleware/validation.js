@@ -84,6 +84,18 @@ const validateProfileUpdate = (req, res, next) => {
     }
   }
 
+  // Normalize: optional fields not provided in the body are set to null
+  // so service layers receive a clean null instead of undefined.
+  const optionalProfileFields = [
+    'age', 'weight', 'height', 'gender', 'activity_level', 'water_target',
+    'macro_split', 'fitness_goal', 'custom_protein', 'custom_carbs', 'custom_fat'
+  ];
+  optionalProfileFields.forEach((field) => {
+    if (req.body[field] === undefined) {
+      req.body[field] = null;
+    }
+  });
+
   next();
 };
 
@@ -148,18 +160,35 @@ const validateFoodLog = (req, res, next) => {
     return next(new AppError('Log date must be in YYYY-MM-DD format.', 400));
   }
 
+  // Normalize: optional nutritional fields not provided in a PUT body → null
+  if (!isPost) {
+    const optionalFoodFields = ['protein', 'carbs', 'fat', 'log_date'];
+    optionalFoodFields.forEach((field) => {
+      if (req.body[field] === undefined) {
+        req.body[field] = null;
+      }
+    });
+  }
+
   next();
 };
 
 /**
  * Validation for water log creation.
+ * amount_ml must be a positive integer — float strings and non-numeric values are rejected.
  */
 const validateWaterLog = (req, res, next) => {
   const { amount_ml, log_date } = req.body;
 
-  const amount = parseInt(amount_ml, 10);
-  if (amount_ml === undefined || isNaN(amount) || amount <= 0) {
+  // Reject missing, non-numeric types, and float strings.
+  // parseInt('250abc') === 250 (silently accepts junk), so we validate with Number() first.
+  if (amount_ml === undefined || amount_ml === null) {
     return next(new AppError('Amount in ml is required and must be a positive integer.', 400));
+  }
+
+  const asNumber = Number(amount_ml);
+  if (!Number.isFinite(asNumber) || asNumber <= 0 || !Number.isInteger(asNumber)) {
+    return next(new AppError('Amount in ml must be a positive integer.', 400));
   }
 
   if (log_date !== undefined && log_date !== null && !dateRegex.test(log_date)) {

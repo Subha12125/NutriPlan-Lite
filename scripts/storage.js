@@ -1,6 +1,15 @@
 // ================================================================
 // storage.js — Persistent localStorage database layer
 // NutriPlan-Lite
+//
+// Architecture:
+//   - Primary state: localStorage (always available, instant)
+//   - Backend sync:  ApiService.* (when authenticated via Session)
+//   - Fallback:      If backend unreachable → localStorage only
+//
+// All mutation functions (addFood, updateFood, …) update local
+// state synchronously FIRST, then fire a non-blocking background
+// API call so the UI never stalls waiting for the network.
 // ================================================================
 
 const DB_KEY = 'nutriplan_v2';
@@ -21,13 +30,15 @@ const DEFAULT_PROFILE = {
   waterTarget: 2500
 };
 
+// ── Core DB helpers ────────────────────────────────────────────────
+
 function loadDB() {
   try {
     const raw = localStorage.getItem(DB_KEY);
     if (!raw) return createEmptyDB();
     const db = JSON.parse(raw);
-    if (!db.profile) db.profile = { ...DEFAULT_PROFILE };
-    if (!db.logs) db.logs = {};
+    if (!db.profile)  db.profile  = { ...DEFAULT_PROFILE };
+    if (!db.logs)     db.logs     = {};
     if (!db.settings) db.settings = { theme: 'dark', notifications: true };
     return db;
   } catch {
@@ -51,7 +62,13 @@ function saveDB(db) {
   }
 }
 
-// ── Profile ──────────────────────────────────────────────────────
+// ── Auth guard helper ──────────────────────────────────────────────
+
+function isOnline() {
+  return !!(window.Session && window.Session.isAuthenticated());
+}
+
+// ── Profile ────────────────────────────────────────────────────────
 
 function getProfile() {
   return loadDB().profile;
@@ -62,17 +79,16 @@ function saveProfile(updates) {
   db.profile = { ...db.profile, ...updates };
   saveDB(db);
 
-  if (window.Auth && window.Auth.isAuthenticated()) {
-    window.Auth.apiRequest('/auth/profile', {
-      method: 'PUT',
-      body: JSON.stringify(mapFrontendToBackendProfile(db.profile))
-    }).catch(err => console.error("Profile sync failed:", err));
+  // Background sync — non-blocking
+  if (isOnline()) {
+    ApiService.profile.update(mapFrontendToBackendProfile(db.profile))
+      .catch(err => console.warn('[Storage] Profile sync failed (non-fatal):', err.message));
   }
 
   return db.profile;
 }
 
-// ── Day log helpers ───────────────────────────────────────────────
+// ── Day log helpers ────────────────────────────────────────────────
 
 function todayKey() {
   return getLocalDateString(new Date());
@@ -98,7 +114,7 @@ function saveDayLog(dateKey, dayLog) {
   saveDB(db);
 }
 
-// ── Food entries ──────────────────────────────────────────────────
+// ── Food entries ───────────────────────────────────────────────────
 
 function getFoods(dateKey) {
   return getDayLog(dateKey).foods || [];
@@ -107,21 +123,22 @@ function getFoods(dateKey) {
 function addFood(dateKey, entry) {
   const db = loadDB();
   if (!db.logs[dateKey]) db.logs[dateKey] = { foods: [], water: 0 };
-  
+
   const food = {
-    id: crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+    id: crypto.randomUUID
+      ? crypto.randomUUID()
+      : `${Date.now()}-${Math.random().toString(36).slice(2)}`,
     timestamp: new Date().toISOString(),
     ...entry
   };
-  
+
   db.logs[dateKey].foods.push(food);
   saveDB(db);
 
-  if (window.Auth && window.Auth.isAuthenticated()) {
-    window.Auth.apiRequest('/food-logs', {
-      method: 'POST',
-      body: JSON.stringify(mapFrontendToBackendFood(food, dateKey))
-    }).catch(err => console.error("Food log add failed:", err));
+  // Background sync
+  if (isOnline()) {
+    ApiService.food.create(mapFrontendToBackendFood(food, dateKey))
+      .catch(err => console.warn('[Storage] addFood sync failed (non-fatal):', err.message));
   }
 
   return food;
@@ -131,17 +148,16 @@ function updateFood(dateKey, id, updates) {
   const db = loadDB();
   if (!db.logs[dateKey]) return;
   const idx = db.logs[dateKey].foods.findIndex(f => f.id === id);
-  if (idx !== -1) {
-    db.logs[dateKey].foods[idx] = { ...db.logs[dateKey].foods[idx], ...updates };
-    saveDB(db);
+  if (idx === -1) return;
 
-    if (window.Auth && window.Auth.isAuthenticated()) {
-      const updatedFood = db.logs[dateKey].foods[idx];
-      window.Auth.apiRequest(`/food-logs/${id}`, {
-        method: 'PUT',
-        body: JSON.stringify(mapFrontendToBackendFood(updatedFood, dateKey))
-      }).catch(err => console.error("Food log update failed:", err));
-    }
+  db.logs[dateKey].foods[idx] = { ...db.logs[dateKey].foods[idx], ...updates };
+  saveDB(db);
+
+  // Background sync
+  if (isOnline()) {
+    const updated = db.logs[dateKey].foods[idx];
+    ApiService.food.update(id, mapFrontendToBackendFood(updated, dateKey))
+      .catch(err => console.warn('[Storage] updateFood sync failed (non-fatal):', err.message));
   }
 }
 
@@ -151,14 +167,14 @@ function deleteFood(dateKey, id) {
   db.logs[dateKey].foods = db.logs[dateKey].foods.filter(f => f.id !== id);
   saveDB(db);
 
-  if (window.Auth && window.Auth.isAuthenticated()) {
-    window.Auth.apiRequest(`/food-logs/${id}`, {
-      method: 'DELETE'
-    }).catch(err => console.error("Food log delete failed:", err));
+  // Background sync
+  if (isOnline()) {
+    ApiService.food.delete(id)
+      .catch(err => console.warn('[Storage] deleteFood sync failed (non-fatal):', err.message));
   }
 }
 
-// ── Hydration ─────────────────────────────────────────────────────
+// ── Hydration ──────────────────────────────────────────────────────
 
 function getWater(dateKey) {
   return getDayLog(dateKey).water || 0;
@@ -170,14 +186,10 @@ function addWater(dateKey, ml) {
   db.logs[dateKey].water = (db.logs[dateKey].water || 0) + ml;
   saveDB(db);
 
-  if (window.Auth && window.Auth.isAuthenticated()) {
-    window.Auth.apiRequest('/water-logs', {
-      method: 'POST',
-      body: JSON.stringify({
-        amount_ml: ml,
-        log_date: dateKey
-      })
-    }).catch(err => console.error("Water log add failed:", err));
+  // Background sync
+  if (isOnline()) {
+    ApiService.water.create(ml, dateKey)
+      .catch(err => console.warn('[Storage] addWater sync failed (non-fatal):', err.message));
   }
 
   return db.logs[dateKey].water;
@@ -189,30 +201,22 @@ function setWater(dateKey, ml) {
   db.logs[dateKey].water = ml;
   saveDB(db);
 
-  if (window.Auth && window.Auth.isAuthenticated()) {
-    if (ml === 0) {
-      window.Auth.apiRequest(`/water-logs/reset?date=${dateKey}`, {
-        method: 'DELETE'
-      }).catch(err => console.error("Water log reset failed:", err));
-    } else {
-      (async () => {
-        try {
-          await window.Auth.apiRequest(`/water-logs/reset?date=${dateKey}`, { method: 'DELETE' });
-          if (ml > 0) {
-            await window.Auth.apiRequest('/water-logs', {
-              method: 'POST',
-              body: JSON.stringify({ amount_ml: ml, log_date: dateKey })
-            });
-          }
-        } catch (err) {
-          console.error("Water log update failed:", err);
+  // Background sync — reset then optionally re-create
+  if (isOnline()) {
+    (async () => {
+      try {
+        await ApiService.water.reset(dateKey);
+        if (ml > 0) {
+          await ApiService.water.create(ml, dateKey);
         }
-      })();
-    }
+      } catch (err) {
+        console.warn('[Storage] setWater sync failed (non-fatal):', err.message);
+      }
+    })();
   }
 }
 
-// ── Weekly data for analytics ─────────────────────────────────────
+// ── Weekly data for analytics ──────────────────────────────────────
 
 function getWeeklyData() {
   const db = loadDB();
@@ -223,23 +227,23 @@ function getWeeklyData() {
     const key = getLocalDateString(d);
     const log = db.logs[key] || { foods: [], water: 0 };
     const calories = log.foods.reduce((s, f) => s + (f.calories || 0), 0);
-    const protein = log.foods.reduce((s, f) => s + (f.protein || 0), 0);
-    const carbs = log.foods.reduce((s, f) => s + (f.carbs || 0), 0);
-    const fat = log.foods.reduce((s, f) => s + (f.fat || 0), 0);
+    const protein  = log.foods.reduce((s, f) => s + (f.protein  || 0), 0);
+    const carbs    = log.foods.reduce((s, f) => s + (f.carbs    || 0), 0);
+    const fat      = log.foods.reduce((s, f) => s + (f.fat      || 0), 0);
     result.push({
-      date: key,
-      label: d.toLocaleDateString('en-US', { weekday: 'short' }),
+      date:     key,
+      label:    d.toLocaleDateString('en-US', { weekday: 'short' }),
       calories: Math.round(calories),
-      protein: Math.round(protein * 10) / 10,
-      carbs: Math.round(carbs * 10) / 10,
-      fat: Math.round(fat * 10) / 10,
-      water: log.water || 0
+      protein:  Math.round(protein  * 10) / 10,
+      carbs:    Math.round(carbs    * 10) / 10,
+      fat:      Math.round(fat      * 10) / 10,
+      water:    log.water || 0
     });
   }
   return result;
 }
 
-// ── Settings ──────────────────────────────────────────────────────
+// ── Settings ───────────────────────────────────────────────────────
 
 function getSettings() {
   return loadDB().settings;
@@ -251,7 +255,7 @@ function saveSettings(updates) {
   saveDB(db);
 }
 
-// ── Streak calculation ────────────────────────────────────────────
+// ── Streak calculation ─────────────────────────────────────────────
 
 function getStreak() {
   const db = loadDB();
@@ -271,123 +275,189 @@ function getStreak() {
   return streak;
 }
 
-// ── Mapping and Sync helpers ──────────────────────────────────────
+// ── Field mapping helpers ──────────────────────────────────────────
 
 function mapFrontendToBackendProfile(fe) {
   return {
-    age: fe.age !== undefined ? parseInt(fe.age, 10) : undefined,
-    weight: fe.weight !== undefined ? parseFloat(fe.weight) : undefined,
-    height: fe.height !== undefined ? parseFloat(fe.height) : undefined,
-    gender: fe.gender,
-    activity_level: fe.activity !== undefined ? parseFloat(fe.activity) : undefined,
-    fitness_goal: fe.goal,
-    macro_split: fe.macroSplit,
+    age:            fe.age      !== undefined ? parseInt(fe.age,       10) : undefined,
+    weight:         fe.weight   !== undefined ? parseFloat(fe.weight)      : undefined,
+    height:         fe.height   !== undefined ? parseFloat(fe.height)      : undefined,
+    gender:         fe.gender,
+    activity_level: fe.activity !== undefined ? parseFloat(fe.activity)    : undefined,
+    fitness_goal:   fe.goal,
+    macro_split:    fe.macroSplit,
     custom_protein: fe.customProtein !== undefined ? parseFloat(fe.customProtein) : undefined,
-    custom_carbs: fe.customCarbs !== undefined ? parseFloat(fe.customCarbs) : undefined,
-    custom_fat: fe.customFat !== undefined ? parseFloat(fe.customFat) : undefined,
-    water_target: fe.waterTarget !== undefined ? parseInt(fe.waterTarget, 10) : undefined
+    custom_carbs:   fe.customCarbs   !== undefined ? parseFloat(fe.customCarbs)   : undefined,
+    custom_fat:     fe.customFat     !== undefined ? parseFloat(fe.customFat)     : undefined,
+    water_target:   fe.waterTarget   !== undefined ? parseInt(fe.waterTarget, 10) : undefined
   };
 }
 
 function mapBackendToFrontendProfile(be) {
   if (!be) return null;
   return {
-    isSetup: true,
-    name: 'User',
-    age: be.age !== null ? parseInt(be.age, 10) : 25,
-    weight: be.weight !== null ? parseFloat(be.weight) : 70,
-    height: be.height !== null ? parseFloat(be.height) : 175,
-    gender: be.gender || 'male',
-    activity: be.activity_level !== null ? parseFloat(be.activity_level) : 1.55,
-    goal: be.fitness_goal || 'maintain',
-    macroSplit: be.macro_split || 'balanced',
+    isSetup:       true,
+    name:          'User',
+    age:           be.age            !== null ? parseInt(be.age,       10) : 25,
+    weight:        be.weight         !== null ? parseFloat(be.weight)      : 70,
+    height:        be.height         !== null ? parseFloat(be.height)      : 175,
+    gender:        be.gender         || 'male',
+    activity:      be.activity_level !== null ? parseFloat(be.activity_level) : 1.55,
+    goal:          be.fitness_goal   || 'maintain',
+    macroSplit:    be.macro_split    || 'balanced',
     customProtein: be.custom_protein !== null ? parseFloat(be.custom_protein) : 25,
-    customCarbs: be.custom_carbs !== null ? parseFloat(be.custom_carbs) : 45,
-    customFat: be.custom_fat !== null ? parseFloat(be.custom_fat) : 30,
-    waterTarget: be.water_target !== null ? parseInt(be.water_target, 10) : 2500
+    customCarbs:   be.custom_carbs   !== null ? parseFloat(be.custom_carbs)   : 45,
+    customFat:     be.custom_fat     !== null ? parseFloat(be.custom_fat)     : 30,
+    waterTarget:   be.water_target   !== null ? parseInt(be.water_target, 10) : 2500
   };
 }
 
 function mapFrontendToBackendFood(fe, dateKey) {
   return {
-    id: fe.id,
-    food_name: fe.name,
+    id:             fe.id,
+    food_name:      fe.name,
     quantity_grams: fe.quantity,
-    calories: fe.calories,
-    protein: fe.protein || 0,
-    carbs: fe.carbs || 0,
-    fat: fe.fat || 0,
-    meal_type: fe.meal || 'breakfast',
-    log_date: dateKey
+    calories:       fe.calories,
+    protein:        fe.protein  || 0,
+    carbs:          fe.carbs    || 0,
+    fat:            fe.fat      || 0,
+    meal_type:      fe.meal     || 'breakfast',
+    log_date:       dateKey
   };
 }
 
 function mapBackendToFrontendFood(be) {
   return {
-    id: be.id,
+    id:        be.id,
     timestamp: be.created_at || new Date().toISOString(),
-    name: be.food_name,
-    meal: be.meal_type,
-    quantity: parseFloat(be.quantity_grams),
-    calories: parseInt(be.calories, 10),
-    protein: parseFloat(be.protein || 0),
-    carbs: parseFloat(be.carbs || 0),
-    fat: parseFloat(be.fat || 0)
+    name:      be.food_name,
+    meal:      be.meal_type,
+    quantity:  parseFloat(be.quantity_grams),
+    calories:  parseInt(be.calories,  10),
+    protein:   parseFloat(be.protein  || 0),
+    carbs:     parseFloat(be.carbs    || 0),
+    fat:       parseFloat(be.fat      || 0)
   };
 }
 
 function formatDate(dateVal) {
   if (!dateVal) return todayKey();
   const str = String(dateVal);
-  if (str.includes('T')) {
-    return str.split('T')[0];
-  }
-  return str;
+  return str.includes('T') ? str.split('T')[0] : str;
 }
 
-async function sync() {
-  if (!window.Auth || !window.Auth.isAuthenticated()) return;
+// ── Demo mode banner ───────────────────────────────────────────────
+
+function _showDemoModeBanner() {
+  const existing = document.getElementById('demo-mode-banner');
+  if (existing) return; // already shown
+  const banner = document.createElement('div');
+  banner.id = 'demo-mode-banner';
+  banner.setAttribute('role', 'status');
+  banner.setAttribute('aria-live', 'polite');
+  banner.style.cssText = [
+    'position:fixed', 'bottom:0', 'left:0', 'right:0',
+    'z-index:9999',
+    'background:rgba(30,30,40,0.96)',
+    'color:#f59e0b',
+    'font-size:0.82rem',
+    'font-weight:600',
+    'padding:8px 16px',
+    'display:flex',
+    'align-items:center',
+    'justify-content:center',
+    'gap:8px',
+    'border-top:1px solid rgba(245,158,11,0.3)',
+    'backdrop-filter:blur(8px)',
+    '-webkit-backdrop-filter:blur(8px)',
+    'letter-spacing:0.02em'
+  ].join(';');
+  banner.innerHTML = `<span>⚠️</span><span>Demo Mode Active — data saved locally only. <a href="#" id="demo-signin-link" style="color:#f59e0b;text-decoration:underline;cursor:pointer;">Sign in</a> to sync with the cloud.</span>`;
+  document.body.appendChild(banner);
+
+  // Wire the inline sign-in link
+  const link = document.getElementById('demo-signin-link');
+  if (link) {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (window.Auth && window.Auth.openModal) window.Auth.openModal();
+    });
+  }
+}
+
+function _hideDemoModeBanner() {
+  const banner = document.getElementById('demo-mode-banner');
+  if (banner) banner.remove();
+}
+
+// ── Full backend sync ──────────────────────────────────────────────
+
+/**
+ * Fetch the full dataset from the Express backend and rebuild
+ * the local DB cache, preserving the existing log structure.
+ *
+ * If the backend is unavailable, logs a warning and shows the
+ * "Demo Mode Active" banner — the app continues using localStorage.
+ *
+ * @param {string} [dateFilter]  Optional YYYY-MM-DD to restrict scope (future use)
+ */
+async function sync(dateFilter) {
+  if (!isOnline()) {
+    _showDemoModeBanner();
+    return;
+  }
+
   try {
     const db = loadDB();
 
     // 1. Sync Profile
-    const profileRes = await window.Auth.apiRequest('/auth/profile');
+    const profileRes = await ApiService.profile.get();
     if (profileRes && profileRes.status === 'success' && profileRes.data && profileRes.data.profile) {
       db.profile = mapBackendToFrontendProfile(profileRes.data.profile);
     }
 
-    // 2. Sync All Food Logs
-    const foodsRes = await window.Auth.apiRequest('/food-logs');
+    // 2. Sync Food Logs
+    const foodsRes = await ApiService.food.get(dateFilter);
     const foodLogs = (foodsRes && foodsRes.data && foodsRes.data.foodLogs) || [];
 
-    // 3. Sync All Water Logs
-    const waterRes = await window.Auth.apiRequest('/water-logs');
+    // 3. Sync Water Logs
+    const waterRes = await ApiService.water.get(dateFilter);
     const waterLogs = (waterRes && waterRes.data && waterRes.data.waterLogs) || [];
 
-    // Clear old logs so we only have what's on the server
-    db.logs = {};
+    // Rebuild logs from server — clear only for full sync, preserve for date-scoped
+    if (!dateFilter) {
+      db.logs = {};
+    } else {
+      // Only wipe the targeted date so other days are untouched
+      if (db.logs[dateFilter]) {
+        db.logs[dateFilter] = { foods: [], water: 0 };
+      }
+    }
 
-    // Rebuild logs
     foodLogs.forEach(beFood => {
-      const dateKey = formatDate(beFood.log_date);
-      if (!db.logs[dateKey]) db.logs[dateKey] = { foods: [], water: 0 };
-      db.logs[dateKey].foods.push(mapBackendToFrontendFood(beFood));
+      const key = formatDate(beFood.log_date);
+      if (!db.logs[key]) db.logs[key] = { foods: [], water: 0 };
+      db.logs[key].foods.push(mapBackendToFrontendFood(beFood));
     });
 
     waterLogs.forEach(beWater => {
-      const dateKey = formatDate(beWater.log_date);
-      if (!db.logs[dateKey]) db.logs[dateKey] = { foods: [], water: 0 };
-      db.logs[dateKey].water += parseInt(beWater.amount_ml || 0, 10);
+      const key = formatDate(beWater.log_date);
+      if (!db.logs[key]) db.logs[key] = { foods: [], water: 0 };
+      db.logs[key].water += parseInt(beWater.amount_ml || 0, 10);
     });
 
     saveDB(db);
-    console.log("Database synced with backend server successfully.");
+    _hideDemoModeBanner();
+    console.log('[Storage] Synced with backend.', dateFilter ? `Date: ${dateFilter}` : 'Full sync.');
   } catch (e) {
-    console.error("Database sync failed:", e);
+    // Backend offline or error — remain in demo mode
+    console.warn('[Storage] Sync failed, staying in demo mode:', e.message || e);
+    _showDemoModeBanner();
   }
 }
 
-// Export as global
+// ── Global export ──────────────────────────────────────────────────
+
 window.Storage = {
   getProfile, saveProfile,
   getFoods, addFood, updateFood, deleteFood,
@@ -396,5 +466,6 @@ window.Storage = {
   getWeeklyData,
   getSettings, saveSettings,
   getStreak,
-  todayKey, getLocalDateString
+  todayKey, getLocalDateString,
+  sync
 };

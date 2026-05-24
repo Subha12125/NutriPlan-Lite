@@ -1,38 +1,49 @@
 const db = require('../config/db');
+const logger = require('../config/logger');
 
 /**
  * Retrieves water log entries for a user, optionally filtered by log_date.
  */
 const getWaterLogsByUserId = async (userId, date = null) => {
-  let queryText = `
-    SELECT id, user_id, log_date, amount_ml, created_at 
-    FROM water_logs 
-    WHERE user_id = $1
-  `;
-  const queryParams = [userId];
+  try {
+    let queryText = `
+      SELECT id, user_id, log_date, amount_ml, created_at 
+      FROM water_logs 
+      WHERE user_id = $1
+    `;
+    const queryParams = [userId];
 
-  if (date) {
-    queryText += ' AND log_date = $2';
-    queryParams.push(date);
+    if (date) {
+      queryText += ' AND log_date = $2';
+      queryParams.push(date);
+    }
+
+    queryText += ' ORDER BY created_at DESC';
+
+    const result = await db.query(queryText, queryParams);
+    return result.rows;
+  } catch (err) {
+    logger.error(`[waterLog service] getWaterLogsByUserId failed for userId=${userId}: ${err.message}`);
+    throw err;
   }
-
-  queryText += ' ORDER BY created_at DESC';
-
-  const result = await db.query(queryText, queryParams);
-  return result.rows;
 };
 
 /**
  * Inserts a new water log entry.
  */
 const createWaterLogEntry = async (userId, amountMl, date = null) => {
-  const queryText = `
-    INSERT INTO water_logs (user_id, amount_ml, log_date) 
-    VALUES ($1, $2, COALESCE($3, CURRENT_DATE)) 
-    RETURNING id, user_id, log_date, amount_ml, created_at
-  `;
-  const result = await db.query(queryText, [userId, amountMl, date || null]);
-  return result.rows[0];
+  try {
+    const queryText = `
+      INSERT INTO water_logs (user_id, amount_ml, log_date) 
+      VALUES ($1, $2, COALESCE($3, CURRENT_DATE)) 
+      RETURNING id, user_id, log_date, amount_ml, created_at
+    `;
+    const result = await db.query(queryText, [userId, amountMl, date || null]);
+    return result.rows[0];
+  } catch (err) {
+    logger.error(`[waterLog service] createWaterLogEntry failed for userId=${userId}: ${err.message}`);
+    throw err;
+  }
 };
 
 /**
@@ -40,13 +51,18 @@ const createWaterLogEntry = async (userId, amountMl, date = null) => {
  * Checks that the log entry belongs to the user.
  */
 const deleteWaterLogEntry = async (userId, logId) => {
-  const queryText = `
-    DELETE FROM water_logs 
-    WHERE id = $1 AND user_id = $2 
-    RETURNING id
-  `;
-  const result = await db.query(queryText, [logId, userId]);
-  return result.rows[0];
+  try {
+    const queryText = `
+      DELETE FROM water_logs 
+      WHERE id = $1 AND user_id = $2 
+      RETURNING id
+    `;
+    const result = await db.query(queryText, [logId, userId]);
+    return result.rows[0];
+  } catch (err) {
+    logger.error(`[waterLog service] deleteWaterLogEntry failed for userId=${userId}, logId=${logId}: ${err.message}`);
+    throw err;
+  }
 };
 
 /**
@@ -54,13 +70,18 @@ const deleteWaterLogEntry = async (userId, logId) => {
  * Deletes all water logs on that log_date.
  */
 const resetWaterLogsByDate = async (userId, date = null) => {
-  const queryText = `
-    DELETE FROM water_logs 
-    WHERE user_id = $1 AND log_date = COALESCE($2, CURRENT_DATE) 
-    RETURNING id
-  `;
-  const result = await db.query(queryText, [userId, date || null]);
-  return result.rows;
+  try {
+    const queryText = `
+      DELETE FROM water_logs 
+      WHERE user_id = $1 AND log_date = COALESCE($2, CURRENT_DATE) 
+      RETURNING id
+    `;
+    const result = await db.query(queryText, [userId, date || null]);
+    return result.rows;
+  } catch (err) {
+    logger.error(`[waterLog service] resetWaterLogsByDate failed for userId=${userId}, date=${date}: ${err.message}`);
+    throw err;
+  }
 };
 
 module.exports = {

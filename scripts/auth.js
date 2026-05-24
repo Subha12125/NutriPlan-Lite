@@ -1,49 +1,26 @@
 // ================================================================
 // auth.js — Authentication module for NutriPlan-Lite
-// Handles login, register, token state, and auth drawer widgets
+//
+// Delegates to:
+//   - ApiService  (all HTTP calls)
+//   - Session     (JWT / credential persistence)
+//
+// Provides:
+//   - Auth drawer UI (login / register tabs)
+//   - Auth widget rendering in header containers
+//   - init() called on DOMContentLoaded
 // ================================================================
 
 window.Auth = (() => {
-  const API_BASE = 'http://localhost:4000/api/v1';
   let activeTab = 'login';
 
-  function getToken() {
-    return localStorage.getItem('nutriplan_token');
-  }
+  // ── Public helpers (re-exported from Session) ──────────────────
 
-  function isAuthenticated() {
-    return !!getToken();
-  }
+  function getToken()         { return window.Session ? window.Session.getToken()         : localStorage.getItem('nutriplan_token'); }
+  function isAuthenticated()  { return window.Session ? window.Session.isAuthenticated()  : !!getToken(); }
+  function getCurrentUser()   { return { email: window.Session ? window.Session.getEmail() : localStorage.getItem('nutriplan_user_email') }; }
 
-  function getCurrentUser() {
-    return {
-      email: localStorage.getItem('nutriplan_user_email')
-    };
-  }
-
-  async function apiRequest(endpoint, options = {}) {
-    const token = getToken();
-    const headers = {
-      'Content-Type': 'application/json',
-      ...(options.headers || {})
-    };
-    
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
-
-    const res = await fetch(`${API_BASE}${endpoint}`, {
-      ...options,
-      headers
-    });
-
-    if (!res.ok) {
-      const errorData = await res.json().catch(() => ({}));
-      throw new Error(errorData.message || `Request failed with status ${res.status}`);
-    }
-
-    return res.json();
-  }
+  // ── Modal control ───────────────────────────────────────────────
 
   function openModal() {
     const modal = document.getElementById('auth-modal');
@@ -58,97 +35,98 @@ window.Auth = (() => {
 
   function switchTab(tab) {
     activeTab = tab;
-    const loginBtn = document.getElementById('auth-tab-login');
+    const loginBtn    = document.getElementById('auth-tab-login');
     const registerBtn = document.getElementById('auth-tab-register');
-    const submitBtn = document.getElementById('auth-submit-btn');
+    const submitBtn   = document.getElementById('auth-submit-btn');
 
     if (!loginBtn || !registerBtn || !submitBtn) return;
 
     if (tab === 'login') {
-      loginBtn.classList.add('active');
-      registerBtn.classList.remove('active');
-      loginBtn.setAttribute('aria-selected', 'true');
-      registerBtn.setAttribute('aria-selected', 'false');
+      loginBtn.classList.add('active');    loginBtn.setAttribute('aria-selected', 'true');
+      registerBtn.classList.remove('active'); registerBtn.setAttribute('aria-selected', 'false');
       submitBtn.textContent = 'Sign In';
     } else {
-      registerBtn.classList.add('active');
-      loginBtn.classList.remove('active');
-      registerBtn.setAttribute('aria-selected', 'true');
-      loginBtn.setAttribute('aria-selected', 'false');
+      registerBtn.classList.add('active');    registerBtn.setAttribute('aria-selected', 'true');
+      loginBtn.classList.remove('active'); loginBtn.setAttribute('aria-selected', 'false');
       submitBtn.textContent = 'Register';
     }
   }
 
+  // ── Auth actions ────────────────────────────────────────────────
+
   async function login(email, password) {
+    _setSubmitLoading(true, 'Signing In…');
     try {
-      const data = await apiRequest('/auth/login', {
-        method: 'POST',
-        body: JSON.stringify({ email, password })
-      });
-      
+      const data = await ApiService.auth.login(email, password);
       const token = data.token;
-      if (!token) throw new Error("No token returned from server.");
-      
-      localStorage.setItem('nutriplan_token', token);
-      localStorage.setItem('nutriplan_user_email', email);
-      
+      if (!token) throw { message: 'No token returned from server.' };
+
+      // Persist credentials via Session
+      window.Session.save(token, email);
+
       Toast.show('Successfully signed in!', 'success');
       closeModal();
       renderAuthWidgets();
-      
-      // Perform full sync from server
+
+      // Full sync from server then refresh UI
       await Storage.sync();
-      
-      // Refresh the page/app
       if (window.App) window.App.refresh();
+
     } catch (err) {
-      console.error(err);
-      Toast.show(`Sign In Failed: ${err.message}`, 'error');
+      console.error('[Auth] login failed:', err);
+      Toast.show(`Sign In Failed: ${err.message || 'Unknown error'}`, 'error');
+    } finally {
+      _setSubmitLoading(false, activeTab === 'login' ? 'Sign In' : 'Register');
     }
   }
 
   async function register(email, password) {
+    _setSubmitLoading(true, 'Registering…');
     try {
-      const data = await apiRequest('/auth/register', {
-        method: 'POST',
-        body: JSON.stringify({ email, password })
-      });
-      
+      const data = await ApiService.auth.register(email, password);
       const token = data.token;
-      if (!token) throw new Error("No token returned from server.");
-      
-      localStorage.setItem('nutriplan_token', token);
-      localStorage.setItem('nutriplan_user_email', email);
-      
+      if (!token) throw { message: 'No token returned from server.' };
+
+      window.Session.save(token, email);
+
       Toast.show('Successfully registered & signed in!', 'success');
       closeModal();
       renderAuthWidgets();
-      
-      // Perform full sync
+
       await Storage.sync();
-      
-      // Refresh the page/app
       if (window.App) window.App.refresh();
+
     } catch (err) {
-      console.error(err);
-      Toast.show(`Registration Failed: ${err.message}`, 'error');
+      console.error('[Auth] register failed:', err);
+      Toast.show(`Registration Failed: ${err.message || 'Unknown error'}`, 'error');
+    } finally {
+      _setSubmitLoading(false, 'Register');
     }
   }
 
   function logout() {
-    localStorage.removeItem('nutriplan_token');
-    localStorage.removeItem('nutriplan_user_email');
-    
-    // Reset local database completely to fall back to Local Demo mode
+    window.Session.clear();
+
+    // Reset local DB to go back to demo defaults
     localStorage.removeItem('nutriplan_v2');
-    
+
     Toast.show('Signed out. Local Demo mode active.', 'info');
     renderAuthWidgets();
-    
-    // Refresh the page
+
     if (window.App) window.App.refresh();
     window.location.reload();
   }
+
+  // ── Loading state helper ────────────────────────────────────────
+
+  function _setSubmitLoading(loading, label) {
+    const btn = document.getElementById('auth-submit-btn');
+    if (!btn) return;
+    btn.disabled = loading;
+    btn.textContent = label;
+  }
+
+  // ── Auth widget rendering ───────────────────────────────────────
 
   function renderAuthWidgets() {
     const containers = [
@@ -157,50 +135,47 @@ window.Auth = (() => {
     ];
 
     const token = getToken();
-    const email = localStorage.getItem('nutriplan_user_email');
+    const email = getCurrentUser().email;
 
     containers.forEach(container => {
       if (!container) return;
-      
+
       if (token && email) {
         container.innerHTML = `
           <span class="auth-user-email" title="${email}">${email}</span>
-          <button id="auth-signout-btn" class="secondary-button" style="min-height:36px; padding: 0 0.8rem; font-weight:800; cursor:pointer;" type="button">Sign Out</button>
+          <button id="auth-signout-btn" class="secondary-button" style="min-height:36px;padding:0 0.8rem;font-weight:800;cursor:pointer;" type="button">Sign Out</button>
         `;
-        const signoutBtn = container.querySelector('#auth-signout-btn');
-        if (signoutBtn) {
-          signoutBtn.addEventListener('click', () => logout());
-        }
+        container.querySelector('#auth-signout-btn')
+          ?.addEventListener('click', () => logout());
       } else {
         container.innerHTML = `
-          <button id="auth-signin-trigger" class="secondary-button" style="min-height:36px; padding: 0 0.8rem; font-weight:800; cursor:pointer;" type="button">Sign In</button>
+          <button id="auth-signin-trigger" class="secondary-button" style="min-height:36px;padding:0 0.8rem;font-weight:800;cursor:pointer;" type="button">Sign In</button>
         `;
-        const signinBtn = container.querySelector('#auth-signin-trigger');
-        if (signinBtn) {
-          signinBtn.addEventListener('click', () => openModal());
-        }
+        container.querySelector('#auth-signin-trigger')
+          ?.addEventListener('click', () => openModal());
       }
     });
   }
 
+  // ── Init ────────────────────────────────────────────────────────
+
   function init() {
     const closeBackdrop = document.getElementById('close-auth-backdrop');
-    const closeX = document.getElementById('close-auth-x');
-    const loginBtn = document.getElementById('auth-tab-login');
-    const registerBtn = document.getElementById('auth-tab-register');
-    const form = document.getElementById('auth-form');
+    const closeX        = document.getElementById('close-auth-x');
+    const loginBtn      = document.getElementById('auth-tab-login');
+    const registerBtn   = document.getElementById('auth-tab-register');
+    const form          = document.getElementById('auth-form');
 
     if (closeBackdrop) closeBackdrop.addEventListener('click', closeModal);
-    if (closeX) closeX.addEventListener('click', closeModal);
-    if (loginBtn) loginBtn.addEventListener('click', () => switchTab('login'));
-    if (registerBtn) registerBtn.addEventListener('click', () => switchTab('register'));
+    if (closeX)        closeX.addEventListener('click', closeModal);
+    if (loginBtn)      loginBtn.addEventListener('click', () => switchTab('login'));
+    if (registerBtn)   registerBtn.addEventListener('click', () => switchTab('register'));
 
     if (form) {
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const email = document.getElementById('auth-email').value.trim();
-        const password = document.getElementById('auth-password').value.trim();
-        
+        const email    = document.getElementById('auth-email')?.value.trim();
+        const password = document.getElementById('auth-password')?.value.trim();
         if (activeTab === 'login') {
           await login(email, password);
         } else {
@@ -212,12 +187,12 @@ window.Auth = (() => {
     renderAuthWidgets();
   }
 
+  // ── Public API ──────────────────────────────────────────────────
   return {
     init,
     getToken,
     isAuthenticated,
     getCurrentUser,
-    apiRequest,
     logout,
     openModal,
     closeModal,
@@ -225,7 +200,7 @@ window.Auth = (() => {
   };
 })();
 
-// Initialize Auth module when DOM content is fully loaded
+// Initialize Auth module when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
   window.Auth.init();
 });

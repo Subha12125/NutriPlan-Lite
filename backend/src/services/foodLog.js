@@ -1,4 +1,6 @@
 const db = require('../config/db');
+const { AppError } = require('../middleware/error');
+
 
 /**
  * Retrieves food log entries for a user, optionally filtered by log_date.
@@ -37,6 +39,16 @@ const createFoodLogEntry = async (userId, logData) => {
     meal_type,
     log_date
   } = logData;
+
+  // Fix 4: accept 0 calories explicitly; reject null / undefined / non-numeric types.
+  // Number(null) === 0 which would silently accept null — so we guard first.
+  if (calories === null || calories === undefined) {
+    throw new AppError('Calories must be provided.', 400);
+  }
+  const caloriesNum = Number(calories);
+  if (!Number.isFinite(caloriesNum) || caloriesNum < 0) {
+    throw new AppError('Calories must be a non-negative number.', 400);
+  }
 
   let queryText;
   let queryParams;

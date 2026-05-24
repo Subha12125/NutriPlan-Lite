@@ -3,7 +3,7 @@
 // NutriPlan-Lite
 // ================================================================
 
-// ── Toast notification system ──────────────────────────────────────
+// ── Toast notification system ─────────────────────────────────────
 window.Toast = (() => {
   function show(message, type = 'info', duration = 3500) {
     let container = document.getElementById('toast-container');
@@ -22,7 +22,6 @@ window.Toast = (() => {
     toast.querySelector('.toast-msg').textContent = message;
     toast.querySelector('.toast-close').addEventListener('click', () => dismiss(toast));
     container.appendChild(toast);
-    // Auto-dismiss
     setTimeout(() => dismiss(toast), duration);
     return toast;
   }
@@ -36,7 +35,7 @@ window.Toast = (() => {
   return { show };
 })();
 
-// ── Global App controller ──────────────────────────────────────────
+// ── Global App controller ─────────────────────────────────────────
 window.App = (() => {
 
   function refresh() {
@@ -44,8 +43,19 @@ window.App = (() => {
   }
 
   async function init() {
-    if (window.Auth && window.Auth.isAuthenticated() && window.Storage && window.Storage.sync) {
+    // Perform full sync from backend if the user is authenticated
+    const authenticated = window.Session
+      ? window.Session.isAuthenticated()
+      : (window.Auth && window.Auth.isAuthenticated());
+
+    if (authenticated && window.Storage && window.Storage.sync) {
       await window.Storage.sync();
+    } else if (!authenticated) {
+      // Not authenticated — show demo mode banner immediately
+      // (Storage.sync handles this when called with no token)
+      if (window.Storage && window.Storage.sync) {
+        await window.Storage.sync(); // will show banner
+      }
     }
 
     // Initialise all modules
@@ -87,26 +97,28 @@ window.App = (() => {
   return { init, refresh };
 })();
 
-// ── Boot ─────────────────────────────────────────────────────────
+// ── Boot ──────────────────────────────────────────────────────────
 window.addEventListener('pageLoaded', async (e) => {
   const page = e.detail.page;
 
+  // Always render auth header widgets
   if (window.Auth) window.Auth.renderAuthWidgets();
-  
+
   if (page === 'dashboard') {
-    if (window.Auth && window.Auth.isAuthenticated() && window.Storage && window.Storage.sync) {
+    // Sync from backend on dashboard load
+    if (window.Storage && window.Storage.sync) {
       await window.Storage.sync();
     }
 
     await Tracker.init();
     Hydration.init();
     Dashboard.initProfilePanel();
-    
+
     if (!window.Storage.getProfile().isSetup) {
       const modal = document.getElementById('onboarding-modal');
       if (modal) modal.classList.remove('hidden');
     }
-    
+
     App.refresh();
   } else if (page === 'ai-helper') {
     if (window.AI) AI.initMainChat();
@@ -123,8 +135,6 @@ window.addEventListener('pageLoaded', async (e) => {
         document.body.classList.toggle('light-mode');
         const isLight = document.body.classList.contains('light-mode');
         Storage.saveSettings({ theme: isLight ? 'light' : 'dark' });
-        
-        // Update all theme buttons to stay in sync
         document.querySelectorAll('.theme-btn, #theme-toggle').forEach(btn => {
           btn.textContent = isLight ? '🌙' : '☀️';
         });

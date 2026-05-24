@@ -31,6 +31,10 @@ const protect = async (req, res, next) => {
         process.env.JWT_SECRET || 'super_secret_nutriplan_token_key'
       );
     } catch (err) {
+      // Distinguish expired tokens from other JWT errors (malformed, bad signature, etc.)
+      if (err instanceof jwt.TokenExpiredError) {
+        return res.status(401).json({ error: 'Token expired' });
+      }
       return next(
         new AppError('Invalid or expired authentication token. Please log in again.', 401)
       );
