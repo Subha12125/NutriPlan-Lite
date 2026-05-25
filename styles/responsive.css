@@ -39,18 +39,35 @@
   display: none;
 }
 
-/* Small Mobile (320px) */
+/* Small Mobile (under 360px) */
 @media (max-width: 359px) {
   .date-card span {
     display: none;
   }
   
   .hero-panel h1 {
-    font-size: 2rem;
+    font-size: 1.85rem;
   }
 
   .water-actions {
     grid-template-columns: 1fr;
+    gap: 0.35rem;
+  }
+
+  .landing-title {
+    font-size: 2.1rem !important;
+  }
+
+  .hero-cta {
+    flex-direction: column;
+    width: 100%;
+    align-items: stretch;
+  }
+
+  .hero-cta .cta-button {
+    width: 100%;
+    font-size: 0.95rem;
+    padding: 0.75rem 1rem;
   }
 }
 
@@ -98,7 +115,7 @@
   .dashboard-layout {
     grid-template-columns: 2.2fr 1fr;
     align-items: start;
-    gap: 1rem;
+    gap: 1.5rem;
   }
   
   .summary-grid {
@@ -122,6 +139,7 @@
 @media (max-width: 640px) {
   .charts-row {
     grid-template-columns: 1fr;
+    gap: 1.25rem;
   }
 
   .bar-chart {
@@ -176,29 +194,81 @@
   }
 }
 
-@media (max-width: 768px) {
-  .ai-helper-layout {
-    padding: 0.5rem;
-    min-height: calc(100vh - 120px);
+/* iPhone SE / Narrow Viewport Polish to prevent header overflow */
+@media (max-width: 375px) {
+  .app-header {
+    padding: 0.4rem 0.5rem;
+    gap: 0.35rem;
   }
-  .ai-chat-container {
-    height: calc(100vh - 140px);
-    border-radius: 16px;
+  .brand-mark {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    font-size: 0.9rem;
   }
-  .ai-chat-messages {
-    padding: 1rem;
-    gap: 1rem;
+  .date-card {
+    gap: 0.25rem;
+    padding: 0.2rem;
   }
-  .chat-bubble {
-    max-width: 90%;
-    padding: 0.95rem 1.15rem;
+  .date-card div {
+    min-width: 80px;
   }
-  .ai-suggestions {
-    padding: 0.65rem 1rem;
+  .date-card strong {
+    font-size: 0.8rem;
   }
-  .ai-chat-input-area {
-    padding: 1rem;
-    gap: 0.5rem;
+  .date-card .icon-button {
+    width: 30px;
+    height: 30px;
+    min-height: 30px;
+    font-size: 0.75rem;
+  }
+  .header-actions .icon-button,
+  .header-actions .secondary-button {
+    width: 32px;
+    height: 32px;
+    min-height: 32px;
+    font-size: 0.82rem;
+    padding: 0 0.4rem;
   }
 }
 
+/* AI Chat responsiveness */
+@media (max-width: 768px) {
+  .ai-helper-layout {
+    padding: 0.75rem;
+    min-height: calc(100vh - 110px);
+  }
+  .ai-chat-container {
+    height: calc(100vh - 130px);
+    border-radius: 20px;
+  }
+  .ai-chat-messages {
+    padding: 1.25rem 1rem;
+    gap: 1.2rem;
+  }
+  .chat-bubble {
+    max-width: 85%;
+    padding: 0.95rem 1.2rem;
+    border-radius: 18px;
+  }
+  .ai-suggestions {
+    padding: 0.75rem 1rem;
+    gap: 0.5rem;
+  }
+  .ai-suggestions::-webkit-scrollbar {
+    display: none; /* Hide scrollbar on mobile suggestions scroll for cleaner look */
+  }
+  .ai-chat-input-area {
+    padding: 1rem 1rem;
+    gap: 0.65rem;
+  }
+  .ai-chat-input-area input {
+    padding: 0.75rem 1.2rem;
+    font-size: 0.9rem;
+  }
+  .ai-chat-input-area .send-btn {
+    width: 42px;
+    height: 42px;
+    font-size: 1.1rem;
+  }
+}

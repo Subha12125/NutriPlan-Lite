@@ -1,15 +1,16 @@
+// theme.js — Theme Management & Persistence
 window.ThemeService = (() => {
   function injectTransitionCSS() {
     const style = document.createElement('style');
     style.textContent = `
       *, *::before, *::after {
-        transition: background-color 200ms ease, border-color 200ms ease, color 200ms ease, fill 200ms ease, stroke 200ms ease, box-shadow 200ms ease !important;
+        transition: background-color 240ms ease, border-color 240ms ease, color 240ms ease, fill 240ms ease, stroke 240ms ease, box-shadow 240ms ease !important;
       }
       .progress-fill {
-        transition: width 550ms cubic-bezier(0.22, 1, 0.36, 1), background-color 200ms ease !important;
+        transition: width 550ms cubic-bezier(0.22, 1, 0.36, 1), background-color 240ms ease !important;
       }
       .chart-bar {
-        transition: height 500ms cubic-bezier(0.22, 1, 0.36, 1), background-color 200ms ease !important;
+        transition: height 500ms cubic-bezier(0.22, 1, 0.36, 1), background-color 240ms ease !important;
       }
     `;
     document.head.appendChild(style);
@@ -59,14 +60,25 @@ window.ThemeService = (() => {
   }
 
   function initializeTheme() {
-    // Inject global transition AFTER initial load to prevent FOUC on first paint
-    setTimeout(injectTransitionCSS, 50);
+    // Inject transition properties after DOM load to prevent transitions on page startup
+    setTimeout(injectTransitionCSS, 80);
     restoreTheme();
+
+    // Listen for OS appearance changes (prefers-color-scheme)
+    if (window.matchMedia) {
+      window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', (e) => {
+        // Only override if the user has NOT explicitly chosen a theme
+        if (!getTheme()) {
+          applyTheme(e.matches ? 'light' : 'dark');
+        }
+      });
+    }
   }
 
   // Apply immediately during page load to prevent flash of wrong theme
   restoreTheme();
-  // Call init to attach transitions
+
+  // Call init to attach transitions and listen for changes
   window.addEventListener('DOMContentLoaded', initializeTheme);
 
   return { initializeTheme, toggleTheme, saveTheme: setTheme, restoreTheme, getTheme, setTheme };

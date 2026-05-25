@@ -4,80 +4,92 @@
   justify-content: center;
   align-items: center;
   min-height: calc(100vh - 120px);
-  padding: 1rem;
+  padding: 1.5rem;
 }
 
 .ai-chat-container {
   width: 100%;
-  max-width: 800px;
-  height: calc(100vh - 150px);
-  max-height: 800px;
+  max-width: 850px;
+  height: calc(100vh - 160px);
+  max-height: 850px;
   display: flex;
   flex-direction: column;
-  border-radius: 24px;
+  border-radius: 28px;
   overflow: hidden;
   background: var(--panel-strong);
   border: 1px solid var(--line);
   box-shadow: var(--shadow);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
 }
 
 .ai-chat-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.25rem 1.5rem;
+  padding: 1.4rem 1.75rem;
   border-bottom: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(255, 255, 255, 0.015);
 }
 
 .ai-bot-info {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 1.1rem;
 }
 
 .bot-avatar {
   font-size: 1.8rem;
   background: rgba(255, 255, 255, 0.05);
-  padding: 0.5rem;
-  border-radius: 16px;
+  padding: 0.55rem;
+  border-radius: 18px;
   border: 1px solid var(--line);
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: transform 0.3s var(--ease);
+}
+
+.ai-chat-header:hover .bot-avatar {
+  transform: rotate(5deg) scale(1.05);
 }
 
 .ai-bot-info h2 {
-  font-size: 1.15rem;
+  font-size: 1.2rem;
   font-weight: 800;
-  margin: 0 0 0.15rem 0;
+  margin: 0 0 0.2rem 0;
+  letter-spacing: -0.01em;
 }
 
 .status-online {
   color: var(--green);
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
 }
 
 .ai-chat-messages {
   flex: 1;
   overflow-y: auto;
-  padding: 1.5rem;
+  padding: 2rem 2rem 1.5rem;
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1.5rem;
   scroll-behavior: smooth;
+  scrollbar-width: thin;
 }
 
 .chat-bubble {
-  max-width: 80%;
-  padding: 1.1rem 1.4rem;
+  max-width: 75%;
+  padding: 1.15rem 1.5rem;
   border-radius: 22px;
   font-size: 0.96rem;
   line-height: 1.6;
-  animation: item-in 0.3s var(--ease);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease, background-color 0.2s ease;
+  animation: item-in 300ms var(--ease);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+  transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .ai-bubble {
@@ -89,15 +101,16 @@
 }
 
 .user-bubble {
-  background: var(--green);
+  background: linear-gradient(135deg, var(--green), #b7ffe1);
   color: #04150e;
   border-top-right-radius: 4px;
   align-self: flex-end;
-  box-shadow: 0 4px 15px rgba(56, 242, 166, 0.15);
+  box-shadow: 0 8px 24px rgba(56, 242, 166, 0.16);
+  font-weight: 500;
 }
 
 .chat-bubble p {
-  margin: 0 0 0.75rem 0;
+  margin: 0 0 0.85rem 0;
 }
 .chat-bubble p:last-child {
   margin: 0;
@@ -105,30 +118,31 @@
 
 /* Empty State / Welcome card greeting */
 .ai-chat-messages > .chat-bubble:first-child {
-  border-radius: 24px;
+  border-radius: 26px;
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015));
   border: 1px solid var(--line);
-  padding: 1.5rem 1.8rem;
+  padding: 1.75rem 2rem;
   align-self: stretch;
   max-width: 100%;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
   position: relative;
   overflow: hidden;
-  box-shadow: var(--shadow);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
 }
+
 .ai-chat-messages > .chat-bubble:first-child::before {
   content: "✨";
   position: absolute;
-  right: 1.5rem;
-  top: 1.5rem;
-  font-size: 1.8rem;
+  right: 1.75rem;
+  top: 1.75rem;
+  font-size: 2rem;
   opacity: 0.2;
 }
 
 .ai-suggestions {
   display: flex;
-  gap: 0.6rem;
-  padding: 0.85rem 1.5rem;
+  gap: 0.65rem;
+  padding: 1rem 1.75rem;
   overflow-x: auto;
   border-top: 1px solid var(--line);
   background: rgba(255, 255, 255, 0.01);
@@ -137,28 +151,29 @@
 
 .prompt-btn {
   white-space: nowrap;
-  padding: 0.55rem 1.1rem;
+  padding: 0.65rem 1.25rem;
   border-radius: 99px;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid var(--line);
   color: var(--muted);
-  font-size: 0.82rem;
+  font-size: 0.84rem;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.2s var(--ease), background-color 0.2s var(--ease), border-color 0.2s var(--ease), color 0.2s var(--ease);
+  transition: all 0.2s var(--ease);
 }
 
 .prompt-btn:hover {
   background: rgba(255, 255, 255, 0.08);
   color: var(--text);
   border-color: var(--line-strong);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
 }
 
 .ai-chat-input-area {
   display: flex;
-  gap: 0.75rem;
-  padding: 1.25rem 1.5rem;
+  gap: 0.85rem;
+  padding: 1.4rem 1.75rem;
   background: rgba(255, 255, 255, 0.015);
   border-top: 1px solid var(--line);
 }
@@ -168,31 +183,38 @@
   background: rgba(255, 255, 255, 0.035);
   border: 1px solid var(--line);
   border-radius: 99px;
-  padding: 0.8rem 1.5rem;
+  padding: 0.85rem 1.5rem;
   color: var(--text);
-  font-size: 0.95rem;
-  transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+  font-size: 0.96rem;
+  transition: all 0.25s var(--ease);
 }
 
 .ai-chat-input-area input:focus {
   outline: none;
   border-color: var(--green);
   background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 0 0 4px rgba(56, 242, 166, 0.12);
 }
 
 .ai-chat-input-area .send-btn {
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   padding: 0;
   display: grid;
   place-items: center;
-  font-size: 1.15rem;
+  font-size: 1.2rem;
   flex-shrink: 0;
-  transition: transform 0.2s var(--ease), box-shadow 0.2s var(--ease);
+  background: linear-gradient(135deg, var(--green), #b7ffe1);
+  color: #04150e;
+  font-weight: 900;
+  box-shadow: 0 4px 12px rgba(56, 242, 166, 0.25);
+  transition: all 0.2s var(--ease);
 }
+
 .ai-chat-input-area .send-btn:hover {
-  transform: scale(1.05);
+  transform: scale(1.08) translateY(-1px);
+  box-shadow: 0 6px 18px rgba(56, 242, 166, 0.35);
 }
 
 /* ── Light Mode overrides specific to Chat page ──────────────── */
@@ -207,36 +229,50 @@ html.light-mode .bot-avatar {
   border-color: var(--line);
 }
 html.light-mode .ai-chat-messages > .chat-bubble:first-child {
-  background: linear-gradient(135deg, #FFFFFF, #F7F8FC);
+  background: linear-gradient(135deg, #FFFFFF, #FCFCFD);
+  border-color: var(--line-strong);
+  box-shadow: 0 16px 40px rgba(17, 24, 39, 0.04);
+}
+html.light-mode .ai-bubble {
+  background: var(--bg-2);
   border-color: var(--line);
-  box-shadow: 0 10px 30px rgba(17, 24, 39, 0.03);
+  color: var(--text);
+  box-shadow: 0 4px 20px rgba(17, 24, 39, 0.03);
+}
+html.light-mode .user-bubble {
+  background: linear-gradient(135deg, #059669, #10b981);
+  color: #ffffff;
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.16);
 }
 html.light-mode .prompt-btn {
   background: var(--bg-2);
   border-color: var(--line);
   color: var(--muted);
+  box-shadow: 0 2px 6px rgba(17, 24, 39, 0.02);
 }
 html.light-mode .prompt-btn:hover {
-  background: var(--bg);
+  background: #FCFCFD;
   color: var(--text);
   border-color: var(--line-strong);
+  box-shadow: 0 6px 16px rgba(17, 24, 39, 0.06);
 }
 html.light-mode .ai-chat-input-area {
-  background: rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.45);
 }
 html.light-mode .ai-chat-input-area input {
-  background: var(--bg-2);
+  background: #FFFFFF;
   border-color: var(--line);
 }
 html.light-mode .ai-chat-input-area input:focus {
-  background: var(--bg-2);
+  background: #FFFFFF;
   border-color: #059669;
-  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.12);
 }
 html.light-mode .ai-chat-input-area .send-btn {
-  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);
+  background: linear-gradient(135deg, #059669, #10b981);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.22);
 }
 html.light-mode .ai-chat-input-area .send-btn:hover {
-  box-shadow: 0 6px 16px rgba(5, 150, 105, 0.35);
+  box-shadow: 0 6px 18px rgba(16, 185, 129, 0.32);
 }
-
