@@ -54,7 +54,7 @@
   <script src="scripts/memact.js" defer></script>
   <script src="scripts/navigation.js" defer></script>
   <script src="scripts/app.js" defer></script>
-  <script src="scripts/landing-animations.js" defer></script>
+  <script type="module" src="scripts/animations/index.js"></script>
 </head>
 <body>
   <!-- Toast container -->
@@ -310,8 +310,13 @@
       <section class="landing-hero">
         <div class="container hero-content">
           <div class="hero-text-block">
-            <h1 class="landing-title">NutriPlan Lite.<br><span class="text-gradient">Plan meals around your goal.</span></h1>
-            <p class="landing-subtitle">A cleaner fitness dashboard for calories, macros, hydration, and personal nutrition routines.</p>
+            <h1 class="landing-title">
+              <span class="reveal-wrap"><span class="reveal-text">NutriPlan Lite.</span></span><br>
+              <span class="reveal-wrap"><span class="reveal-text text-gradient">Plan meals around your goal.</span></span>
+            </h1>
+            <p class="landing-subtitle">
+              <span class="reveal-wrap"><span class="reveal-text">A cleaner fitness dashboard for calories, macros, hydration, and personal nutrition routines.</span></span>
+            </p>
             <div class="hero-cta">
               <a href="#dashboard" class="primary-button cta-button">Go to Dashboard</a>
               <a href="#ai-helper" class="secondary-button cta-button">Open Coach</a>
@@ -321,13 +326,22 @@
             <div class="glass-panel mock-card">
               <div class="mock-header">
                 <span>Daily Readiness</span>
-                <strong>92/100</strong>
+                <strong><span class="animated-counter">0</span>/100</strong>
               </div>
               <div class="mock-progress progress-fill fill-green" style="width: 92%"></div>
             </div>
             <div class="glass-panel mock-card ai-mock">
               <strong>Daily coach</strong>
               <p>You hit your protein goal. Add one glass of water before bed.</p>
+            </div>
+          </div>
+          
+          <div class="scroll-indicator">
+            <div class="mouse">
+              <div class="wheel"></div>
+            </div>
+            <div class="arrows">
+              <span class="arrow-down"></span>
             </div>
           </div>
         </div>
