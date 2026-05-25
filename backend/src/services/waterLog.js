@@ -23,7 +23,7 @@ const getWaterLogsByUserId = async (userId, date = null) => {
     const result = await db.query(queryText, queryParams);
     return result.rows;
   } catch (err) {
-    logger.error(`[waterLog service] getWaterLogsByUserId failed for userId=${userId}: ${err.message}`);
+    logger.error(`[waterLog service] getWaterLogsByUserId failed for userId=${userId}: ${err.message}`, err);
     throw err;
   }
 };
@@ -41,7 +41,7 @@ const createWaterLogEntry = async (userId, amountMl, date = null) => {
     const result = await db.query(queryText, [userId, amountMl, date || null]);
     return result.rows[0];
   } catch (err) {
-    logger.error(`[waterLog service] createWaterLogEntry failed for userId=${userId}: ${err.message}`);
+    logger.error(`[waterLog service] createWaterLogEntry failed for userId=${userId}: ${err.message}`, err);
     throw err;
   }
 };
@@ -60,7 +60,7 @@ const deleteWaterLogEntry = async (userId, logId) => {
     const result = await db.query(queryText, [logId, userId]);
     return result.rows[0];
   } catch (err) {
-    logger.error(`[waterLog service] deleteWaterLogEntry failed for userId=${userId}, logId=${logId}: ${err.message}`);
+    logger.error(`[waterLog service] deleteWaterLogEntry failed for userId=${userId}, logId=${logId}: ${err.message}`, err);
     throw err;
   }
 };
@@ -79,7 +79,7 @@ const resetWaterLogsByDate = async (userId, date = null) => {
     const result = await db.query(queryText, [userId, date || null]);
     return result.rows;
   } catch (err) {
-    logger.error(`[waterLog service] resetWaterLogsByDate failed for userId=${userId}, date=${date}: ${err.message}`);
+    logger.error(`[waterLog service] resetWaterLogsByDate failed for userId=${userId}, date=${date}: ${err.message}`, err);
     throw err;
   }
 };

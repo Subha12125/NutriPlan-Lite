@@ -141,18 +141,35 @@ window.Auth = (() => {
       if (!container) return;
 
       if (token && email) {
-        container.innerHTML = `
-          <span class="auth-user-email" title="${email}">${email}</span>
-          <button id="auth-signout-btn" class="secondary-button" style="min-height:36px;padding:0 0.8rem;font-weight:800;cursor:pointer;" type="button">Sign Out</button>
-        `;
-        container.querySelector('#auth-signout-btn')
-          ?.addEventListener('click', () => logout());
+        container.innerHTML = '';
+
+        const emailSpan = document.createElement('span');
+        emailSpan.className = 'auth-user-email';
+        emailSpan.textContent = email;
+        emailSpan.setAttribute('title', email);
+
+        const signOutBtn = document.createElement('button');
+        signOutBtn.id = 'auth-signout-btn';
+        signOutBtn.className = 'secondary-button';
+        signOutBtn.style.cssText = 'min-height:36px;padding:0 0.8rem;font-weight:800;cursor:pointer;';
+        signOutBtn.type = 'button';
+        signOutBtn.textContent = 'Sign Out';
+        signOutBtn.addEventListener('click', () => logout());
+
+        container.appendChild(emailSpan);
+        container.appendChild(signOutBtn);
       } else {
-        container.innerHTML = `
-          <button id="auth-signin-trigger" class="secondary-button" style="min-height:36px;padding:0 0.8rem;font-weight:800;cursor:pointer;" type="button">Sign In</button>
-        `;
-        container.querySelector('#auth-signin-trigger')
-          ?.addEventListener('click', () => openModal());
+        container.innerHTML = '';
+
+        const signInBtn = document.createElement('button');
+        signInBtn.id = 'auth-signin-trigger';
+        signInBtn.className = 'secondary-button';
+        signInBtn.style.cssText = 'min-height:36px;padding:0 0.8rem;font-weight:800;cursor:pointer;';
+        signInBtn.type = 'button';
+        signInBtn.textContent = 'Sign In';
+        signInBtn.addEventListener('click', () => openModal());
+
+        container.appendChild(signInBtn);
       }
     });
   }

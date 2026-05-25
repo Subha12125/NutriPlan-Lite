@@ -33,7 +33,7 @@ const protect = async (req, res, next) => {
     } catch (err) {
       // Distinguish expired tokens from other JWT errors (malformed, bad signature, etc.)
       if (err instanceof jwt.TokenExpiredError) {
-        return res.status(401).json({ error: 'Token expired' });
+        return next(new AppError('Token expired', 401));
       }
       return next(
         new AppError('Invalid or expired authentication token. Please log in again.', 401)

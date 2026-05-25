@@ -84,18 +84,6 @@ const validateProfileUpdate = (req, res, next) => {
     }
   }
 
-  // Normalize: optional fields not provided in the body are set to null
-  // so service layers receive a clean null instead of undefined.
-  const optionalProfileFields = [
-    'age', 'weight', 'height', 'gender', 'activity_level', 'water_target',
-    'macro_split', 'fitness_goal', 'custom_protein', 'custom_carbs', 'custom_fat'
-  ];
-  optionalProfileFields.forEach((field) => {
-    if (req.body[field] === undefined) {
-      req.body[field] = null;
-    }
-  });
-
   next();
 };
 
@@ -158,16 +146,6 @@ const validateFoodLog = (req, res, next) => {
 
   if (log_date !== undefined && log_date !== null && !dateRegex.test(log_date)) {
     return next(new AppError('Log date must be in YYYY-MM-DD format.', 400));
-  }
-
-  // Normalize: optional nutritional fields not provided in a PUT body → null
-  if (!isPost) {
-    const optionalFoodFields = ['protein', 'carbs', 'fat', 'log_date'];
-    optionalFoodFields.forEach((field) => {
-      if (req.body[field] === undefined) {
-        req.body[field] = null;
-      }
-    });
   }
 
   next();

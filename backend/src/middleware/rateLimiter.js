@@ -18,8 +18,12 @@ const rateLimit = require('express-rate-limit');
  * expired TTL entries on every increment to prevent unbounded Map growth.
  */
 class CleaningMemoryStore {
-  constructor(windowMs) {
+  constructor(windowMs, pruneInterval) {
     this.windowMs = windowMs;
+    // How often (ms) to run a prune sweep; defaults to windowMs
+    this.pruneInterval = pruneInterval !== undefined ? pruneInterval : windowMs;
+    // Timestamp of the last prune sweep (0 = never pruned)
+    this._lastPrune = 0;
     // Map<ip, { hits: number, resetTime: number }>
     this._store = new Map();
   }
@@ -42,10 +46,13 @@ class CleaningMemoryStore {
    * @returns {Promise<{ totalHits: number, resetTime: Date }>}
    */
   async increment(key) {
-    // Prune stale entries before recording a new hit
-    this._prune();
-
+    // Throttled prune: only sweep when enough time has elapsed
     const now = Date.now();
+    if (now - this._lastPrune >= this.pruneInterval) {
+      this._prune();
+      this._lastPrune = now;
+    }
+
     const existing = this._store.get(key);
 
     if (!existing || now >= existing.resetTime) {

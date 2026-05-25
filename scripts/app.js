@@ -81,16 +81,12 @@ window.App = (() => {
 
     // Dark/light theme toggle
     const themeBtn = document.getElementById('theme-toggle');
-    if (themeBtn) {
-      const settings = Storage.getSettings();
-      if (settings.theme === 'light') document.body.classList.add('light-mode');
+    if (themeBtn && !themeBtn.dataset.themeInit) {
+      themeBtn.dataset.themeInit = 'true';
       themeBtn.addEventListener('click', () => {
-        document.body.classList.toggle('light-mode');
-        const isLight = document.body.classList.contains('light-mode');
-        Storage.saveSettings({ theme: isLight ? 'light' : 'dark' });
-        themeBtn.textContent = isLight ? '🌙' : '☀️';
+        const isLight = ThemeManager.getTheme() === 'light';
+        ThemeManager.setTheme(isLight ? 'dark' : 'light');
       });
-      themeBtn.textContent = settings.theme === 'light' ? '🌙' : '☀️';
     }
   }
 
@@ -125,21 +121,14 @@ window.addEventListener('pageLoaded', async (e) => {
   }
 
   // Global theme toggle (always available in headers)
-  const themeBtns = document.querySelectorAll('.theme-btn, #theme-toggle');
+  const themeBtns = document.querySelectorAll('.theme-btn, #theme-toggle, #theme-toggle-landing');
   themeBtns.forEach(themeBtn => {
     if (!themeBtn.dataset.initialized) {
       themeBtn.dataset.initialized = 'true';
-      const settings = Storage.getSettings();
-      if (settings.theme === 'light') document.body.classList.add('light-mode');
       themeBtn.addEventListener('click', () => {
-        document.body.classList.toggle('light-mode');
-        const isLight = document.body.classList.contains('light-mode');
-        Storage.saveSettings({ theme: isLight ? 'light' : 'dark' });
-        document.querySelectorAll('.theme-btn, #theme-toggle').forEach(btn => {
-          btn.textContent = isLight ? '🌙' : '☀️';
-        });
+        const isLight = ThemeManager.getTheme() === 'light';
+        ThemeManager.setTheme(isLight ? 'dark' : 'light');
       });
-      themeBtn.textContent = settings.theme === 'light' ? '🌙' : '☀️';
     }
   });
 });

@@ -11,8 +11,27 @@
 
 window.ApiService = (() => {
   // ── Config ─────────────────────────────────────────────────────
-  const API_BASE = 'http://localhost:4000/api/v1';
+  // Resolution order: runtime window override → build-time env var → localhost fallback
+  const API_BASE =
+    (typeof window !== 'undefined' && window.NUTRIPLAN_API_BASE) ||
+    (typeof process !== 'undefined' && process.env && (process.env.NUTRIPLAN_API_BASE || process.env.REACT_APP_API_BASE)) ||
+    'http://localhost:4000/api/v1';
   const DEFAULT_TIMEOUT_MS = 8000;
+
+  // ── ApiError ────────────────────────────────────────────────────
+  /**
+   * Structured error class for API failures.
+   * Extends Error so stack traces are preserved, while carrying
+   * the HTTP status code and raw response payload.
+   */
+  class ApiError extends Error {
+    constructor(message, { status = 0, data = {} } = {}) {
+      super(message);
+      this.name = 'ApiError';
+      this.status = status;
+      this.data = data;
+    }
+  }
 
   // ── Core fetch wrapper ─────────────────────────────────────────
   /**
@@ -50,22 +69,23 @@ window.ApiService = (() => {
       try { payload = await res.json(); } catch { payload = {}; }
 
       if (!res.ok) {
-        throw {
-          status: res.status,
-          message: payload.message || `HTTP ${res.status} — ${res.statusText}`,
-          data: payload
-        };
+        throw new ApiError(
+          payload.message || `HTTP ${res.status} — ${res.statusText}`,
+          { status: res.status, data: payload }
+        );
       }
 
       return payload;
 
     } catch (err) {
-      // Re-throw structured errors as-is; wrap network/timeout errors
-      if (err && err.status) throw err;
+      // Re-throw ApiErrors as-is; wrap network/timeout errors
+      if (err instanceof ApiError) throw err;
+      // Structured plain-object (legacy path — kept for safety)
+      if (err && err.status) throw new ApiError(err.message || 'API error', { status: err.status, data: err.data || {} });
       if (err && err.name === 'AbortError') {
-        throw { status: 0, message: 'Request timed out. Backend may be offline.', data: {} };
+        throw new ApiError('Request timed out. Backend may be offline.', { status: 0, data: {} });
       }
-      throw { status: 0, message: err.message || 'Network error. Backend may be offline.', data: {} };
+      throw new ApiError(err.message || 'Network error. Backend may be offline.', { status: 0, data: {} });
     } finally {
       clearTimeout(timeoutId);
     }

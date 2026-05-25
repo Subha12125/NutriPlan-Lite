@@ -201,9 +201,11 @@ function setWater(dateKey, ml) {
   db.logs[dateKey].water = ml;
   saveDB(db);
 
-  // Background sync — reset then optionally re-create
+  // Background sync — serialize per-day to prevent out-of-order reset/create
   if (isOnline()) {
-    (async () => {
+    // Retrieve or initialize the promise chain for this dateKey
+    const prev = setWater._queue.get(dateKey) || Promise.resolve();
+    const next = prev.then(async () => {
       try {
         await ApiService.water.reset(dateKey);
         if (ml > 0) {
@@ -212,9 +214,18 @@ function setWater(dateKey, ml) {
       } catch (err) {
         console.warn('[Storage] setWater sync failed (non-fatal):', err.message);
       }
-    })();
+    });
+    // Chain the next operation and clear the queue slot on completion
+    setWater._queue.set(dateKey, next);
+    next.finally(() => {
+      if (setWater._queue.get(dateKey) === next) {
+        setWater._queue.delete(dateKey);
+      }
+    });
   }
 }
+// Per-day promise queue map for serialized setWater sync
+setWater._queue = new Map();
 
 // ── Weekly data for analytics ──────────────────────────────────────
 
@@ -424,15 +435,13 @@ async function sync(dateFilter) {
     const waterRes = await ApiService.water.get(dateFilter);
     const waterLogs = (waterRes && waterRes.data && waterRes.data.waterLogs) || [];
 
-    // Rebuild logs from server — clear only for full sync, preserve for date-scoped
-    if (!dateFilter) {
-      db.logs = {};
-    } else {
-      // Only wipe the targeted date so other days are untouched
-      if (db.logs[dateFilter]) {
-        db.logs[dateFilter] = { foods: [], water: 0 };
-      }
+    // Merge server data into existing local logs without wiping local entries.
+    // For a full sync we do NOT clear db.logs so that demo/offline entries are preserved.
+    if (dateFilter) {
+      // Date-scoped sync: reset only the targeted day before repopulating
+      db.logs[dateFilter] = { foods: [], water: 0 };
     }
+    // (Full sync: leave db.logs intact and upsert below)
 
     foodLogs.forEach(beFood => {
       const key = formatDate(beFood.log_date);
