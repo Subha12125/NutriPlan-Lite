@@ -1,8 +1,9 @@
+/* NutriPlan-Lite CSS Refinement */
 /* Responsive layout for NutriPlan Lite */
 
 /* Base overrides (Mobile first) */
 .app-shell {
-  padding: 0.5rem;
+  padding: var(--space-xs);
   width: 100%;
 }
 
@@ -85,8 +86,8 @@
 /* Tablets (768px) */
 @media (min-width: 768px) {
   .app-shell {
-    padding: 1rem;
-    width: min(100%, calc(100% - 2rem));
+    padding: var(--space-md);
+    width: min(100%, calc(100% - calc(var(--space-md) * 2)));
   }
 
   .dashboard-layout {
@@ -126,8 +127,8 @@
 /* Large screens (1440px & Ultrawide) */
 @media (min-width: 1440px) {
   .app-shell {
-    width: min(2560px, calc(100% - 4rem));
-    padding: 2rem 0 5rem;
+    width: min(2560px, calc(100% - calc(var(--space-xl) * 2)));
+    padding: var(--space-xl) 0 calc(var(--space-xl) * 2.5);
   }
   
   .summary-grid {
@@ -272,3 +273,4 @@
     font-size: 1.1rem;
   }
 }
+

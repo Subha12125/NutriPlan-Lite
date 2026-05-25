@@ -1,3 +1,4 @@
+/* NutriPlan-Lite CSS Refinement */
 .empty-state {
   display: grid;
   place-items: center;
@@ -421,3 +422,4 @@
     border-radius: 22px;
   }
 }
+

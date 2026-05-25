@@ -20,25 +20,36 @@ window.ThemeService = (() => {
     return localStorage.getItem('theme');
   }
 
+  function updateThemeIcons() {
+    const theme = getTheme() || (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+    document.querySelectorAll('.theme-btn, #theme-toggle, #theme-toggle-landing').forEach(btn => {
+      btn.textContent = theme === 'light' ? '🌙' : '☀️';
+    });
+  }
+
   function applyTheme(theme) {
     if (theme === 'light') {
       document.documentElement.classList.add('light-mode');
     } else {
       document.documentElement.classList.remove('light-mode');
     }
-    // Update all theme toggles if they exist in the DOM
-    document.querySelectorAll('.theme-btn, #theme-toggle, #theme-toggle-landing').forEach(btn => {
-      btn.textContent = theme === 'light' ? '🌙' : '☀️';
-    });
+    updateThemeIcons();
   }
 
   function setTheme(theme) {
     localStorage.setItem('theme', theme);
+    if (window.Storage && window.Storage.saveSettings) {
+      window.Storage.saveSettings({ theme });
+    }
     applyTheme(theme);
   }
 
   function restoreTheme() {
-    const saved = getTheme();
+    let saved = getTheme();
+    if (!saved && window.Storage && window.Storage.getSettings) {
+      const settings = window.Storage.getSettings();
+      saved = settings ? settings.theme : null;
+    }
     if (saved) {
       applyTheme(saved);
     } else {
@@ -63,6 +74,7 @@ window.ThemeService = (() => {
     // Inject transition properties after DOM load to prevent transitions on page startup
     setTimeout(injectTransitionCSS, 80);
     restoreTheme();
+    updateThemeIcons();
 
     // Listen for OS appearance changes (prefers-color-scheme)
     if (window.matchMedia) {
@@ -81,5 +93,5 @@ window.ThemeService = (() => {
   // Call init to attach transitions and listen for changes
   window.addEventListener('DOMContentLoaded', initializeTheme);
 
-  return { initializeTheme, toggleTheme, saveTheme: setTheme, restoreTheme, getTheme, setTheme };
+  return { initializeTheme, toggleTheme, saveTheme: setTheme, restoreTheme, getTheme, setTheme, updateThemeIcons };
 })();

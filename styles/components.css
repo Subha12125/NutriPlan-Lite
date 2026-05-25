@@ -1,3 +1,4 @@
+/* NutriPlan-Lite CSS Refinement */
 /* ================================================================
    components.css — New UI components for NutriPlan-Lite
    ================================================================ */
@@ -744,3 +745,4 @@ html.light-mode .auth-user-email {
   text-transform: uppercase;
   color: var(--muted);
 }
+

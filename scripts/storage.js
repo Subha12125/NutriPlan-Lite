@@ -12,7 +12,8 @@
 // API call so the UI never stalls waiting for the network.
 // ================================================================
 
-const DB_KEY = 'nutriplan_v2';
+window.Storage = (() => {
+  const DB_KEY = 'nutriplan_v2';
 
 const DEFAULT_PROFILE = {
   isSetup: false,
@@ -188,8 +189,20 @@ function addWater(dateKey, ml) {
 
   // Background sync
   if (isOnline()) {
-    ApiService.water.create(ml, dateKey)
-      .catch(err => console.warn('[Storage] addWater sync failed (non-fatal):', err.message));
+    const prev = setWater._queue.get(dateKey) || Promise.resolve();
+    const next = prev.then(async () => {
+      try {
+        await ApiService.water.create(ml, dateKey);
+      } catch (err) {
+        console.warn('[Storage] addWater sync failed (non-fatal):', err.message);
+      }
+    });
+    setWater._queue.set(dateKey, next);
+    next.finally(() => {
+      if (setWater._queue.get(dateKey) === next) {
+        setWater._queue.delete(dateKey);
+      }
+    });
   }
 
   return db.logs[dateKey].water;
@@ -435,25 +448,73 @@ async function sync(dateFilter) {
     const waterRes = await ApiService.water.get(dateFilter);
     const waterLogs = (waterRes && waterRes.data && waterRes.data.waterLogs) || [];
 
-    // Merge server data into existing local logs without wiping local entries.
-    // For a full sync we do NOT clear db.logs so that demo/offline entries are preserved.
-    if (dateFilter) {
-      // Date-scoped sync: reset only the targeted day before repopulating
-      db.logs[dateFilter] = { foods: [], water: 0 };
-    }
-    // (Full sync: leave db.logs intact and upsert below)
-
+    // 1. Group server foods by date key
+    const serverFoodsByDay = {};
     foodLogs.forEach(beFood => {
       const key = formatDate(beFood.log_date);
-      if (!db.logs[key]) db.logs[key] = { foods: [], water: 0 };
-      db.logs[key].foods.push(mapBackendToFrontendFood(beFood));
+      if (!serverFoodsByDay[key]) serverFoodsByDay[key] = [];
+      serverFoodsByDay[key].push(mapBackendToFrontendFood(beFood));
     });
 
+    // 2. Aggregate server water per key
+    const serverWaterByDay = {};
     waterLogs.forEach(beWater => {
       const key = formatDate(beWater.log_date);
-      if (!db.logs[key]) db.logs[key] = { foods: [], water: 0 };
-      db.logs[key].water += parseInt(beWater.amount_ml || 0, 10);
+      if (serverWaterByDay[key] === undefined) {
+        serverWaterByDay[key] = 0;
+      }
+      serverWaterByDay[key] += parseInt(beWater.amount_ml || 0, 10);
     });
+
+    // 3. Reconcile logs
+    if (dateFilter) {
+      // Date-scoped sync: only update the targeted day
+      const sFoods = serverFoodsByDay[dateFilter] || [];
+      const sWater = serverWaterByDay[dateFilter] || 0;
+      db.logs[dateFilter] = {
+        foods: sFoods,
+        water: sWater
+      };
+      if (sFoods.length === 0 && sWater === 0) {
+        delete db.logs[dateFilter];
+      }
+    } else {
+      // Full sync: reconcile all days present in local DB or server response
+      const allKeys = new Set([
+        ...Object.keys(db.logs),
+        ...Object.keys(serverFoodsByDay),
+        ...Object.keys(serverWaterByDay)
+      ]);
+
+      allKeys.forEach(key => {
+        const sFoods = serverFoodsByDay[key] || [];
+        const sWater = serverWaterByDay[key] || 0;
+        const localFoods = db.logs[key] ? (db.logs[key].foods || []) : [];
+
+        // Reconcile foods for this day by ID:
+        // Update/replace existing, insert new, and remove local foods not present in server foods for this day
+        const reconciledFoods = [];
+        sFoods.forEach(sFood => {
+          const existing = localFoods.find(lf => lf.id === sFood.id);
+          if (existing) {
+            reconciledFoods.push({ ...existing, ...sFood });
+          } else {
+            reconciledFoods.push(sFood);
+          }
+        });
+
+        if (!db.logs[key]) {
+          db.logs[key] = { foods: [], water: 0 };
+        }
+        db.logs[key].foods = reconciledFoods;
+        db.logs[key].water = sWater;
+
+        // Clean up empty days
+        if (db.logs[key].foods.length === 0 && db.logs[key].water === 0) {
+          delete db.logs[key];
+        }
+      });
+    }
 
     saveDB(db);
     _hideDemoModeBanner();
@@ -467,14 +528,15 @@ async function sync(dateFilter) {
 
 // ── Global export ──────────────────────────────────────────────────
 
-window.Storage = {
-  getProfile, saveProfile,
-  getFoods, addFood, updateFood, deleteFood,
-  getWater, addWater, setWater,
-  getDayLog, saveDayLog,
-  getWeeklyData,
-  getSettings, saveSettings,
-  getStreak,
-  todayKey, getLocalDateString,
-  sync
-};
+  return {
+    getProfile, saveProfile,
+    getFoods, addFood, updateFood, deleteFood,
+    getWater, addWater, setWater,
+    getDayLog, saveDayLog,
+    getWeeklyData,
+    getSettings, saveSettings,
+    getStreak,
+    todayKey, getLocalDateString,
+    sync
+  };
+})();

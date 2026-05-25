@@ -2,7 +2,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const db = require('../config/db');
 const { createDefaultProfile } = require('../services/profile');
-const { AppError } = require('../middleware/error');
+const { AppError, catchAsync } = require('../middleware/error');
 
 /**
  * Sign JWT token for a user ID
@@ -21,7 +21,7 @@ const signToken = (id) => {
  * POST /api/v1/auth/register
  * Atomically registers a user and initializes their profile record.
  */
-const register = async (req, res, next) => {
+const register = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
   const client = await db.pool.connect();
 
@@ -69,56 +69,52 @@ const register = async (req, res, next) => {
     });
   } catch (err) {
     await client.query('ROLLBACK');
-    next(err);
+    throw err;
   } finally {
     client.release();
   }
-};
+});
 
 /**
  * POST /api/v1/auth/login
  * Validates credentials and generates JWT.
  */
-const login = async (req, res, next) => {
+const login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
 
-  try {
-    // 1) Await user lookup and resolve the row immediately
-    const userResult = await db.query(
-      'SELECT id, email, password_hash FROM users WHERE email = $1',
-      [email]
-    );
-    const user = userResult.rows[0];
+  // 1) Await user lookup and resolve the row immediately
+  const userResult = await db.query(
+    'SELECT id, email, password_hash FROM users WHERE email = $1',
+    [email]
+  );
+  const user = userResult.rows[0];
 
-    // 2) Guard: ensure user exists before attempting hash comparison.
-    //    Separating the checks prevents TypeError on undefined access
-    //    and keeps timing consistent (bcrypt.compare always runs).
-    if (!user) {
-      return next(new AppError('Incorrect email or password.', 401));
-    }
-
-    const passwordMatch = await bcrypt.compare(password, user.password_hash);
-    if (!passwordMatch) {
-      return next(new AppError('Incorrect email or password.', 401));
-    }
-
-    // 3) Generate JWT and return
-    const token = signToken(user.id);
-
-    res.status(200).json({
-      status: 'success',
-      token,
-      data: {
-        user: {
-          id: user.id,
-          email: user.email
-        }
-      }
-    });
-  } catch (err) {
-    next(err);
+  // 2) Guard: ensure user exists before attempting hash comparison.
+  //    Separating the checks prevents TypeError on undefined access
+  //    and keeps timing consistent (bcrypt.compare always runs).
+  if (!user) {
+    return next(new AppError('Incorrect email or password.', 401));
   }
-};
+
+  const passwordMatch = await bcrypt.compare(password, user.password_hash);
+  if (!passwordMatch) {
+    return next(new AppError('Incorrect email or password.', 401));
+  }
+
+  // 3) Generate JWT and return
+  const token = signToken(user.id);
+
+  res.status(200).json({
+    status: 'success',
+    token,
+    data: {
+      user: {
+        id: user.id,
+        email: user.email
+      }
+    }
+  });
+});
 
 /**
  * POST /api/v1/auth/logout

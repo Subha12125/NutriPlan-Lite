@@ -1,3 +1,4 @@
+/* NutriPlan-Lite CSS Refinement */
 .ai-panel {
   display: grid;
   gap: 1rem;
@@ -154,3 +155,4 @@ html.light-mode .mini-ai-form button {
   background: linear-gradient(135deg, #059669, #10b981);
   color: #ffffff;
 }
+

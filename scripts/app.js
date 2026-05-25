@@ -122,13 +122,17 @@ window.addEventListener('pageLoaded', async (e) => {
   // Global theme toggle (always available in headers)
   const themeBtns = document.querySelectorAll('.theme-btn, #theme-toggle, #theme-toggle-landing');
   themeBtns.forEach(themeBtn => {
-    if (!themeBtn.dataset.initialized) {
-      themeBtn.dataset.initialized = 'true';
+    if (!themeBtn.dataset.themeInit) {
+      themeBtn.dataset.themeInit = 'true';
       themeBtn.addEventListener('click', () => {
         window.ThemeService.toggleTheme();
       });
     }
   });
+
+  if (window.ThemeService && window.ThemeService.updateThemeIcons) {
+    window.ThemeService.updateThemeIcons();
+  }
 
   // Re-init animations on page change
   setTimeout(() => {

@@ -1,4 +1,5 @@
-const UI = {
+window.UI = (() => {
+  return {
   qs(selector, scope = document) {
     return scope.querySelector(selector);
   },
@@ -36,4 +37,5 @@ const UI = {
     textarea.remove();
     return Promise.resolve();
   }
-};
+  };
+})();

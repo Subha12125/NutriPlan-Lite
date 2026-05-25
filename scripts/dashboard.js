@@ -147,8 +147,11 @@ window.Dashboard = (() => {
     }
 
     const macroSplitEl = document.getElementById('macroSplit');
-    if (macroSplitEl) {
+    if (macroSplitEl && !macroSplitEl.dataset.bound) {
+      macroSplitEl.dataset.bound = 'true';
       macroSplitEl.addEventListener('change', toggleCustomMacros);
+      toggleCustomMacros();
+    } else if (macroSplitEl) {
       toggleCustomMacros();
     }
   }

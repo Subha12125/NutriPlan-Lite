@@ -37,38 +37,44 @@ window.Interactions = (() => {
       // Card tilt effect on hover
       const cards = document.querySelectorAll('.glass-panel');
       cards.forEach(card => {
-        card.addEventListener('mouseenter', () => {
-          gsap.to(card, { y: -4, duration: 0.3, ease: 'power2.out' });
-        });
-        card.addEventListener('mouseleave', () => {
-          gsap.to(card, { y: 0, duration: 0.5, ease: 'power2.out' });
-        });
+        if (!card.dataset.tiltInit) {
+          card.dataset.tiltInit = 'true';
+          card.addEventListener('mouseenter', () => {
+            gsap.to(card, { y: -4, duration: 0.3, ease: 'power2.out' });
+          });
+          card.addEventListener('mouseleave', () => {
+            gsap.to(card, { y: 0, duration: 0.5, ease: 'power2.out' });
+          });
+        }
       });
       
       // Magnetic buttons
       const magnets = document.querySelectorAll('.primary-button, .secondary-button, .icon-button');
       magnets.forEach(btn => {
-        btn.addEventListener('mousemove', (e) => {
-          const rect = btn.getBoundingClientRect();
-          const x = (e.clientX - rect.left) - rect.width / 2;
-          const y = (e.clientY - rect.top) - rect.height / 2;
+        if (!btn.dataset.magneticInit) {
+          btn.dataset.magneticInit = 'true';
+          btn.addEventListener('mousemove', (e) => {
+            const rect = btn.getBoundingClientRect();
+            const x = (e.clientX - rect.left) - rect.width / 2;
+            const y = (e.clientY - rect.top) - rect.height / 2;
+            
+            gsap.to(btn, {
+              x: x * 0.2,
+              y: y * 0.2,
+              duration: 0.4,
+              ease: 'power2.out'
+            });
+          });
           
-          gsap.to(btn, {
-            x: x * 0.2,
-            y: y * 0.2,
-            duration: 0.4,
-            ease: 'power2.out'
+          btn.addEventListener('mouseleave', () => {
+            gsap.to(btn, {
+              x: 0,
+              y: 0,
+              duration: 0.6,
+              ease: 'elastic.out(1, 0.3)'
+            });
           });
-        });
-        
-        btn.addEventListener('mouseleave', () => {
-          gsap.to(btn, {
-            x: 0,
-            y: 0,
-            duration: 0.6,
-            ease: 'elastic.out(1, 0.3)'
-          });
-        });
+        }
       });
     });
   }

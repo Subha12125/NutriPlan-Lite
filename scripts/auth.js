@@ -16,9 +16,9 @@ window.Auth = (() => {
 
   // ── Public helpers (re-exported from Session) ──────────────────
 
-  function getToken()         { return window.Session ? window.Session.getToken()         : localStorage.getItem('nutriplan_token'); }
-  function isAuthenticated()  { return window.Session ? window.Session.isAuthenticated()  : !!getToken(); }
-  function getCurrentUser()   { return { email: window.Session ? window.Session.getEmail() : localStorage.getItem('nutriplan_user_email') }; }
+  function getToken()         { return window.Session ? window.Session.getToken()         : null; }
+  function isAuthenticated()  { return window.Session ? window.Session.isAuthenticated()  : false; }
+  function getCurrentUser()   { return { email: window.Session ? window.Session.getEmail() : null }; }
 
   // ── Modal control ───────────────────────────────────────────────
 
@@ -149,7 +149,7 @@ window.Auth = (() => {
         emailSpan.setAttribute('title', email);
 
         const signOutBtn = document.createElement('button');
-        signOutBtn.id = 'auth-signout-btn';
+        signOutBtn.id = `auth-signout-btn-${container.id}`;
         signOutBtn.className = 'secondary-button';
         signOutBtn.style.cssText = 'min-height:36px;padding:0 0.8rem;font-weight:800;cursor:pointer;';
         signOutBtn.type = 'button';
@@ -162,7 +162,7 @@ window.Auth = (() => {
         container.innerHTML = '';
 
         const signInBtn = document.createElement('button');
-        signInBtn.id = 'auth-signin-trigger';
+        signInBtn.id = `auth-signin-trigger-${container.id}`;
         signInBtn.className = 'secondary-button';
         signInBtn.style.cssText = 'min-height:36px;padding:0 0.8rem;font-weight:800;cursor:pointer;';
         signInBtn.type = 'button';

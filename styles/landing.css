@@ -1,3 +1,4 @@
+/* NutriPlan-Lite CSS Refinement */
 /* landing.css */
 
 /* ── Header Visibility Toggles ── */
@@ -464,3 +465,4 @@ html.light-mode .feature-card:hover {
 html.light-mode .cta-panel {
   background: linear-gradient(180deg, rgba(5, 150, 105, 0.04), transparent);
 }
+

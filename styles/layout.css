@@ -1,3 +1,4 @@
+/* NutriPlan-Lite CSS Refinement */
 .app-frame {
   display: grid;
   grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
@@ -205,3 +206,4 @@
     padding-bottom: 186px;
   }
 }
+
