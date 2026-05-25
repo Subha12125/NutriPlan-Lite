@@ -79,19 +79,6 @@ window.App = (() => {
       });
     });
 
-    // Dark/light theme toggle
-    const themeBtn = document.getElementById('theme-toggle');
-    if (themeBtn) {
-      const settings = Storage.getSettings();
-      if (settings.theme === 'light') document.body.classList.add('light-mode');
-      themeBtn.addEventListener('click', () => {
-        document.body.classList.toggle('light-mode');
-        const isLight = document.body.classList.contains('light-mode');
-        Storage.saveSettings({ theme: isLight ? 'light' : 'dark' });
-        themeBtn.textContent = isLight ? '🌙' : '☀️';
-      });
-      themeBtn.textContent = settings.theme === 'light' ? '🌙' : '☀️';
-    }
   }
 
   return { init, refresh };
@@ -129,17 +116,13 @@ window.addEventListener('pageLoaded', async (e) => {
   themeBtns.forEach(themeBtn => {
     if (!themeBtn.dataset.initialized) {
       themeBtn.dataset.initialized = 'true';
-      const settings = Storage.getSettings();
-      if (settings.theme === 'light') document.body.classList.add('light-mode');
       themeBtn.addEventListener('click', () => {
-        document.body.classList.toggle('light-mode');
-        const isLight = document.body.classList.contains('light-mode');
-        Storage.saveSettings({ theme: isLight ? 'light' : 'dark' });
+        const newTheme = window.ThemeService.toggleTheme();
         document.querySelectorAll('.theme-btn, #theme-toggle').forEach(btn => {
-          btn.textContent = isLight ? '🌙' : '☀️';
+          btn.textContent = newTheme === 'light' ? '🌙' : '☀️';
         });
       });
-      themeBtn.textContent = settings.theme === 'light' ? '🌙' : '☀️';
+      themeBtn.textContent = window.ThemeService.getTheme() === 'light' ? '🌙' : '☀️';
     }
   });
 });

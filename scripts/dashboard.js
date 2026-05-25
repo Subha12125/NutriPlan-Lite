@@ -419,3 +419,9 @@ window.Dashboard = (() => {
 
   return { computeTargets, refresh, initProfilePanel };
 })();
+
+document.addEventListener('themeChanged', () => {
+  if (window.Dashboard && window.Tracker && window.Tracker.currentDate) {
+    window.Dashboard.refresh();
+  }
+});

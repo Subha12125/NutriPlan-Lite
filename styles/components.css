@@ -20,7 +20,7 @@
   min-width: 280px;
   max-width: 380px;
   padding: 0.85rem 1rem;
-  background: rgba(13, 22, 37, 0.96);
+  background: var(--toast-bg);
   border: 1px solid var(--line);
   border-radius: 16px;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
@@ -362,7 +362,7 @@
   right: 0;
   max-height: 220px;
   overflow-y: auto;
-  background: rgba(10, 18, 32, 0.98);
+  background: var(--surface-strong);
   border: 1px solid var(--line-strong);
   border-radius: 14px;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
@@ -511,47 +511,6 @@
   font-size: 0.84rem;
 }
 
-/* ── Light mode overrides ─────────────────────────────────────── */
-body.light-mode {
-  color: #0f172a;
-  background:
-    radial-gradient(circle at 10% 0%, rgba(56, 242, 166, 0.08), transparent 28rem),
-    linear-gradient(135deg, #f0fdf4 0%, #f8fafc 50%, #eff6ff 100%);
-}
-
-body.light-mode .glass-panel {
-  background: rgba(255, 255, 255, 0.82);
-  border-color: rgba(148, 163, 184, 0.24);
-}
-
-body.light-mode .app-header {
-  background: rgba(255, 255, 255, 0.72);
-  border-color: rgba(148, 163, 184, 0.24);
-}
-
-body.light-mode input,
-body.light-mode select {
-  background: rgba(255, 255, 255, 0.9);
-  color: #0f172a;
-  border-color: rgba(148, 163, 184, 0.36);
-}
-
-body.light-mode .eyebrow { color: var(--green); }
-body.light-mode .metric-header span,
-body.light-mode .goal-row span,
-body.light-mode .metric-insight,
-body.light-mode .muted { color: #64748b; }
-
-body.light-mode .app-toast {
-  background: rgba(255, 255, 255, 0.96);
-  border-color: rgba(148, 163, 184, 0.28);
-}
-
-body.light-mode .autocomplete-list {
-  background: rgba(255, 255, 255, 0.98);
-}
-
-body.light-mode .suggestion-item strong { color: #0f172a; }
 
 /* ── App header updated for 4 items ──────────────────────────── */
 .app-header {
@@ -573,15 +532,10 @@ body.light-mode .suggestion-item strong { color: #0f172a; }
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--soft-panel);
   padding: 0.35rem 0.75rem;
   border-radius: 999px;
   border: 1px solid var(--line);
-}
-
-body.light-mode .auth-user-email {
-  background: rgba(0, 0, 0, 0.03);
-  color: #0f172a;
 }
 
 .auth-tabs {
