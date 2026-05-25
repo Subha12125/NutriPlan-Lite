@@ -1,0 +1,199 @@
+/* ================================================================
+   charts-dashboard.css — Styling for Advanced Analytics & Chart.js
+   NutriPlan-Lite
+   ================================================================ */
+
+.advanced-analytics-section {
+  padding: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.analytics-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 1rem;
+}
+
+.analytics-header h2 {
+  margin: 0.25rem 0 0 0;
+  font-size: 1.45rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+/* Chart Toggling Tabs */
+.analytics-tabs {
+  display: flex;
+  gap: 0.25rem;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid var(--line);
+  border-radius: 99px;
+  padding: 0.2rem;
+}
+
+.tab-btn {
+  background: transparent;
+  color: var(--muted);
+  border: 0;
+  padding: 0.45rem 1rem;
+  font-size: 0.8rem;
+  font-weight: 800;
+  border-radius: 99px;
+  cursor: pointer;
+  transition: all 0.22s var(--ease);
+}
+
+.tab-btn:hover {
+  color: var(--text);
+}
+
+.tab-btn.active {
+  background: linear-gradient(135deg, var(--green), #b7ffe1);
+  color: #04150e;
+  box-shadow: 0 8px 18px rgba(56, 242, 166, 0.18);
+}
+
+/* Stats Highlight Grid */
+.analytics-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.stat-card {
+  padding: 1rem 1.15rem;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.015);
+  border: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  transition: transform 0.2s var(--ease), border-color 0.2s var(--ease);
+  text-align: left;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--line-strong);
+}
+
+.stat-card small {
+  color: var(--muted-2);
+  font-size: 0.68rem;
+  font-weight: 850;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.stat-card h3 {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: var(--text);
+  display: flex;
+  align-items: baseline;
+  gap: 0.15rem;
+}
+
+.stat-card h3 .unit {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.stat-card .stat-meta {
+  font-size: 0.72rem;
+  font-weight: 750;
+}
+
+.text-green { color: var(--green); }
+.text-teal { color: var(--teal); }
+.text-amber { color: var(--amber); }
+
+/* Chart Display Containers */
+.chart-display-container {
+  position: relative;
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  padding: 1.25rem;
+  background: rgba(6, 10, 18, 0.28);
+}
+
+.chart-wrapper {
+  width: 100%;
+}
+
+.chart-canvas-container {
+  position: relative;
+  width: 100%;
+  height: 250px;
+}
+
+.chart-canvas-container.doughnut-container {
+  height: 210px;
+  max-width: 210px;
+  margin: 0 auto;
+}
+
+/* Light Mode Overrides */
+body.light-mode .analytics-tabs {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+body.light-mode .tab-btn:hover {
+  color: #0f172a;
+}
+
+body.light-mode .tab-btn.active {
+  color: #04150e;
+}
+
+body.light-mode .stat-card {
+  background: rgba(255, 255, 255, 0.75);
+}
+
+body.light-mode .chart-display-container {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .analytics-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  
+  .analytics-tabs {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .tab-btn {
+    flex: 1;
+    text-align: center;
+    padding: 0.4rem 0.5rem;
+    font-size: 0.76rem;
+  }
+
+  .analytics-stats-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .chart-canvas-container {
+    height: 200px;
+  }
+}
+
+@media (max-width: 400px) {
+  .analytics-stats-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -106,6 +106,36 @@ window.Dashboard = (() => {
 
     // Date label
     Tracker.updateDateLabel();
+
+    // Chart Tabs wire up
+    initChartTabs();
+  }
+
+  function initChartTabs() {
+    const tabs = document.querySelectorAll('.analytics-tabs .tab-btn');
+    if (tabs.length === 0) return;
+
+    tabs.forEach(tab => {
+      if (tab.dataset.bound) return;
+      tab.dataset.bound = 'true';
+
+      tab.addEventListener('click', () => {
+        const targetTab = tab.dataset.chartTab;
+        
+        // Update active class on tab buttons
+        tabs.forEach(t => {
+          t.classList.toggle('active', t === tab);
+          t.setAttribute('aria-selected', t === tab ? 'true' : 'false');
+        });
+
+        // Toggle visibility of chart wrappers
+        const wrappers = document.querySelectorAll('.chart-display-container .chart-wrapper');
+        wrappers.forEach(w => {
+          const isTarget = w.id === `chart-wrapper-${targetTab}`;
+          w.classList.toggle('hidden', !isTarget);
+        });
+      });
+    });
   }
 
   function getMacroLabel(consumed, targets) {

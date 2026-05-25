@@ -20,10 +20,13 @@
   <link rel="stylesheet" href="styles/landing.css">
   <link rel="stylesheet" href="styles/ai.css">
   <link rel="stylesheet" href="styles/memact.css">
+  <link rel="stylesheet" href="styles/charts-dashboard.css">
   
   <!-- GSAP & ScrollTrigger -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js" defer></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
   
   <!-- Scripts (load order matters) -->
   <script src="scripts/api.js" defer></script>
@@ -621,22 +624,64 @@
         <!-- Meal timeline list -->
         <div id="meal-timeline" class="meal-timeline" aria-live="polite"></div>
     
-        <!-- Weekly Charts -->
-        <section class="glass-panel charts-panel">
-          <div class="section-heading compact">
+        <!-- Weekly Charts & Advanced Analytics Dashboard -->
+        <section class="glass-panel charts-panel advanced-analytics-section">
+          <div class="analytics-header">
             <div>
               <p class="eyebrow">Weekly Analytics</p>
-              <h2>7-day trends</h2>
+              <h2>Nutrition Dashboard</h2>
+            </div>
+            <!-- Chart Tabs -->
+            <div class="analytics-tabs" role="tablist" aria-label="Nutrition analytics charts">
+              <button class="tab-btn active" data-chart-tab="calorie" type="button" role="tab" aria-selected="true">Calorie Trends</button>
+              <button class="tab-btn" data-chart-tab="macro" type="button" role="tab" aria-selected="false">Macro Ratios</button>
+              <button class="tab-btn" data-chart-tab="water" type="button" role="tab" aria-selected="false">Hydration Log</button>
             </div>
           </div>
-          <div class="charts-row">
-            <div class="chart-block">
-              <p class="chart-label">Calories (7 days)</p>
-              <div id="weekly-calories-chart" class="bar-chart" aria-label="Weekly calorie bar chart"></div>
+
+          <!-- Dynamic Analytics Statistics Cards -->
+          <div class="analytics-stats-grid">
+            <div class="stat-card glass-panel">
+              <small>Average Calories</small>
+              <h3 id="stat-avg-calories">0 <span class="unit">kcal</span></h3>
+              <span id="stat-calorie-adherence" class="stat-meta text-green">0% Adherence</span>
             </div>
-            <div class="chart-block">
-              <p class="chart-label">Hydration (7 days)</p>
-              <div id="weekly-water-chart" class="bar-chart" aria-label="Weekly hydration bar chart"></div>
+            <div class="stat-card glass-panel">
+              <small>Average Protein</small>
+              <h3 id="stat-avg-protein">0 <span class="unit">g</span></h3>
+              <span id="stat-protein-status" class="stat-meta text-amber">0% of Goal</span>
+            </div>
+            <div class="stat-card glass-panel">
+              <small>Weekly Water</small>
+              <h3 id="stat-total-water">0 <span class="unit">L</span></h3>
+              <span id="stat-avg-water" class="stat-meta text-teal">0 ml / day</span>
+            </div>
+            <div class="stat-card glass-panel">
+              <small>Consistency Score</small>
+              <h3 id="stat-consistency-score">0%</h3>
+              <span id="stat-streak-meta" class="stat-meta text-green">0-day streak</span>
+            </div>
+          </div>
+
+          <!-- Chart Display Containers -->
+          <div class="chart-display-container">
+            <!-- Calorie Trend Chart Wrapper -->
+            <div id="chart-wrapper-calorie" class="chart-wrapper">
+              <div class="chart-canvas-container">
+                <canvas id="calorieChartCanvas"></canvas>
+              </div>
+            </div>
+            <!-- Macro Breakdown Chart Wrapper -->
+            <div id="chart-wrapper-macro" class="chart-wrapper hidden">
+              <div class="chart-canvas-container doughnut-container">
+                <canvas id="macroChartCanvas"></canvas>
+              </div>
+            </div>
+            <!-- Hydration Trend Chart Wrapper -->
+            <div id="chart-wrapper-water" class="chart-wrapper hidden">
+              <div class="chart-canvas-container">
+                <canvas id="waterChartCanvas"></canvas>
+              </div>
             </div>
           </div>
         </section>
