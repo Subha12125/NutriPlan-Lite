@@ -12,12 +12,31 @@
 <body class="p-4 md:p-8">
 
     <div class="max-w-5xl mx-auto space-y-8">
-        <header class="flex items-center justify-center space-x-3 py-6">
-            <i class="fas fa-leaf text-[#00ff66] text-4xl drop-shadow-[0_0_10px_rgba(0,255,102,0.4)]"></i>
-            <h1 class="text-4xl font-extrabold tracking-tight text-white">NutriPlan <span class="bg-gradient-to-r from-[#00ff66] to-[#00f0ff] bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(0,255,102,0.3)]">Lite</span></h1>
+        <header class="sticky top-0 z-50 flex items-center justify-between gap-4 px-5 py-3 rounded-2xl mb-2 backdrop-blur-xl" style="background: rgba(10,15,12,0.82); border: 1px solid rgba(0,255,102,0.13); box-shadow: 0 4px 32px rgba(0,0,0,0.45), 0 0 0 1px rgba(0,255,102,0.05);">
+            <!-- Brand -->
+            <a href="index.html" class="flex items-center gap-2.5 group no-underline">
+                <div class="relative">
+                    <i class="fas fa-leaf text-[#00ff66] text-2xl drop-shadow-[0_0_10px_rgba(0,255,102,0.55)] group-hover:scale-110 transition-transform"></i>
+                    <span class="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[#00ff66] opacity-70 animate-ping"></span>
+                </div>
+                <h1 class="text-xl font-extrabold tracking-tight text-white">
+                    NutriPlan <span class="bg-gradient-to-r from-[#00ff66] to-[#00f0ff] bg-clip-text text-transparent">Lite</span>
+                </h1>
+            </a>
+
+            <!-- Desktop Nav (filled by auth.js) -->
+            <nav id="desktop-nav" class="hidden md:flex items-center gap-1 text-sm"></nav>
+
+            <!-- Mobile Nav Icons (filled by auth.js) -->
+            <div id="mobile-nav" class="md:hidden flex items-center gap-1"></div>
         </header>
 
+        <!-- ═══════════════════════════════════════════ -->
+        <!--  CALORIE + MACRO STATS  (NIH PMC4121911)   -->
+        <!-- ═══════════════════════════════════════════ -->
         <div class="grid md:grid-cols-3 gap-8">
+
+            <!-- Profile section stays unchanged -->
             <section class="glass-effect rounded-3xl p-8 space-y-6">
                 <h2 class="text-xl font-bold flex items-center text-white">
                     <i class="fas fa-user-circle mr-3 text-[#00ff66] drop-shadow-[0_0_8px_rgba(0,255,102,0.4)]"></i>
@@ -61,77 +80,193 @@
                 </button>
             </section>
 
-            <section class="glass-effect rounded-3xl p-8 flex flex-col justify-center text-center">
-                <div id="stats-display" class="space-y-4">
-                    <h2 class="bg-gradient-to-r from-[#00ff66] to-[#00f0ff] bg-clip-text text-transparent uppercase text-[11px] font-black tracking-[0.3em]">Calories Consumed</h2>
-                    <div class="text-8xl font-black tracking-tighter text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.15)]" id="consumed-val">0</div>
-                    <div class="text-sm font-semibold text-slate-400">Daily Target: <span id="target-val" class="text-[#00ff66] font-black">2000</span> kcal</div>
-                    
-                    <div class="w-full bg-white/5 rounded-full h-4 mt-8 shadow-inner p-1 border border-white/5">
-                        <div id="progress-bar" class="nutrition-bar bg-gradient-to-r from-[#00ff66] to-[#00f0ff] h-full rounded-full shadow-[0_0_10px_rgba(0,255,102,0.3)]" style="width: 0%"></div>
-                    </div>
-                    
-                    <!-- Macronutrient Bars -->
-                    <div class="grid grid-cols-3 gap-3 mt-6 pt-6 border-t border-white/10 text-center">
-                        <div class="space-y-1">
-                            <span class="text-[10px] uppercase font-bold text-white/50 block">Protein</span>
-                            <div class="w-full bg-white/5 h-2 rounded-full overflow-hidden border border-white/5">
-                                <div id="protein-bar" class="nutrition-bar bg-[#ff9f0a] h-full shadow-[0_0_5px_rgba(255,159,10,0.3)]" style="width: 0%"></div>
-                            </div>
-                            <span class="text-xs font-semibold block text-slate-400"><span id="protein-consumed" class="font-bold text-[#ff9f0a]">0</span>/<span id="protein-target">125</span>g</span>
-                        </div>
-                        <div class="space-y-1">
-                            <span class="text-[10px] uppercase font-bold text-white/50 block">Carbs</span>
-                            <div class="w-full bg-white/5 h-2 rounded-full overflow-hidden border border-white/5">
-                                <div id="carbs-bar" class="nutrition-bar bg-[#00d2ff] h-full shadow-[0_0_5px_rgba(0,210,255,0.3)]" style="width: 0%"></div>
-                            </div>
-                            <span class="text-xs font-semibold block text-slate-400"><span id="carbs-consumed" class="font-bold text-[#00d2ff]">0</span>/<span id="carbs-target">225</span>g</span>
-                        </div>
-                        <div class="space-y-1">
-                            <span class="text-[10px] uppercase font-bold text-white/50 block">Fats</span>
-                            <div class="w-full bg-white/5 h-2 rounded-full overflow-hidden border border-white/5">
-                                <div id="fats-bar" class="nutrition-bar bg-[#ff375f] h-full shadow-[0_0_5px_rgba(255,55,95,0.3)]" style="width: 0%"></div>
-                            </div>
-                            <span class="text-xs font-semibold block text-slate-400"><span id="fats-consumed" class="font-bold text-[#ff375f]">0</span>/<span id="fats-target">67</span>g</span>
+            <!-- ── CALORIES + MACROS CARD ── -->
+            <section class="glass-effect rounded-3xl p-6 flex flex-col justify-center text-center">
+                <div id="stats-display" class="space-y-5">
+
+                    <!-- Calorie ring -->
+                    <div class="relative flex items-center justify-center mx-auto" style="width:140px;height:140px;">
+                        <svg class="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 36 36">
+                            <!-- Track -->
+                            <circle cx="18" cy="18" r="15.9" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="2.8"/>
+                            <!-- Progress arc -->
+                            <circle id="calorie-ring" cx="18" cy="18" r="15.9" fill="none"
+                                stroke="url(#calRingGrad)" stroke-width="2.8"
+                                stroke-linecap="round"
+                                stroke-dasharray="0 100"
+                                style="transition: stroke-dasharray 0.8s cubic-bezier(0.16,1,0.3,1)"/>
+                            <defs>
+                                <linearGradient id="calRingGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" stop-color="#00ff66"/>
+                                    <stop offset="100%" stop-color="#00f0ff"/>
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                        <div class="relative flex flex-col items-center leading-none">
+                            <span id="consumed-val" class="text-3xl font-black text-white">0</span>
+                            <span class="text-[9px] text-white/40 uppercase font-black tracking-widest mt-0.5">kcal</span>
+                            <span id="calorie-pct-label" class="text-xs font-black text-[#00ff66] mt-1">0%</span>
                         </div>
                     </div>
 
-                    <!-- Progress/Target Achieved message -->
-                    <div id="target-message" class="hidden mt-6 px-6 py-4 rounded-2xl bg-[#00ff66]/10 border border-[#00ff66]/30 text-[#00ff66] font-bold text-xs shadow-[0_0_15px_rgba(0,255,102,0.1)]">
-                        🎉 Congratulations! You have achieved your daily calorie target.
+                    <div>
+                        <p class="text-[10px] uppercase font-black tracking-[0.25em] text-white/40">Daily Target</p>
+                        <p class="text-lg font-black text-white mt-0.5"><span id="target-val">2000</span> <span class="text-xs text-white/40 font-semibold">kcal</span></p>
+                    </div>
+
+                    <!-- Progress bar (keeps existing ID) -->
+                    <div class="w-full bg-white/5 rounded-full h-2 shadow-inner border border-white/5">
+                        <div id="progress-bar" class="nutrition-bar bg-gradient-to-r from-[#00ff66] to-[#00f0ff] h-full rounded-full shadow-[0_0_8px_rgba(0,255,102,0.3)]" style="width:0%"></div>
+                    </div>
+
+                    <!-- NIH source note -->
+                    <p class="text-[9px] text-white/20 leading-relaxed">Macros per NIH DRI: 45% Carbs · 25% Protein · 30% Fat</p>
+
+                    <!-- ── MACRO CARDS (clickable, show %) ── -->
+                    <div class="grid grid-cols-3 gap-2 pt-2 border-t border-white/8">
+
+                        <!-- Protein -->
+                        <button id="macro-protein-btn" onclick="toggleMacroDetail('protein')"
+                            class="macro-card group flex flex-col items-center gap-1.5 p-3 rounded-2xl border border-white/8 hover:border-[#ff9f0a]/50 hover:bg-[#ff9f0a]/8 transition-all active:scale-95 cursor-pointer text-center">
+                            <div class="w-8 h-8 rounded-xl bg-[#ff9f0a]/10 border border-[#ff9f0a]/20 flex items-center justify-center">
+                                <i class="fas fa-drumstick-bite text-[#ff9f0a] text-xs"></i>
+                            </div>
+                            <span class="text-[9px] uppercase font-black tracking-wider text-white/40 group-hover:text-white/70 transition-colors">Protein</span>
+                            <!-- % badge -->
+                            <span id="protein-pct-badge" class="text-[10px] font-black px-2 py-0.5 rounded-full" style="background:rgba(255,159,10,0.15);color:#ff9f0a;">0%</span>
+                            <!-- gram display -->
+                            <span class="text-[10px] text-white/50">
+                                <span id="protein-consumed" class="font-black text-[#ff9f0a]">0</span>/<span id="protein-target">125</span>g
+                            </span>
+                            <!-- mini bar -->
+                            <div class="w-full bg-white/5 h-1.5 rounded-full overflow-hidden border border-white/5">
+                                <div id="protein-bar" class="nutrition-bar bg-[#ff9f0a] h-full rounded-full shadow-[0_0_4px_rgba(255,159,10,0.4)]" style="width:0%"></div>
+                            </div>
+                        </button>
+
+                        <!-- Carbs -->
+                        <button id="macro-carbs-btn" onclick="toggleMacroDetail('carbs')"
+                            class="macro-card group flex flex-col items-center gap-1.5 p-3 rounded-2xl border border-white/8 hover:border-[#00d2ff]/50 hover:bg-[#00d2ff]/8 transition-all active:scale-95 cursor-pointer text-center">
+                            <div class="w-8 h-8 rounded-xl bg-[#00d2ff]/10 border border-[#00d2ff]/20 flex items-center justify-center">
+                                <i class="fas fa-bread-slice text-[#00d2ff] text-xs"></i>
+                            </div>
+                            <span class="text-[9px] uppercase font-black tracking-wider text-white/40 group-hover:text-white/70 transition-colors">Carbs</span>
+                            <span id="carbs-pct-badge" class="text-[10px] font-black px-2 py-0.5 rounded-full" style="background:rgba(0,210,255,0.15);color:#00d2ff;">0%</span>
+                            <span class="text-[10px] text-white/50">
+                                <span id="carbs-consumed" class="font-black text-[#00d2ff]">0</span>/<span id="carbs-target">225</span>g
+                            </span>
+                            <div class="w-full bg-white/5 h-1.5 rounded-full overflow-hidden border border-white/5">
+                                <div id="carbs-bar" class="nutrition-bar bg-[#00d2ff] h-full rounded-full shadow-[0_0_4px_rgba(0,210,255,0.4)]" style="width:0%"></div>
+                            </div>
+                        </button>
+
+                        <!-- Fats -->
+                        <button id="macro-fats-btn" onclick="toggleMacroDetail('fats')"
+                            class="macro-card group flex flex-col items-center gap-1.5 p-3 rounded-2xl border border-white/8 hover:border-[#ff375f]/50 hover:bg-[#ff375f]/8 transition-all active:scale-95 cursor-pointer text-center">
+                            <div class="w-8 h-8 rounded-xl bg-[#ff375f]/10 border border-[#ff375f]/20 flex items-center justify-center">
+                                <i class="fas fa-droplet text-[#ff375f] text-xs"></i>
+                            </div>
+                            <span class="text-[9px] uppercase font-black tracking-wider text-white/40 group-hover:text-white/70 transition-colors">Fats</span>
+                            <span id="fats-pct-badge" class="text-[10px] font-black px-2 py-0.5 rounded-full" style="background:rgba(255,55,95,0.15);color:#ff375f;">0%</span>
+                            <span class="text-[10px] text-white/50">
+                                <span id="fats-consumed" class="font-black text-[#ff375f]">0</span>/<span id="fats-target">67</span>g
+                            </span>
+                            <div class="w-full bg-white/5 h-1.5 rounded-full overflow-hidden border border-white/5">
+                                <div id="fats-bar" class="nutrition-bar bg-[#ff375f] h-full rounded-full shadow-[0_0_4px_rgba(255,55,95,0.4)]" style="width:0%"></div>
+                            </div>
+                        </button>
+
+                    </div>
+
+                    <!-- Macro detail popup (shown on card click) -->
+                    <div id="macro-detail-popup" class="hidden mt-2 p-3 rounded-2xl text-left text-xs" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);">
+                        <p id="macro-detail-text" class="text-white/60 leading-relaxed"></p>
+                    </div>
+
+                    <!-- Target achieved message -->
+                    <div id="target-message" class="hidden mt-2 px-4 py-3 rounded-2xl bg-[#00ff66]/10 border border-[#00ff66]/30 text-[#00ff66] font-bold text-xs shadow-[0_0_15px_rgba(0,255,102,0.1)]">
+                        🎉 Daily calorie target achieved!
                     </div>
                 </div>
             </section>
 
-            <section class="glass-effect rounded-3xl p-8 flex flex-col justify-between items-center text-center">
+            <!-- ── WATER TRACKER CARD ── -->
+            <section class="glass-effect rounded-3xl p-6 flex flex-col justify-between items-center text-center gap-4">
                 <div class="w-full">
                     <h2 class="text-xl font-bold flex items-center justify-center text-white">
                         <i class="fas fa-glass-water mr-3 text-[#00f0ff] drop-shadow-[0_0_8px_rgba(0,240,255,0.4)]"></i>
                         <span class="bg-gradient-to-r from-[#00f0ff] to-[#00ff66] bg-clip-text text-transparent uppercase tracking-wider font-black text-sm">Water Tracker</span>
                     </h2>
-                    <p class="bg-gradient-to-r from-[#00f0ff] to-[#00ff66] bg-clip-text text-transparent uppercase text-[11px] font-black tracking-[0.3em] mt-6">Daily Intake</p>
-                    <div class="text-sm font-semibold text-slate-400 mt-1"><span id="water-consumed" class="text-white font-black text-3xl drop-shadow-[0_0_10px_rgba(0,240,255,0.2)]">0</span> / <span id="water-target" class="text-white/60">2500</span> ml</div>
+
+                    <!-- consumed / target + % -->
+                    <div class="mt-4 space-y-1">
+                        <div class="flex items-end justify-center gap-1">
+                            <span id="water-consumed" class="text-4xl font-black text-white drop-shadow-[0_0_10px_rgba(0,240,255,0.2)]">0</span>
+                            <span class="text-white/40 text-sm font-semibold mb-1">/ <span id="water-target">2500</span> ml</span>
+                        </div>
+                        <div class="flex items-center justify-center gap-2">
+                            <div class="flex-1 bg-white/5 h-1.5 rounded-full overflow-hidden border border-white/5">
+                                <div id="water-progress-bar" class="h-full rounded-full transition-all duration-700" style="width:0%;background:linear-gradient(to right,#00f0ff,#00ff66);box-shadow:0 0 8px rgba(0,240,255,0.35);"></div>
+                            </div>
+                            <span id="water-pct-label" class="text-xs font-black text-[#00f0ff] shrink-0">0%</span>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="water-glass my-6">
-                    <div id="water-fill" class="water-fill" style="height: 0%"></div>
+                <!-- Animated water glass -->
+                <div class="water-glass my-2 relative cursor-pointer" title="Click to see hydration status">
+                    <div id="water-fill" class="water-fill" style="height:0%"></div>
+                    <!-- glass label -->
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span id="water-glass-label" class="text-[9px] font-black text-white/60 uppercase tracking-wider z-10 relative"></span>
+                    </div>
                 </div>
 
-                <div class="w-full space-y-3">
+                <!-- Add buttons grid -->
+                <div class="w-full space-y-2">
                     <div class="grid grid-cols-2 gap-2">
-                        <button onclick="addWater(250)" class="bg-[#00f0ff]/10 border border-[#00f0ff]/20 hover:bg-[#00f0ff]/20 active:scale-95 text-[#00f0ff] font-black py-3 rounded-xl transition-all hover:shadow-[0_0_15px_rgba(0,240,255,0.15)] flex items-center justify-center text-xs gap-2">
-                            <i class="fas fa-glass-water"></i> +250ml
+                        <button onclick="addWater(250)" id="water-btn-250"
+                            class="water-btn bg-[#00f0ff]/10 border border-[#00f0ff]/20 hover:bg-[#00f0ff]/20 active:scale-95 text-[#00f0ff] font-black py-2.5 rounded-xl transition-all hover:shadow-[0_0_15px_rgba(0,240,255,0.15)] flex items-center justify-center text-xs gap-1.5">
+                            <i class="fas fa-glass-water text-xs"></i> +250 ml
                         </button>
-                        <button onclick="addWater(500)" class="bg-[#00f0ff]/10 border border-[#00f0ff]/20 hover:bg-[#00f0ff]/20 active:scale-95 text-[#00f0ff] font-black py-3 rounded-xl transition-all hover:shadow-[0_0_15px_rgba(0,240,255,0.15)] flex items-center justify-center text-xs gap-2">
-                            <i class="fas fa-bottle-water"></i> +500ml
+                        <button onclick="addWater(500)" id="water-btn-500"
+                            class="water-btn bg-[#00f0ff]/10 border border-[#00f0ff]/20 hover:bg-[#00f0ff]/20 active:scale-95 text-[#00f0ff] font-black py-2.5 rounded-xl transition-all hover:shadow-[0_0_15px_rgba(0,240,255,0.15)] flex items-center justify-center text-xs gap-1.5">
+                            <i class="fas fa-bottle-water text-xs"></i> +500 ml
+                        </button>
+                        <button onclick="addWater(750)"
+                            class="water-btn bg-[#00f0ff]/10 border border-[#00f0ff]/20 hover:bg-[#00f0ff]/20 active:scale-95 text-[#00f0ff] font-black py-2.5 rounded-xl transition-all hover:shadow-[0_0_15px_rgba(0,240,255,0.15)] flex items-center justify-center text-xs gap-1.5">
+                            <i class="fas fa-mug-hot text-xs"></i> +750 ml
+                        </button>
+                        <button onclick="addWater(1000)"
+                            class="water-btn bg-[#00f0ff]/10 border border-[#00f0ff]/20 hover:bg-[#00f0ff]/20 active:scale-95 text-[#00f0ff] font-black py-2.5 rounded-xl transition-all hover:shadow-[0_0_15px_rgba(0,240,255,0.15)] flex items-center justify-center text-xs gap-1.5">
+                            <i class="fas fa-tint text-xs"></i> +1000 ml
                         </button>
                     </div>
-                    <button onclick="resetWater()" class="text-[10px] text-white/30 hover:text-white/60 transition-all uppercase tracking-widest font-black">
-                        Reset Intake
+
+                    <!-- Custom amount input -->
+                    <div class="flex gap-2">
+                        <input id="custom-water-input" type="number" min="1" max="2000" placeholder="Custom ml..." class="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white text-xs focus:outline-none focus:ring-2 focus:ring-[#00f0ff] transition-all">
+                        <button onclick="addCustomWater()" class="bg-[#00f0ff]/15 border border-[#00f0ff]/30 hover:bg-[#00f0ff]/25 text-[#00f0ff] font-black px-4 py-2 rounded-xl transition-all active:scale-95 text-xs">
+                            Add
+                        </button>
+                    </div>
+
+                    <!-- Set custom daily target -->
+                    <div class="flex gap-2">
+                        <input id="water-target-input" type="number" min="500" max="6000" placeholder="Set target (ml)..." class="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white text-xs focus:outline-none focus:ring-2 focus:ring-[#00ff66] transition-all">
+                        <button onclick="setWaterTarget()" class="bg-[#00ff66]/15 border border-[#00ff66]/30 hover:bg-[#00ff66]/25 text-[#00ff66] font-black px-4 py-2 rounded-xl transition-all active:scale-95 text-xs">
+                            Set
+                        </button>
+                    </div>
+
+                    <button onclick="resetWater()" class="text-[10px] text-white/25 hover:text-white/60 transition-all uppercase tracking-widest font-black w-full py-1">
+                        ↺ Reset Intake
                     </button>
                 </div>
             </section>
         </div>
+
+
 
         <section class="glass-effect rounded-3xl p-8">
             <h2 class="text-xl font-bold mb-8 flex items-center text-white">
@@ -186,9 +321,138 @@
                     Generate Plan
                 </button>
             </form>
+
+            <!-- ── FAQ Accordion ── -->
+            <div class="mt-10 space-y-0" id="faq-section">
+                <div class="flex items-center gap-2 mb-5">
+                    <i class="fas fa-circle-question text-[#00ff66] drop-shadow-[0_0_6px_rgba(0,255,102,0.4)]"></i>
+                    <h3 class="text-xs font-black uppercase tracking-[0.2em] text-white/60">Frequently Asked Questions</h3>
+                </div>
+
+                <!-- FAQ Item 1 -->
+                <div class="faq-item border-b border-white/8">
+                    <button class="faq-btn w-full flex items-center justify-between gap-4 py-4 text-left group" onclick="toggleFaq(this)">
+                        <span class="text-sm font-semibold text-white/80 group-hover:text-white transition-colors">How does NutriPlan calculate my calorie target?</span>
+                        <i class="fas fa-chevron-down text-[#00ff66]/60 text-xs shrink-0 transition-transform duration-300"></i>
+                    </button>
+                    <div class="faq-answer overflow-hidden" style="max-height:0;transition:max-height 0.4s cubic-bezier(0.16,1,0.3,1),opacity 0.3s ease;opacity:0;">
+                        <p class="text-xs text-slate-400 leading-relaxed pb-4 pr-2">We use the <strong class="text-white/70">Mifflin-St Jeor equation</strong> (validated by NIH) combined with your activity multiplier to calculate your Total Daily Energy Expenditure (TDEE). For fat loss, we apply a 300–500 kcal deficit; for muscle gain, a 300–500 kcal surplus. All calorie targets shown in your plan are personalised to your inputs.</p>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 2 -->
+                <div class="faq-item border-b border-white/8">
+                    <button class="faq-btn w-full flex items-center justify-between gap-4 py-4 text-left group" onclick="toggleFaq(this)">
+                        <span class="text-sm font-semibold text-white/80 group-hover:text-white transition-colors">What are macros and why do they matter?</span>
+                        <i class="fas fa-chevron-down text-[#00ff66]/60 text-xs shrink-0 transition-transform duration-300"></i>
+                    </button>
+                    <div class="faq-answer overflow-hidden" style="max-height:0;transition:max-height 0.4s cubic-bezier(0.16,1,0.3,1),opacity 0.3s ease;opacity:0;">
+                        <p class="text-xs text-slate-400 leading-relaxed pb-4 pr-2">Macronutrients — <strong class="text-white/70">Protein, Carbohydrates, and Fat</strong> — are the three energy-providing nutrients in food. Tracking them matters because the ratio directly affects body composition: protein preserves and builds muscle, carbs fuel exercise and the brain, and fats support hormone production. Our plans follow NASM-recommended ratios tailored to your body type.</p>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 3 -->
+                <div class="faq-item border-b border-white/8">
+                    <button class="faq-btn w-full flex items-center justify-between gap-4 py-4 text-left group" onclick="toggleFaq(this)">
+                        <span class="text-sm font-semibold text-white/80 group-hover:text-white transition-colors">How do I log food in the nutrition tracker?</span>
+                        <i class="fas fa-chevron-down text-[#00ff66]/60 text-xs shrink-0 transition-transform duration-300"></i>
+                    </button>
+                    <div class="faq-answer overflow-hidden" style="max-height:0;transition:max-height 0.4s cubic-bezier(0.16,1,0.3,1),opacity 0.3s ease;opacity:0;">
+                        <p class="text-xs text-slate-400 leading-relaxed pb-4 pr-2">Scroll up to the <strong class="text-white/70">Log Nutrition</strong> section. Type any food name in the search bar — our database auto-suggests matching items. Enter the quantity in grams, then click <em>Add Food</em>. The entry appears in your daily log with its calorie and macro breakdown instantly calculated.</p>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 4 -->
+                <div class="faq-item border-b border-white/8">
+                    <button class="faq-btn w-full flex items-center justify-between gap-4 py-4 text-left group" onclick="toggleFaq(this)">
+                        <span class="text-sm font-semibold text-white/80 group-hover:text-white transition-colors">What is my body type and how does it affect my plan?</span>
+                        <i class="fas fa-chevron-down text-[#00ff66]/60 text-xs shrink-0 transition-transform duration-300"></i>
+                    </button>
+                    <div class="faq-answer overflow-hidden" style="max-height:0;transition:max-height 0.4s cubic-bezier(0.16,1,0.3,1),opacity 0.3s ease;opacity:0;">
+                        <p class="text-xs text-slate-400 leading-relaxed pb-4 pr-2">NASM recognises three body types: <strong class="text-white/70">Ectomorph</strong> (lean, fast metabolism — needs more calories & carbs), <strong class="text-white/70">Mesomorph</strong> (naturally athletic — balanced macros & mixed training), and <strong class="text-white/70">Endomorph</strong> (higher fat storage tendency — needs a deficit, lower carbs, HIIT). Your plan's meals, macros, and workout tips are all customised based on your type.</p>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 5 -->
+                <div class="faq-item">
+                    <button class="faq-btn w-full flex items-center justify-between gap-4 py-4 text-left group" onclick="toggleFaq(this)">
+                        <span class="text-sm font-semibold text-white/80 group-hover:text-white transition-colors">How much water should I drink daily?</span>
+                        <i class="fas fa-chevron-down text-[#00ff66]/60 text-xs shrink-0 transition-transform duration-300"></i>
+                    </button>
+                    <div class="faq-answer overflow-hidden" style="max-height:0;transition:max-height 0.4s cubic-bezier(0.16,1,0.3,1),opacity 0.3s ease;opacity:0;">
+                        <p class="text-xs text-slate-400 leading-relaxed pb-4 pr-2">General guidelines recommend <strong class="text-white/70">2.5–3.5 litres per day</strong> for most adults, and more on training days. Our Water Tracker (top right card) helps you hit your goal — add intake using the +250 ml / +500 ml buttons. Your plan page also shows a specific water target personalised to your body type, as recommended by NASM nutrition guidelines.</p>
+                    </div>
+                </div>
+
+            </div><!-- /faq -->
         </section>
     </div>
 
+        <footer class="mt-16" id="contact">
+            <!-- Gradient divider -->
+            <div class="h-px w-full" style="background: linear-gradient(to right, transparent, rgba(0,255,102,0.25), rgba(0,240,255,0.15), transparent);"></div>
+
+            <!-- Brand tagline row -->
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4 py-8">
+                <div class="flex items-center gap-2.5">
+                    <i class="fas fa-leaf text-[#00ff66] text-lg drop-shadow-[0_0_8px_rgba(0,255,102,0.4)]"></i>
+                    <span class="text-white font-extrabold tracking-tight">NutriPlan <span class="bg-gradient-to-r from-[#00ff66] to-[#00f0ff] bg-clip-text text-transparent">Lite</span></span>
+                </div>
+                <p class="text-xs text-white/35 font-medium tracking-wide text-center">Personalized AI-powered nutrition & fitness planning</p>
+                <!-- Social icons -->
+                <div class="flex items-center gap-2">
+                    <a href="#" aria-label="Facebook" class="w-8 h-8 rounded-xl flex items-center justify-center text-white/40 hover:text-[#00ff66] hover:bg-[#00ff66]/10 border border-white/5 hover:border-[#00ff66]/30 transition-all text-xs"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" aria-label="Instagram" class="w-8 h-8 rounded-xl flex items-center justify-center text-white/40 hover:text-[#00ff66] hover:bg-[#00ff66]/10 border border-white/5 hover:border-[#00ff66]/30 transition-all text-xs"><i class="fab fa-instagram"></i></a>
+                    <a href="#" aria-label="Twitter" class="w-8 h-8 rounded-xl flex items-center justify-center text-white/40 hover:text-[#00ff66] hover:bg-[#00ff66]/10 border border-white/5 hover:border-[#00ff66]/30 transition-all text-xs"><i class="fab fa-twitter"></i></a>
+                    <a href="#" aria-label="YouTube" class="w-8 h-8 rounded-xl flex items-center justify-center text-white/40 hover:text-[#00ff66] hover:bg-[#00ff66]/10 border border-white/5 hover:border-[#00ff66]/30 transition-all text-xs"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+
+            <!-- Link columns (FAQ removed; legal links only) -->
+            <div class="flex flex-wrap gap-x-6 gap-y-2 py-6" style="border-top: 1px solid rgba(255,255,255,0.05);">
+                <a href="#about"  class="text-xs text-white/40 hover:text-white transition-colors font-semibold">About</a>
+                <a href="#privacy" class="text-xs text-white/40 hover:text-white transition-colors font-semibold">Privacy Policy</a>
+                <a href="#terms"  class="text-xs text-white/40 hover:text-white transition-colors font-semibold">Terms of Service</a>
+            </div>
+
+            <!-- Copyright bar -->
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-2 py-5" style="border-top: 1px solid rgba(255,255,255,0.04);">
+                <span class="text-xs text-white/25">© <span id="year"></span> NutriPlan Lite. All rights reserved.</span>
+                <span class="text-[10px] text-white/20 uppercase tracking-widest font-bold">Built with <i class="fas fa-heart text-[#ff375f]/60"></i> for your health</span>
+            </div>
+        </footer>
+
+        <script>
+            document.getElementById('year').textContent = new Date().getFullYear();
+
+            // ── FAQ accordion ──────────────────────────────────
+            function toggleFaq(btn) {
+                const answer  = btn.nextElementSibling;
+                const chevron = btn.querySelector('i.fa-chevron-down');
+                const isOpen  = answer.style.maxHeight !== '0px' && answer.style.maxHeight !== '';
+
+                // Close all open items first
+                document.querySelectorAll('.faq-answer').forEach(a => {
+                    a.style.maxHeight = '0px';
+                    a.style.opacity  = '0';
+                });
+                document.querySelectorAll('.faq-btn i.fa-chevron-down').forEach(c => {
+                    c.style.transform = 'rotate(0deg)';
+                    c.style.color = 'rgba(0,255,102,0.6)';
+                });
+
+                // If this item was closed, open it
+                if (!isOpen) {
+                    answer.style.maxHeight = answer.scrollHeight + 'px';
+                    answer.style.opacity   = '1';
+                    chevron.style.transform = 'rotate(180deg)';
+                    chevron.style.color = '#00ff66';
+                }
+            }
+        </script>
+
+    <script src="script/auth.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
+

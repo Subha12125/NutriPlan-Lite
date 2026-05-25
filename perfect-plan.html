@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Perfect Plan - AI Diet Planner</title>
+    <title>Perfect Plan - NutriPlan Lite</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -16,29 +16,41 @@
             color: #ffffff;
             overflow-x: hidden;
         }
-        /* Custom slide-up animation */
         .slide-up {
             animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
         @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(30px); }
+            to   { opacity: 1; transform: translateY(0); }
         }
+        .meal-card { animation: slideUp 0.5s cubic-bezier(0.16,1,0.3,1) both; }
+        .workout-card { animation: slideUp 0.5s cubic-bezier(0.16,1,0.3,1) both; }
     </style>
 </head>
 <body class="p-4 md:p-8 flex flex-col justify-center items-center min-h-screen">
 
     <div class="w-full max-w-3xl mx-auto space-y-8 py-8 slide-up">
-        
-        <header class="flex flex-col items-center justify-center space-y-3 py-6 text-center">
+
+        <!-- Navbar -->
+        <nav class="w-full flex items-center justify-between gap-3 px-5 py-3 rounded-2xl backdrop-blur-xl"
+             style="background:rgba(10,15,12,0.82);border:1px solid rgba(0,255,102,0.13);box-shadow:0 4px 32px rgba(0,0,0,0.45);">
+            <a href="index.html" class="flex items-center gap-2 group no-underline shrink-0">
+                <div class="relative">
+                    <i class="fas fa-leaf text-[#00ff66] text-lg drop-shadow-[0_0_8px_rgba(0,255,102,0.5)] group-hover:scale-110 transition-transform"></i>
+                    <span class="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-[#00ff66] opacity-70 animate-ping"></span>
+                </div>
+                <span class="text-white font-extrabold text-sm tracking-tight">NutriPlan <span class="bg-gradient-to-r from-[#00ff66] to-[#00f0ff] bg-clip-text text-transparent">Lite</span></span>
+            </a>
+            <!-- Desktop Nav (filled by auth.js) -->
+            <nav id="desktop-nav" class="hidden md:flex items-center gap-1"></nav>
+            <!-- Mobile Nav (filled by auth.js) -->
+            <div id="mobile-nav" class="md:hidden flex items-center gap-1"></div>
+        </nav>
+
+        <!-- Hero -->
+        <header class="flex flex-col items-center justify-center space-y-3 py-4 text-center">
             <i class="fas fa-medal text-[#00ff66] text-5xl drop-shadow-[0_0_12px_rgba(0,255,102,0.4)] animate-bounce"></i>
-            <h1 class="text-4xl font-extrabold tracking-tight text-white">Your Perfect <span class="bg-gradient-to-r from-[#00ff66] to-[#00f0ff] bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(0,255,102,0.3)]">Diet Plan</span></h1>
+            <h1 class="text-4xl font-extrabold tracking-tight text-white">Your Perfect <span class="bg-gradient-to-r from-[#00ff66] to-[#00f0ff] bg-clip-text text-transparent">Diet Plan</span></h1>
             <p class="text-xs uppercase font-black tracking-[0.2em] text-[#00f0ff] pt-1 flex flex-col sm:flex-row items-center justify-center gap-2">
                 <span id="profile-indicator">Customized Profile Plan</span>
                 <span class="hidden sm:inline text-white/30">•</span>
@@ -49,21 +61,74 @@
         </header>
 
         <main class="space-y-8">
-            
-            <!-- Summary Badge -->
-            <div class="bg-white/5 border border-[#00ff66]/20 p-6 rounded-2xl flex flex-col sm:flex-row items-center gap-4 hover:border-[#00ff66]/40 transition-colors">
-                <div class="w-12 h-12 rounded-xl bg-[#00ff66]/10 flex items-center justify-center border border-[#00ff66]/20 shrink-0">
-                    <i class="fas fa-info-circle text-[#00ff66] text-xl"></i>
+
+            <!-- AI Chatbot -->
+            <section class="glass-effect rounded-3xl p-6 space-y-4">
+                <h2 class="text-lg font-bold flex items-center text-white">
+                    <i class="fas fa-comments mr-3 text-[#00ff66] drop-shadow-[0_0_8px_rgba(0,255,102,0.4)]"></i>
+                    <span class="bg-gradient-to-r from-[#00ff66] to-[#00f0ff] bg-clip-text text-transparent uppercase tracking-wider font-black text-sm">AI Health Chatbot</span>
+                </h2>
+                <div class="text-xs text-white/40">Ask about foods, workout tips, or what to avoid for your body type.</div>
+                <div class="bg-white/5 border border-white/10 rounded-2xl p-4">
+                    <div id="chat-messages" class="space-y-3 max-h-72 overflow-y-auto pr-2">
+                        <div class="text-white/70 text-sm">Hi! I'm your plan assistant. Ask me anything about diet, exercise or your body type.</div>
+                    </div>
+                    <form id="chat-form" class="flex gap-2 mt-4">
+                        <input id="chat-input" type="text" placeholder="Type your question..." class="flex-1 bg-white/5 border border-white/10 rounded-xl p-3 text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#00ff66]" />
+                        <button type="submit" class="bg-[#00ff66] hover:bg-[#00e55c] text-black font-black px-4 rounded-xl transition-all text-sm uppercase tracking-widest border-none">Send</button>
+                    </form>
+                    <div id="chat-error" class="hidden text-xs text-[#ff375f] mt-2"></div>
                 </div>
-                <div>
-                    <h3 class="font-bold text-white text-sm uppercase tracking-wider">AI Dietitian Summary</h3>
-                    <p id="bodytype-desc" class="text-slate-300 text-xs mt-1 leading-relaxed">
-                        Generating customized dietary profile...
-                    </p>
+            </section>
+
+            <!-- AI Dietitian Summary -->
+            <div class="relative bg-white/5 border border-[#00ff66]/20 p-6 rounded-2xl flex flex-col sm:flex-row items-center gap-5 hover:border-[#00ff66]/40 transition-all duration-300 overflow-hidden group"
+                 style="background:linear-gradient(135deg,rgba(0,255,102,0.04) 0%,rgba(0,240,255,0.03) 100%);">
+
+                <!-- Decorative background glow -->
+                <div class="absolute -top-8 -left-8 w-32 h-32 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
+                     style="background:radial-gradient(circle,rgba(0,255,102,0.08) 0%,transparent 70%);"></div>
+
+                <!-- Icon badge -->
+                <div class="relative shrink-0 flex flex-col items-center gap-1.5">
+                    <!-- Outer pulse ring -->
+                    <div class="absolute w-20 h-20 rounded-full animate-ping opacity-15"
+                         style="background:rgba(0,255,102,0.25);animation-duration:2.5s;"></div>
+
+                    <!-- Icon container -->
+                    <div class="relative w-16 h-16 rounded-2xl flex items-center justify-center shrink-0"
+                         style="background:linear-gradient(135deg,rgba(0,255,102,0.15),rgba(0,240,255,0.10));
+                                border:1px solid rgba(0,255,102,0.3);
+                                box-shadow:0 0 24px rgba(0,255,102,0.15), inset 0 1px 0 rgba(255,255,255,0.05);">
+                        <!-- Layered icons -->
+                        <span class="relative">
+                            <i class="fas fa-brain text-2xl drop-shadow-[0_0_10px_rgba(0,255,102,0.6)]"
+                               style="background:linear-gradient(135deg,#00ff66,#00f0ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;"></i>
+                            <!-- Small leaf overlay -->
+                            <i class="fas fa-leaf text-[8px] absolute -bottom-0.5 -right-1 text-[#00f0ff] drop-shadow-[0_0_4px_rgba(0,240,255,0.8)]"></i>
+                        </span>
+                    </div>
+
+                    <!-- Label badge -->
+                    <span class="text-[8px] font-black uppercase tracking-[0.15em] px-2.5 py-0.5 rounded-full"
+                          style="background:linear-gradient(90deg,rgba(0,255,102,0.18),rgba(0,240,255,0.12));
+                                 border:1px solid rgba(0,255,102,0.25);
+                                 color:#00ff66;">AI Dietitian</span>
+                </div>
+
+                <!-- Text -->
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2 mb-1.5">
+                        <h3 class="font-black text-white text-sm uppercase tracking-wider">Personalised Plan Summary</h3>
+                        <span class="text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wide animate-pulse"
+                              style="background:rgba(0,255,102,0.12);color:#00ff66;animation-duration:3s;">● Live</span>
+                    </div>
+                    <p id="bodytype-desc" class="text-slate-300 text-xs leading-relaxed">Generating customized dietary profile...</p>
                 </div>
             </div>
 
-            <!-- Meal Plan Section -->
+
+            <!-- Meal Plan -->
             <section class="glass-effect rounded-3xl p-8 space-y-6">
                 <h2 class="text-xl font-bold flex items-center justify-between text-white border-b border-white/10 pb-4">
                     <span class="flex items-center">
@@ -73,242 +138,345 @@
                     <span class="text-[10px] text-white/40 uppercase font-black tracking-widest bg-white/5 px-3 py-1 rounded-full">Daily Intake</span>
                 </h2>
                 <div id="meal-plan-container" class="space-y-4">
-                    <!-- Dynamic Meals -->
+                    <!-- Populated by JS -->
                 </div>
             </section>
 
-            <!-- Workout Section -->
+            <!-- Workout / Training Tips -->
             <section class="glass-effect rounded-3xl p-8 space-y-6">
                 <h2 class="text-xl font-bold flex items-center justify-between text-white border-b border-white/10 pb-4">
                     <span class="flex items-center">
                         <i class="fas fa-dumbbell mr-3 text-[#00f0ff] drop-shadow-[0_0_8px_rgba(0,240,255,0.4)]"></i>
-                        <span class="bg-gradient-to-r from-[#00f0ff] to-[#00ff66] bg-clip-text text-transparent uppercase tracking-wider font-black text-sm">Targeted Training Tips</span>
+                        <span class="bg-gradient-to-r from-[#00f0ff] to-[#00ff66] bg-clip-text text-transparent uppercase tracking-wider font-black text-sm">Daily Training Tips</span>
                     </span>
-                    <span class="text-[10px] text-white/40 uppercase font-black tracking-widest bg-white/5 px-3 py-1 rounded-full">Silhouette Custom</span>
+                    <span class="text-[10px] text-white/40 uppercase font-black tracking-widest bg-white/5 px-3 py-1 rounded-full">Body-Type Specific</span>
                 </h2>
-                <div id="workout-routine-container" class="grid gap-4 md:grid-cols-1">
-                    <!-- Dynamic Workout Steps -->
+                <div id="workout-routine-container" class="space-y-4">
+                    <!-- Populated by JS -->
                 </div>
             </section>
+
         </main>
 
-        <footer class="text-center py-8">
-            <button onclick="window.close()" class="bg-white/5 border border-white/10 hover:border-[#ff375f]/30 hover:bg-[#ff375f]/5 text-white/60 hover:text-[#ff375f] px-8 py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition-all">
+        <!-- Footer -->
+        <footer class="pt-4 pb-8" id="contact">
+            <div class="h-px w-full mb-8" style="background:linear-gradient(to right,transparent,rgba(0,255,102,0.25),rgba(0,240,255,0.15),transparent);"></div>
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-leaf text-[#00ff66] text-base drop-shadow-[0_0_6px_rgba(0,255,102,0.4)]"></i>
+                    <span class="text-white font-bold text-sm">NutriPlan <span class="bg-gradient-to-r from-[#00ff66] to-[#00f0ff] bg-clip-text text-transparent">Lite</span></span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <a href="index.html" class="text-xs text-white/40 hover:text-white transition-colors font-semibold">Home</a>
+                    <a href="#" class="text-xs text-white/40 hover:text-white transition-colors font-semibold">FAQ</a>
+                    <a href="#" class="text-xs text-white/40 hover:text-white transition-colors font-semibold">Privacy</a>
+                </div>
+                <p class="text-[10px] text-white/25 uppercase tracking-widest font-bold">AI-Powered Diet Planning</p>
+            </div>
+            <button onclick="window.close()" class="mx-auto flex items-center gap-2.5 bg-white/[0.04] border border-white/10 hover:border-[#ff375f]/40 text-white/40 hover:text-[#ff375f] px-8 py-3 rounded-xl font-bold text-[11px] uppercase tracking-widest transition-all group">
+                <i class="fas fa-times-circle text-xs group-hover:rotate-90 transition-transform duration-300"></i>
                 Close Report Tab
             </button>
+            <p class="text-center text-[10px] text-white/20 mt-6">&copy; <span id="footer-year"></span> NutriPlan Lite. All rights reserved.</p>
         </footer>
 
-    </div>
+    </div><!-- /max-w-3xl -->
+
+    <script src="script/auth.js"></script>
+    <script src="script/ai-chatbot.js"></script>
 
     <script>
-        const perfectDatabase = {
-            women: {
-                endomorph: {
-                    title: "Women's Onboarding Profile Plan",
-                    bodyTitle: "Endomorph Shape",
-                    desc: "Targeted at maximizing caloric deficit and enhancing insulin sensitivity. The plan features low-carb meals combined with high-intensity metabolic circuits.",
-                    mealPlan: [
-                        { time: "08:00 AM", meal: "Keto Chia & Pumpkin Seed Oats", desc: "Low-carb almond flour & seed warm porridge with coconut cream, pumpkin seeds, and a pinch of cinnamon.", icon: "fa-seedling", color: "text-[#00ff66]" },
-                        { time: "01:00 PM", meal: "Avocado & Salmon Keto Salad", desc: "Wild-caught salmon, Hass avocado, spinach leaves, cucumber slice, walnuts, and lemon olive oil dressing.", icon: "fa-leaf", color: "text-[#00f0ff]" },
-                        { time: "05:00 PM", meal: "L-Carnitine Matcha & Walnuts", desc: "Antioxidant rich matcha green tea served with 5 raw activated walnuts.", icon: "fa-blender", color: "text-[#ff9f0a]" },
-                        { time: "08:30 PM", meal: "Lean Chicken Breast & Asparagus", desc: "Pan-seared chicken breast or grilled tofu, steamed asparagus, and grilled zucchini spears drizzled with flaxseed oil.", icon: "fa-utensils", color: "text-[#ff375f]" }
-                    ],
-                    workout: [
-                        { day: "Metabolic Resistance Circuit", focus: "Kettlebell squats, push-ups, and mountain climbers done back-to-back with minimal rest. 4 sets of 15 reps.", icon: "fa-dumbbell" },
-                        { day: "HIIT Cardiovascular Burn", focus: "Sprint intervals on treadmill or stationary bike (30 seconds sprint, 60 seconds easy) for 20 minutes.", icon: "fa-running" },
-                        { day: "Core & Lymphatic Yoga", focus: "Vinyasa yoga with dynamic stretching to promote circulation, core stability, and sweat recovery.", icon: "fa-spa" }
-                    ]
-                },
-                mesomorph: {
-                    title: "Women's Onboarding Profile Plan",
-                    bodyTitle: "Mesomorph Shape",
-                    desc: "Balanced protein and moderate carbs support athletic recovery and muscle tone. The layout uses hypertrophy training and moderate steady-state cardio.",
-                    mealPlan: [
-                        { time: "08:00 AM", meal: "High-Protein Berry Oatmeal", desc: "Rolled oats, organic whey/vegan protein powder, wild berries, and a tablespoon of flaxseed.", icon: "fa-seedling", color: "text-[#00ff66]" },
-                        { time: "01:00 PM", meal: "Quinoa Turkey Bowl", desc: "Lean turkey breast or baked tempeh, tri-color quinoa, baby spinach, roasted red peppers, and hummus.", icon: "fa-leaf", color: "text-[#00f0ff]" },
-                        { time: "05:00 PM", meal: "Greek Yogurt & Almonds", desc: "Organic unsweetened Greek yogurt with 10 raw almonds and a dash of honey.", icon: "fa-blender", color: "text-[#ff9f0a]" },
-                        { time: "08:30 PM", meal: "Bake Salmon & Sweet Potato", desc: "Baked wild salmon, roasted sweet potato cubes, and garlic-sautéed broccoli spears.", icon: "fa-utensils", color: "text-[#ff375f]" }
-                    ],
-                    workout: [
-                        { day: "Hypertrophy Lift Program", focus: "Squats, deadlifts, and dumbbell presses. 3 sets of 10 reps focusing on progressive weight.", icon: "fa-dumbbell" },
-                        { day: "Steady State LISS Cardio", focus: "Incline treadmill walk or brisk outdoor walk keeping heart rate at 130 BPM for 35 minutes.", icon: "fa-running" },
-                        { day: "Pilates Mobility Stretch", focus: "Pilates reformer or mat work focusing on deep core strength, hamstring flexibility, and spinal health.", icon: "fa-spa" }
-                    ]
-                },
-                ectomorph: {
-                    title: "Women's Onboarding Profile Plan",
-                    bodyTitle: "Ectomorph Shape",
-                    desc: "High metabolic burn requires structural carbs and steady amino acid inputs to protect lean tissues. Strength overload and yin yoga stretches are prioritized.",
-                    mealPlan: [
-                        { time: "08:00 AM", meal: "Double Peanut Butter Smoothie", desc: "Banana, peanut butter, whole oats, protein powder, and coconut milk blended together.", icon: "fa-seedling", color: "text-[#00ff66]" },
-                        { time: "01:00 PM", meal: "Brown Rice Teriyaki Tofu Bowl", desc: "Teriyaki baked tofu or chicken breast, brown jasmine rice, steamed broccoli, and avocado slices.", icon: "fa-leaf", color: "text-[#00f0ff]" },
-                        { time: "05:00 PM", meal: "Mixed Nuts & Fresh Fruits", desc: "Handful of walnuts, cashews, and a sliced crisp organic green apple.", icon: "fa-blender", color: "text-[#ff9f0a]" },
-                        { time: "08:30 PM", meal: "Pasta with Turkey Meatballs", desc: "Gluten-free pasta, homemade lean turkey meatballs, sugar-free marinara sauce, and a side spinach salad.", icon: "fa-utensils", color: "text-[#ff375f]" }
-                    ],
-                    workout: [
-                        { day: "Heavy Strength Overload", focus: "Barbell bench press, weighted squats, and lat pulldowns. 4 sets of 6-8 reps with heavier resistance.", icon: "fa-dumbbell" },
-                        { day: "Minimal LISS Recovery", focus: "Light walking or active recovery cycling for 15-20 minutes to improve blood flow without fat catabolism.", icon: "fa-running" },
-                        { day: "Restorative Yin Yoga", focus: "Deep static stretching held for 3-5 minutes to calm the nervous system and promote recovery.", icon: "fa-spa" }
-                    ]
-                }
+    // ═══════════════════════════════════════════════════════════════
+    //  perfect-plan.html — Data & Renderer
+    //  Diet & training guidelines based on NASM body type article:
+    //  nasm.org/resource-center/blog/body-types-how-to-train-diet-for-your-body-type
+    // ═══════════════════════════════════════════════════════════════
+
+    const db = {
+
+        /* ─────────────── WOMEN ─────────────── */
+        women: {
+            endomorph: {
+                title: "Women · Endomorph Plan", bodyTitle: "Endomorph",
+                desc: "Endomorphs tend to store fat easily and have a slower resting metabolic rate (NASM). Strategy: 300–500 kcal deficit, low-GI carbohydrates, high protein (1.8 g/kg) to preserve muscle, HIIT 3–4×/week to raise EPOC. Daily water target: 3.0 L.",
+                waterMl: 3000,
+                meals: [
+                    { time:"07:30 AM", name:"Keto Chia Seed Porridge",        icon:"fa-seedling",      col:"#00ff66", kcal:320, P:14, C:18, F:22, water:"300 ml water with lemon",    desc:"½ cup almond flour porridge in 200 ml almond milk, topped with 2 tbsp chia seeds, 1 tbsp pumpkin seeds, ½ tsp cinnamon, drizzle of MCT oil." },
+                    { time:"01:00 PM", name:"Avocado & Wild Salmon Salad",    icon:"fa-leaf",          col:"#00f0ff", kcal:420, P:32, C: 8, F:28, water:"500 ml water",               desc:"120 g grilled wild salmon, ½ Hass avocado, 2 cups baby spinach, ¼ cucumber, 1 tbsp walnuts, 1 tsp lemon juice + 1 tsp olive oil dressing." },
+                    { time:"04:30 PM", name:"Matcha Green Tea & Walnuts",     icon:"fa-mug-hot",       col:"#ff9f0a", kcal:150, P: 5, C: 4, F:12, water:"250 ml matcha green tea",    desc:"1 cup unsweetened matcha (250 ml hot water), 5 activated walnuts, 1 tbsp pumpkin seeds. Zero added sugar." },
+                    { time:"08:00 PM", name:"Pan-Seared Chicken & Asparagus", icon:"fa-utensils",      col:"#ff375f", kcal:360, P:38, C:10, F:14, water:"400 ml water",               desc:"150 g herb pan-seared chicken breast, 1 cup steamed asparagus, 1 cup grilled zucchini, 1 tsp flaxseed oil. No starchy carbs." }
+                ],
+                workouts: [
+                    { day:"Day 1 · Metabolic Resistance Circuit", type:"HIIT",     diff:"Hard",     icon:"fa-dumbbell",      focus:"KB squats ×15, push-ups ×15, mountain climbers ×20, jump rope ×30 s — no rest between exercises. Rest 30 s after each round. 4 rounds. ~35 min, burns 350–450 kcal.",     tip:"NASM: Endomorphs respond best to metabolic resistance training 3–4×/week — it elevates EPOC and counteracts the naturally slower RMR." },
+                    { day:"Day 2 · HIIT Cardio Intervals",         type:"Cardio",   diff:"Hard",     icon:"fa-person-running",focus:"Treadmill or bike: 30 s all-out sprint → 60 s easy. 15 rounds = 22 min. Cool-down walk 5 min. Target 80–90% HRmax on sprints.",                                             tip:"NASM: HIIT burns more visceral fat than steady-state cardio in endomorphs — EPOC effect continues burning calories for up to 24 h post-session." },
+                    { day:"Day 3 · Core & Lymphatic Yoga",         type:"Recovery", diff:"Moderate", icon:"fa-spa",           focus:"45 min vinyasa: sun salutations ×5, warrior I & II, boat pose 3×30 s, seated twists, savasana. Deep abdominal breathing throughout.",                                       tip:"NASM: Active recovery lowers cortisol — a hormone that promotes abdominal fat storage and impairs insulin sensitivity in endomorphs." },
+                    { day:"Day 4 · Upper-Body Strength Superset",  type:"Strength", diff:"Moderate", icon:"fa-dumbbell",      focus:"Dumbbell rows 3×12, push-up variations 3×15, lateral raises 3×12, tricep dips 3×15. Superset pairs with 45 s rest between supersets.",                                   tip:"NASM: Building lean muscle raises resting metabolic rate — critical for endomorphs whose slower metabolism is the primary fat-storage driver." }
+                ]
             },
-            man: {
-                endomorph: {
-                    title: "Men's Onboarding Profile Plan",
-                    bodyTitle: "Endomorph Shape",
-                    desc: "Maximizes thermic effects and regulates insulin. Features higher protein intake, fiber density, and super-set heavy resistance circuit workouts.",
-                    mealPlan: [
-                        { time: "07:30 AM", meal: "Tofu Scramble & Avocado", desc: "Spiced seasoned tofu or 3 organic eggs scrambled with spinach, cherry tomatoes, and sliced avocado.", icon: "fa-egg", color: "text-[#ff9f0a]" },
-                        { time: "01:00 PM", meal: "Low-Carb Tuna Avocado Salad", desc: "Wild tuna or grilled chicken breast, mixed greens, Hass avocado, pumpkin seeds, and MCT oil dressing.", icon: "fa-drumstick-bite", color: "text-[#00ff66]" },
-                        { time: "04:30 PM", meal: "Whey Protein & Pumpkin Seeds", desc: "Clean whey protein powder shaken with unsweetened almond milk and a small handful of pumpkin seeds.", icon: "fa-coffee", color: "text-[#00f0ff]" },
-                        { time: "08:30 PM", meal: "Lean Beef Steak & Asparagus", desc: "Grilled lean grass-fed beef steak, roasted asparagus spears, and steamed cauliflower mash.", icon: "fa-utensils", color: "text-[#ff375f]" }
-                    ],
-                    workout: [
-                        { day: "Heavy Compound Metabolic Lift", focus: "Barbell squats, deadlifts, and overhead presses done in super-sets. 4 sets of 12 reps.", icon: "fa-dumbbell" },
-                        { day: "Sprint Interval HIIT", focus: "Assault bike or rowing machine intervals: 30s maximum effort sprint, 45s recovery. 15 intervals.", icon: "fa-running" },
-                        { day: "Nervous System Recovery Mobility", focus: "Dynamic stretching, foam rolling, and deep breathing exercises for full muscle recovery.", icon: "fa-spa" }
-                    ]
-                },
-                mesomorph: {
-                    title: "Men's Onboarding Profile Plan",
-                    bodyTitle: "Mesomorph Shape",
-                    desc: "High protein loading combined with clean compound movements optimizes hypertrophy while shedding body fat layers systematically.",
-                    mealPlan: [
-                        { time: "07:30 AM", meal: "Eggs & Sourdough Plate", desc: "3 organic eggs scrambled in grass-fed butter, with cherry tomatoes and 2 slices of toasted sourdough bread.", icon: "fa-egg", color: "text-[#ff9f0a]" },
-                        { time: "01:00 PM", meal: "Lean Mass Chicken & Rice", desc: "Grilled chicken breast, brown basmati rice, steamed broccoli, and roasted baby carrots with cold-pressed olive oil.", icon: "fa-drumstick-bite", color: "text-[#00ff66]" },
-                        { time: "04:30 PM", meal: "Mass Gain Fuel Shake", desc: "Clean whey protein powder, natural peanut butter, organic banana, and unsweetened oat milk blended.", icon: "fa-coffee", color: "text-[#00f0ff]" },
-                        { time: "08:30 PM", meal: "Salmon, Asparagus & Yam", desc: "Pan-seared wild salmon, baked sweet potato slices, and roasted asparagus.", icon: "fa-utensils", color: "text-[#ff375f]" }
-                    ],
-                    workout: [
-                        { day: "Hypertrophy Strength Progression", focus: "Squats, bench press, rows, and shoulder presses. 4 sets of 8-10 reps focusing on progressive weight load.", icon: "fa-dumbbell" },
-                        { day: "HIIT Cardio Sprints", focus: "15 minutes of sprint interval training on assault bike or rowing machine (30s sprint, 45s recovery).", icon: "fa-running" },
-                        { day: "Mobility & Core Recovery", focus: "Planks, bird-dogs, and foam rolling to improve spine and hip flexibility.", icon: "fa-spa" }
-                    ]
-                },
-                ectomorph: {
-                    title: "Men's Onboarding Profile Plan",
-                    bodyTitle: "Ectomorph Shape",
-                    desc: "Requires continuous glycogen saturation to sustain protein synthesis. Minimizes fat burning catabolism by isolating work to heavy low-rep load cycles.",
-                    mealPlan: [
-                        { time: "07:30 AM", meal: "Nut Butter Banana Oats", desc: "Rolled oats made with whole milk, loaded with 2 tablespoons of organic peanut butter, sliced banana, and chia seeds.", icon: "fa-egg", color: "text-[#ff9f0a]" },
-                        { time: "01:00 PM", meal: "Teriyaki Beef Rice Bowl", desc: "Lean ground beef stir-fry, white jasmine rice, snap peas, and mushrooms in a sweet ginger garlic teriyaki glaze.", icon: "fa-drumstick-bite", color: "text-[#00ff66]" },
-                        { time: "04:30 PM", meal: "High-Calorie Nut Shake", desc: "Whey protein, raw almonds, dry oats, honey, and whole milk blended for high calorie uptake.", icon: "fa-coffee", color: "text-[#00f0ff]" },
-                        { time: "08:30 PM", meal: "Salmon with Yam & Broccoli", desc: "Baked salmon filet, extra large roasted sweet potato, and steamed broccoli drizzled with olive oil.", icon: "fa-utensils", color: "text-[#ff375f]" }
-                    ],
-                    workout: [
-                        { day: "Heavy Low-Volume Strength", focus: "Deadlifts, weighted pull-ups, and heavy barbell presses. 4 sets of 5-7 reps focusing on maximal power.", icon: "fa-dumbbell" },
-                        { day: "Active LISS Rest Walk", focus: "Brisk outdoor walking for 20 minutes to maintain general cardiovascular fitness without depleting glycogen stores.", icon: "fa-running" },
-                        { day: "Deep Static Yoga Stretch", focus: "Yin yoga focusing on lengthening hamstrings, calves, and hip flexors for better lifting mechanics.", icon: "fa-spa" }
-                    ]
-                }
+
+            mesomorph: {
+                title: "Women · Mesomorph Plan", bodyTitle: "Mesomorph",
+                desc: "Mesomorphs gain muscle and lose fat relatively easily (NASM). Strategy: balanced 40C/30P/30F macro split at maintenance ± 200 kcal depending on goal, hypertrophy lifting 3–4×/week + 2 moderate cardio sessions. Daily water target: 2.7 L.",
+                waterMl: 2700,
+                meals: [
+                    { time:"07:30 AM", name:"High-Protein Berry Oatmeal",  icon:"fa-seedling",  col:"#00ff66", kcal:420, P:32, C:48, F: 8, water:"350 ml water",         desc:"½ cup rolled oats in 200 ml oat milk, 1 scoop whey/vegan protein, ½ cup wild blueberries, 1 tbsp ground flaxseed, 1 tsp honey." },
+                    { time:"01:00 PM", name:"Turkey & Quinoa Power Bowl",  icon:"fa-leaf",      col:"#00f0ff", kcal:490, P:38, C:42, F:12, water:"500 ml water",         desc:"120 g grilled turkey breast, ½ cup tri-colour quinoa, 2 cups baby spinach, ½ cup roasted red peppers, 2 tbsp hummus, balsamic drizzle." },
+                    { time:"04:30 PM", name:"Greek Yogurt & Almonds",      icon:"fa-blender",   col:"#ff9f0a", kcal:220, P:16, C:18, F: 9, water:"300 ml water",         desc:"170 g unsweetened full-fat Greek yogurt, 12 raw almonds, ½ tsp honey, small handful of mixed berries." },
+                    { time:"08:00 PM", name:"Baked Salmon & Sweet Potato", icon:"fa-utensils",  col:"#ff375f", kcal:510, P:40, C:38, F:16, water:"400 ml water",         desc:"150 g wild salmon oven-baked with herbs, 1 medium sweet potato roasted, 1 cup garlic-sautéed broccoli in 1 tsp olive oil." }
+                ],
+                workouts: [
+                    { day:"Day 1 · Hypertrophy Strength",       type:"Strength", diff:"Moderate", icon:"fa-dumbbell",       focus:"Back squats 4×10, Romanian deadlifts 4×10, dumbbell bench press 3×12, bent-over rows 3×12. Progressive overload weekly. Rest 60–90 s between sets.",     tip:"NASM: Mesomorphs respond quickly to 8–12 rep hypertrophy ranges. Increase load 2–5% every 1–2 weeks for consistent strength progress." },
+                    { day:"Day 2 · Steady-State LISS Cardio",   type:"Cardio",   diff:"Easy",     icon:"fa-person-running", focus:"35 min incline treadmill walk at 4.5 km/h, 8% incline OR brisk outdoor walk at 60–70% HRmax. Follow with 10 min cool-down stretch.",                    tip:"NASM: Moderate-intensity LISS preserves muscle mass while oxidising fat — ideal for mesomorphs maintaining their natural athletic composition." },
+                    { day:"Day 3 · Pilates & Core Mobility",    type:"Recovery", diff:"Easy",     icon:"fa-spa",            focus:"40 min: 100s, single-leg circle, criss-cross, plank 3×40 s, hamstring stretch series. Focus on controlled breathing and deep core engagement.",          tip:"NASM: Core stability improves neuromuscular efficiency — directly translating to more force output in compound lifts." },
+                    { day:"Day 4 · Full-Body Circuit",          type:"HIIT",     diff:"Moderate", icon:"fa-bolt",           focus:"Jump squats 3×15, push-up to row 3×12, step-ups 3×15/leg, lateral band walks 3×20, plank 3×45 s. 30 s rest between exercises. 35 min total.",         tip:"NASM: Introducing circuit training once a week prevents plateau and boosts cardiovascular efficiency in mesomorphs without sacrificing muscle." }
+                ]
             },
-            bisexual: {
-                endomorph: {
-                    title: "Bisexual Onboarding Profile Plan",
-                    bodyTitle: "Endomorph Shape",
-                    desc: "Maximizes metabolic adaptability with a focus on thermogenesis. Features a plant-rich keto routine and kettlebell metabolic super-sets.",
-                    mealPlan: [
-                        { time: "07:45 AM", meal: "Matcha Spinach Protein Fuel", desc: "Unsweetened hemp milk, protein powder, spinach, almond butter, and matcha tea powder blended.", icon: "fa-blender", color: "text-[#00f0ff]" },
-                        { time: "01:00 PM", meal: "Mediterranean Tofu Keto Salad", desc: "Seasoned tofu chunks, cucumber, feta cheese, Kalamata olives, hummus, and extra virgin olive oil dressing.", icon: "fa-leaf", color: "text-[#00ff66]" },
-                        { time: "05:00 PM", meal: "Walnuts & Pumpkin Seeds", desc: "Handful of walnuts, pumpkin seeds, and a cucumber with a squeeze of lime juice.", icon: "fa-apple-alt", color: "text-[#ff9f0a]" },
-                        { time: "08:30 PM", meal: "Sesame Baked Tofu & Stir Fry", desc: "Stir-fried bell peppers, mushrooms, and asparagus spears with sesame seed crusted baked tofu.", icon: "fa-utensils", color: "text-[#ff375f]" }
-                    ],
-                    workout: [
-                        { day: "Kettlebell Metabolic Circuit", focus: "Kettlebell swings, thrusters, push-ups, and bicycle crunches. 4 rounds of 45 seconds work, 15 seconds rest.", icon: "fa-dumbbell" },
-                        { day: "Anaerobic Agility Work", focus: "Jump rope intervals and speed shuffles - 20 minutes to raise heart rate and burn body fat.", icon: "fa-running" },
-                        { day: "Active Rest Yoga Recovery", focus: "Full body myofascial release using a foam roller and static stretching for muscle length.", icon: "fa-spa" }
-                    ]
-                },
-                mesomorph: {
-                    title: "Bisexual Onboarding Profile Plan",
-                    bodyTitle: "Mesomorph Shape",
-                    desc: "Combines athletic functional lifting with macronutrient density to fuel fast recovery and lean maintenance.",
-                    mealPlan: [
-                        { time: "07:45 AM", meal: "Dynamic Chia Berry Shake", desc: "Whey or vegan protein powder, chia seeds, wild berries, banana, and coconut water blended.", icon: "fa-blender", color: "text-[#00f0ff]" },
-                        { time: "01:00 PM", meal: "Mediterranean Quinoa Bowl", desc: "Tri-color quinoa, hummus, Kalamata olives, cucumbers, cherry tomatoes, and grilled chicken breast or tofu chunks.", icon: "fa-leaf", color: "text-[#00ff66]" },
-                        { time: "05:00 PM", meal: "Walnuts & Crisp Green Apple", desc: "Handful of raw activated walnuts with a sliced crisp organic green apple.", icon: "fa-apple-alt", color: "text-[#ff9f0a]" },
-                        { time: "08:30 PM", meal: "Ginger Soy Stir-Fry Bowl", desc: "Stir-fried bell peppers, mushrooms, snap peas, and shrimp or tofu chunks over wild rice in a ginger soy sauce.", icon: "fa-utensils", color: "text-[#ff375f]" }
-                    ],
-                    workout: [
-                        { day: "Functional Hybrid Power", focus: "Kettlebell swings, thrusters, pullups, and hanging leg raises for core control and functional muscle mass.", icon: "fa-dumbbell" },
-                        { day: "Agility Cardio Training", focus: "Jump rope intervals, box jumps, and lateral shuffle drills - 20 minutes for anaerobic speed.", icon: "fa-running" },
-                        { day: "Nervous System Reset stretching", focus: "Dynamic mobility drills, yoga stretches, and foam rolling for recovery.", icon: "fa-spa" }
-                    ]
-                },
-                ectomorph: {
-                    title: "Bisexual Onboarding Profile Plan",
-                    bodyTitle: "Ectomorph Shape",
-                    desc: "High caloric density and amino acid supply to counteract active dynamic caloric expenditure. Heavy weight lifts are utilized.",
-                    mealPlan: [
-                        { time: "07:45 AM", meal: "Avocado Peanut Butter Shake", desc: "Vegan pea protein, organic chia seeds, whole banana, Hass avocado, natural peanut butter, and oat milk.", icon: "fa-blender", color: "text-[#00f0ff]" },
-                        { time: "01:00 PM", meal: "Brown Rice Hummus Plate", desc: "Teriyaki baked tempeh or beef chunks, double serving of brown basmati rice, hummus, and kalamata olives.", icon: "fa-leaf", color: "text-[#00ff66]" },
-                        { time: "05:00 PM", meal: "Almond Butter Celery & Apple", desc: "Organic apple slices dipped in creamy raw almond butter with organic celery sticks.", icon: "fa-apple-alt", color: "text-[#ff9f0a]" },
-                        { time: "08:30 PM", meal: "Wild Salmon & Sweet Potato Mash", desc: "Wild salmon steak, twice-baked yams, stir-fried broccoli, and mushrooms.", icon: "fa-utensils", color: "text-[#ff375f]" }
-                    ],
-                    workout: [
-                        { day: "Functional Heavy Lift Circuit", focus: "Weighted squats, chin-ups, push-presses. 3 sets of 8 reps focusing on strength.", icon: "fa-dumbbell" },
-                        { day: "Active LISS Walk Cardio", focus: "Brisk outdoor walking for 25 minutes to maintain mobility and cardiovascular health.", icon: "fa-running" },
-                        { day: "Restorative Yin Stretch", focus: "Deep holds in yoga poses for hip openers and thoracic spine mobility.", icon: "fa-spa" }
-                    ]
-                }
+
+            ectomorph: {
+                title: "Women · Ectomorph Plan", bodyTitle: "Ectomorph",
+                desc: "Ectomorphs have a fast metabolism and struggle to gain mass (NASM). Strategy: 300–500 kcal calorie surplus, high carbohydrate intake (55–60%) for glycogen, protein 1.6 g/kg, heavy compound lifts, minimal cardio. Daily water target: 2.5 L.",
+                waterMl: 2500,
+                meals: [
+                    { time:"07:30 AM", name:"Peanut Butter Smoothie Bowl",  icon:"fa-seedling", col:"#00ff66", kcal:620, P:28, C:72, F:22, water:"300 ml water",          desc:"1 banana, 2 tbsp natural peanut butter, ½ cup oats, 1 scoop protein powder, 200 ml full-fat coconut milk. Blend thick, top with granola." },
+                    { time:"01:00 PM", name:"Teriyaki Tofu & Brown Rice",   icon:"fa-leaf",     col:"#00f0ff", kcal:580, P:32, C:65, F:16, water:"500 ml water",          desc:"150 g teriyaki baked tofu or chicken breast, ¾ cup brown jasmine rice, 1 cup steamed broccoli, ½ avocado, sesame seeds." },
+                    { time:"05:00 PM", name:"Mixed Nuts & Green Apple",     icon:"fa-apple-whole",col:"#ff9f0a",kcal:290, P: 7, C:34, F:14, water:"300 ml water",         desc:"1 tbsp cashews, 1 tbsp walnuts, 1 tbsp raisins, 1 medium green apple sliced. Optional: 1 tbsp almond butter for dipping." },
+                    { time:"08:00 PM", name:"Pasta with Turkey Meatballs",  icon:"fa-utensils", col:"#ff375f", kcal:640, P:38, C:70, F:14, water:"400 ml water",          desc:"100 g gluten-free pasta, 4 lean turkey meatballs, ½ cup sugar-free marinara, side spinach salad with 1 tsp olive oil." }
+                ],
+                workouts: [
+                    { day:"Day 1 · Heavy Compound Strength",  type:"Strength", diff:"Hard",     icon:"fa-dumbbell",       focus:"Barbell back squat 4×6, bench press 4×6, bent-over row 4×6, overhead press 3×8. Maximum weight. Rest 3 min between sets. 50 min total.",           tip:"NASM: Ectomorphs need heavy, low-rep compound work (4–6 reps) to create sufficient mechanical tension — higher reps burn too many calories." },
+                    { day:"Day 2 · Minimal LISS Walk",        type:"Cardio",   diff:"Easy",     icon:"fa-person-walking", focus:"20 min easy outdoor walk at 50–60% HRmax. Do NOT run or do HIIT — preserving caloric surplus for muscle synthesis is the priority.",                 tip:"NASM: Excessive cardio creates a negative caloric balance that catabolises muscle in ectomorphs — walking is the only recommended cardio form." },
+                    { day:"Day 3 · Restorative Yin Yoga",     type:"Recovery", diff:"Easy",     icon:"fa-spa",            focus:"40 min yin yoga: dragon pose 5 min/side, sleeping swan 5 min, supported fish, supine spinal twist. Hold 3–5 min each. Deep breathing focus.",        tip:"NASM: Cortisol reduction is critical — cortisol directly suppresses muscle protein synthesis in ectomorphs. Aim for 8+ hours of sleep nightly." },
+                    { day:"Day 4 · Accessory Hypertrophy",    type:"Strength", diff:"Moderate", icon:"fa-dumbbell",       focus:"Dumbbell curls 3×10, skull crushers 3×10, lateral raises 3×12, cable rows 3×12, calf raises 4×15. Rest 90 s. Post-workout protein shake immediately.", tip:"NASM: Accessory work fills muscle gaps not addressed by compound movements. Eat protein + carbs within 30 min post-workout to maximise MPS." }
+                ]
             }
-        };
+        },
 
-        document.addEventListener('DOMContentLoaded', () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const identity = urlParams.get('identity') || 'women';
-            const goal = urlParams.get('goal') || 'lose';
-            const bodytype = urlParams.get('bodytype') || 'mesomorph';
+        /* ─────────────── MAN ─────────────── */
+        man: {
+            endomorph: {
+                title: "Men · Endomorph Plan", bodyTitle: "Endomorph",
+                desc: "Male endomorphs store fat easily (especially abdominally) due to higher insulin sensitivity and slower RMR (NASM). Strategy: 400–600 kcal deficit, protein 2.0 g/kg, low-GI carbs only, 4 metabolic resistance sessions/week. Daily water target: 3.2 L.",
+                waterMl: 3200,
+                meals: [
+                    { time:"07:30 AM", name:"Egg Scramble & Avocado Toast",    icon:"fa-egg",          col:"#ff9f0a", kcal:440, P:28, C:22, F:26, water:"500 ml water with lemon", desc:"3 organic eggs OR 150 g spiced tofu scrambled with spinach, cherry tomatoes, turmeric. Served with ½ avocado on 1 slice sourdough toast." },
+                    { time:"01:00 PM", name:"Low-Carb Tuna Avocado Salad",     icon:"fa-drumstick-bite",col:"#00ff66",kcal:480, P:42, C:10, F:28, water:"600 ml water",            desc:"180 g wild tuna or grilled chicken, 3 cups mixed greens, ½ avocado, 2 tbsp pumpkin seeds, cucumber, 1 tbsp MCT oil + ACV dressing." },
+                    { time:"04:30 PM", name:"Whey Protein Shake & Seeds",      icon:"fa-blender",      col:"#00f0ff", kcal:280, P:40, C:10, F: 8, water:"350 ml in shake",         desc:"1.5 scoops whey protein shaken with 350 ml unsweetened almond milk, 1 tbsp pumpkin seeds, ½ tsp cinnamon." },
+                    { time:"08:00 PM", name:"Grass-Fed Steak & Asparagus",     icon:"fa-utensils",     col:"#ff375f", kcal:520, P:48, C:12, F:28, water:"500 ml water",            desc:"200 g lean grass-fed sirloin (grilled), 1.5 cups roasted asparagus, 1 cup cauliflower mash with garlic and 1 tsp olive oil." }
+                ],
+                workouts: [
+                    { day:"Day 1 · Heavy Compound Superset",     type:"HIIT",     diff:"Hard",     icon:"fa-dumbbell",       focus:"Barbell squat 4×12 + deadlift 4×10, overhead press 4×12 + dumbbell row 4×12 — superset A+B. Rest 45 s between supersets. 45 min. Burns 450–600 kcal.", tip:"NASM: Compound supersets maximise EPOC in male endomorphs — the after-burn effect raises metabolism for 12–24 h post-session." },
+                    { day:"Day 2 · Sprint Interval HIIT",         type:"Cardio",   diff:"Hard",     icon:"fa-person-running", focus:"Assault bike or rower: 30 s MAX → 45 s easy ×15 rounds = 19 min. 3 min warm-up + 5 min cool-down. Target 90%+ HRmax on sprints.",                    tip:"NASM: Interval training is 28% more effective than steady-state cardio at reducing visceral fat — the primary health risk for male endomorphs." },
+                    { day:"Day 3 · Nervous System Recovery",      type:"Recovery", diff:"Easy",     icon:"fa-spa",            focus:"20 min foam rolling (quads, glutes, IT band, lats), 15 min dynamic stretching, 10 min diaphragmatic breathing. Optional contrast shower.",             tip:"NASM: Cortisol management is critical — cortisol promotes abdominal fat storage. Active recovery keeps cortisol lower than complete rest days." },
+                    { day:"Day 4 · Lower-Body Power Circuit",     type:"Strength", diff:"Hard",     icon:"fa-bolt",           focus:"Box jumps 4×8, Bulgarian split squats 3×12/leg, leg press 4×15, Romanian deadlifts 3×12, glute bridges 3×20. Rest 60 s between sets.",             tip:"NASM: Lower-body training recruits the largest muscle groups (quads, hamstrings, glutes), raising RMR more than any upper-body work." }
+                ]
+            },
 
-            // Resolve data
-            const genderData = perfectDatabase[identity] || perfectDatabase.women;
-            const data = genderData[bodytype] || genderData.mesomorph;
+            mesomorph: {
+                title: "Men · Mesomorph Plan", bodyTitle: "Mesomorph",
+                desc: "Male mesomorphs are naturally muscular and respond rapidly to training changes (NASM). Strategy: 40C/30P/30F macro split, maintenance ± 200 kcal, hypertrophy 4×/week + 2 HIIT cardio sessions. Daily water target: 3.2 L.",
+                waterMl: 3200,
+                meals: [
+                    { time:"07:30 AM", name:"Eggs & Sourdough Plate",       icon:"fa-egg",          col:"#ff9f0a", kcal:520, P:30, C:42, F:20, water:"500 ml water",      desc:"3 organic eggs scrambled in 1 tsp grass-fed butter, ½ cup sautéed spinach, ½ cup cherry tomatoes, 2 slices sourdough toast." },
+                    { time:"01:00 PM", name:"Chicken, Brown Rice & Broccoli",icon:"fa-drumstick-bite",col:"#00ff66",kcal:620, P:52, C:54, F:14, water:"600 ml water",     desc:"200 g grilled chicken breast, ¾ cup brown basmati rice, 1.5 cups steamed broccoli, ½ cup baby carrots, 1 tbsp cold-pressed olive oil." },
+                    { time:"04:30 PM", name:"Mass Fuel Shake",              icon:"fa-blender",      col:"#00f0ff", kcal:460, P:42, C:46, F:10, water:"200 ml in shake",   desc:"1.5 scoops whey protein, 1 tbsp natural peanut butter, 1 medium banana, 200 ml unsweetened oat milk, 1 tbsp rolled oats. Blend smooth." },
+                    { time:"08:00 PM", name:"Salmon, Asparagus & Sweet Yam",icon:"fa-utensils",     col:"#ff375f", kcal:580, P:45, C:44, F:18, water:"500 ml water",      desc:"200 g pan-seared wild salmon, 1 medium baked sweet potato, 1.5 cups roasted asparagus with lemon and fresh herbs." }
+                ],
+                workouts: [
+                    { day:"Day 1 · Hypertrophy Upper Body",  type:"Strength", diff:"Hard",     icon:"fa-dumbbell",       focus:"Bench press 4×10, incline DB press 3×12, weighted pull-ups 4×8, DB rows 3×12, overhead press 3×10. Rest 60–90 s between sets.",          tip:"NASM: Mesomorphs progress quickly with 8–12 rep hypertrophy loading. Track weights weekly and aim to increase by 2–5% every 1–2 sessions." },
+                    { day:"Day 2 · HIIT Cardio Sprints",     type:"Cardio",   diff:"Moderate", icon:"fa-person-running", focus:"Rower or assault bike: 30 s sprint → 45 s recovery ×12 = 18 min. 5 min warm-up + 5 min cool-down. Target 75–85% HRmax.",                 tip:"NASM: Mesomorphs maintain muscle during HIIT better than other body types — 2 sessions/week is optimal; more begins to impair recovery." },
+                    { day:"Day 3 · Hypertrophy Lower Body",  type:"Strength", diff:"Hard",     icon:"fa-dumbbell",       focus:"Back squat 4×10, Romanian DL 4×10, leg press 4×15, walking lunges 3×12/leg, leg curl 3×12, calf raises 4×20.",                          tip:"NASM: Balanced lower-body training prevents the common mesomorph mistake of overdeveloping the upper body, which leads to lumbar injury risk." },
+                    { day:"Day 4 · Mobility & Core Recovery",type:"Recovery", diff:"Easy",     icon:"fa-spa",            focus:"Plank 4×45 s, bird-dog 3×12/side, pallof press 3×10, dead bug 3×10, hip flexor stretches, thoracic rotations, foam rolling. 35 min.", tip:"NASM: Core stability is the foundation of compound lifts. Mesomorphs who skip core work plateau faster due to primary-mover compensation." }
+                ]
+            },
 
-            // Populate text indicators
-            document.getElementById('profile-indicator').innerText = data.title;
-            document.getElementById('goal-indicator').innerText = goal === 'lose' ? 'Lose Fat' : goal;
-            document.getElementById('bodytype-indicator').innerText = data.bodyTitle;
-            document.getElementById('bodytype-desc').innerText = data.desc;
+            ectomorph: {
+                title: "Men · Ectomorph Plan", bodyTitle: "Ectomorph",
+                desc: "Male ectomorphs have a very fast RMR and struggle to gain mass (NASM). Strategy: 500–700 kcal calorie surplus, carbohydrates 55–60% of intake, protein 1.6–2.0 g/kg, minimal cardio, heavy compound lifts (3–6 reps). Daily water target: 3.0 L.",
+                waterMl: 3000,
+                meals: [
+                    { time:"07:30 AM", name:"Peanut Butter Banana Oats",     icon:"fa-egg",          col:"#ff9f0a", kcal:680, P:24, C:88, F:22, water:"350 ml water",      desc:"¾ cup rolled oats cooked in 250 ml whole milk, 2 tbsp organic PB, 1 large banana sliced, 1 tbsp chia seeds, 1 tsp honey." },
+                    { time:"01:00 PM", name:"Teriyaki Beef & Jasmine Rice",  icon:"fa-drumstick-bite",col:"#00ff66",kcal:720, P:42, C:80, F:20, water:"600 ml water",     desc:"180 g lean ground beef stir-fried with snap peas, mushrooms, ginger-garlic teriyaki glaze. Served over 1 cup white jasmine rice." },
+                    { time:"04:30 PM", name:"High-Calorie Mass Shake",       icon:"fa-blender",      col:"#00f0ff", kcal:750, P:46, C:68, F:26, water:"300 ml in shake",   desc:"1.5 scoops whey protein, 30 g raw oats, 20 g raw almonds, 1 tbsp honey, 300 ml whole milk. Blend smooth. ~750 kcal liquid meal." },
+                    { time:"08:00 PM", name:"Salmon, Yam & Broccoli",        icon:"fa-utensils",     col:"#ff375f", kcal:640, P:46, C:56, F:18, water:"500 ml water",      desc:"200 g baked wild salmon fillet, 1 extra-large sweet potato roasted, 1.5 cups steamed broccoli drizzled with 1 tbsp olive oil + garlic." }
+                ],
+                workouts: [
+                    { day:"Day 1 · Heavy Low-Volume Strength", type:"Strength", diff:"Hard",     icon:"fa-dumbbell",       focus:"Deadlift 4×5 (90% 1RM), back squat 4×5, barbell bench press 4×6, weighted pull-ups 4×6. Rest 3–4 min between sets. 55 min. Maximum tension.",    tip:"NASM: Ectomorphs must use heavy compound movements with full rest periods. Higher reps burn too many calories and prevent the caloric surplus." },
+                    { day:"Day 2 · Active LISS Rest",          type:"Cardio",   diff:"Easy",     icon:"fa-person-walking", focus:"20–25 min brisk walk at 55% HRmax. No running or cycling hard. Foam roll 10 min after. Eat an extra 200–300 kcal on this day.",                  tip:"NASM: Ectomorphs are cardio-sensitive — even moderate amounts can negate the caloric surplus needed for anabolism. Limit to walking only." },
+                    { day:"Day 3 · Accessory Strength Volume",  type:"Strength", diff:"Moderate", icon:"fa-dumbbell",       focus:"DB curls 4×10, skull crushers 4×10, lateral raises 3×12, cable rows 4×12, face pulls 3×15, calf raises 4×15. Rest 90 s between sets.",         tip:"NASM: Accessory volume targets muscles not fully recruited by compounds. Eat protein + carbs within 30 min post-session for maximal MPS." },
+                    { day:"Day 4 · Deep Static Stretch & Sleep",type:"Recovery", diff:"Easy",    icon:"fa-spa",            focus:"Yin yoga 40 min: pigeon pose 5 min/side, hamstring hang, seated forward fold, reclined butterfly. Hold 3–5 min each. Target 9 hrs sleep tonight.", tip:"NASM: Sleep is the most anabolic period for ectomorphs — GH secretion peaks 60–90 min after sleep onset. Poor sleep prevents muscle gain." }
+                ]
+            }
+        },
 
-            // Populate meals
-            const mealContainer = document.getElementById('meal-plan-container');
-            data.mealPlan.forEach(item => {
-                const card = document.createElement('div');
-                card.className = "flex flex-col sm:flex-row sm:items-center gap-4 bg-white/5 border border-white/10 hover:border-[#00ff66]/30 p-5 rounded-2xl transition-all duration-300 group";
-                card.innerHTML = `
-                    <div class="flex items-center gap-3 sm:w-1/3 min-w-0">
-                        <div class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/5 group-hover:border-[#00ff66]/30 transition-colors shrink-0">
-                            <i class="fas ${item.icon} ${item.color} text-sm drop-shadow-[0_0_8px_rgba(0,255,102,0.25)]"></i>
+        /* ─────────────── BISEXUAL / FLEX ─────────────── */
+        bisexual: {
+            endomorph: {
+                title: "Flex Profile · Endomorph Plan", bodyTitle: "Endomorph",
+                desc: "Higher fat-storage tendency, insulin sensitivity, and slower RMR (NASM). Strategy: plant-rich whole food deficit, high fibre, kettlebell metabolic circuits 3–4×/week, lymphatic recovery sessions. Daily water target: 3.0 L.",
+                waterMl: 3000,
+                meals: [
+                    { time:"07:45 AM", name:"Matcha Spinach Protein Shake",     icon:"fa-blender",   col:"#00f0ff", kcal:310, P:26, C:14, F:16, water:"250 ml in shake + 250 ml water", desc:"1 scoop pea/hemp protein, 1 cup spinach, 1 tbsp almond butter, 1 tsp matcha, 250 ml unsweetened hemp milk, 3 ice cubes. Blend smooth." },
+                    { time:"01:00 PM", name:"Mediterranean Tofu Keto Plate",    icon:"fa-leaf",      col:"#00ff66", kcal:450, P:28, C:16, F:30, water:"500 ml water",                   desc:"180 g baked herbed tofu, ½ cup hummus, ½ cup Kalamata olives, 1 cup cucumber, 50 g feta, extra virgin olive oil + lemon dressing." },
+                    { time:"05:00 PM", name:"Seed & Nut Mix + Cucumber",        icon:"fa-apple-whole",col:"#ff9f0a",kcal:200, P: 7, C: 8, F:16, water:"300 ml water",                   desc:"15 g walnuts, 15 g pumpkin seeds, 10 g sunflower seeds, 1 whole cucumber sliced with a squeeze of lime." },
+                    { time:"08:30 PM", name:"Sesame Baked Tofu Stir-Fry",       icon:"fa-utensils",  col:"#ff375f", kcal:380, P:28, C:18, F:22, water:"400 ml water",                   desc:"180 g sesame-crusted baked tofu, stir-fried bell peppers (3 colours), mushrooms, asparagus in 1 tsp sesame oil + low-sodium tamari." }
+                ],
+                workouts: [
+                    { day:"Day 1 · Kettlebell Metabolic Circuit",  type:"HIIT",     diff:"Hard",     icon:"fa-dumbbell",       focus:"KB swings ×20, thrusters ×15, push-ups ×15, bicycle crunches ×20 — no rest between. 30 s rest after each round. 4 rounds. 30 min total.",      tip:"NASM: Kettlebell training creates simultaneous cardiovascular + strength stimulus — ideal for endomorphs needing to elevate HR while building lean mass." },
+                    { day:"Day 2 · Anaerobic Agility Work",        type:"Cardio",   diff:"Moderate", icon:"fa-person-running", focus:"Jump rope: 45 s fast → 15 s rest ×10 rounds. Then lateral speed shuffles 20 m ×8. Finish with 5 min easy jump rope. Total: 25 min.",          tip:"NASM: Agility drills recruit fast-twitch fibres that traditional cardio ignores — critical for improving muscle-to-fat ratio in endomorphs." },
+                    { day:"Day 3 · Active Recovery Yoga",          type:"Recovery", diff:"Easy",     icon:"fa-spa",            focus:"Foam roll 10 min (thoracic, glutes, calves). Static stretching: hip flexors 90 s, hamstrings 90 s, chest opener, pigeon pose 2 min each side.",   tip:"NASM: Myofascial release reduces DOMS and improves ROM — resulting in better squat depth and lunge form on your next training day." },
+                    { day:"Day 4 · Full-Body Resistance Burn",     type:"Strength", diff:"Hard",     icon:"fa-bolt",           focus:"Goblet squat 4×15, DB Romanian DL 4×12, push-up rows 3×12, reverse lunges 3×12/leg, plank 3×45 s. Rest 30 s between exercises.",             tip:"NASM: Full-body resistance 3–4×/week is the most evidence-based approach for body recomposition in endomorphs — more effective than body-part splits." }
+                ]
+            },
+
+            mesomorph: {
+                title: "Flex Profile · Mesomorph Plan", bodyTitle: "Mesomorph",
+                desc: "Natural athletic build with fast recovery and good response to both strength and cardio (NASM). Balanced 40C/30P/30F at maintenance, functional strength + agility training, and weekly variety to prevent plateau. Daily water target: 2.8 L.",
+                waterMl: 2800,
+                meals: [
+                    { time:"07:45 AM", name:"Chia Berry Protein Smoothie",   icon:"fa-blender",   col:"#00f0ff", kcal:440, P:32, C:52, F:10, water:"250 ml coconut water + 200 ml water", desc:"1 scoop vegan/whey protein, 2 tbsp chia seeds, ½ cup wild blueberries, 1 medium banana, 250 ml coconut water. Blend, let chia swell 5 min." },
+                    { time:"01:00 PM", name:"Mediterranean Quinoa Bowl",     icon:"fa-leaf",      col:"#00ff66", kcal:520, P:38, C:46, F:16, water:"500 ml water",                        desc:"½ cup tri-colour quinoa, 150 g grilled chicken or baked tofu, 2 tbsp hummus, Kalamata olives, cherry tomatoes, cucumber, olive oil drizzle." },
+                    { time:"05:00 PM", name:"Walnuts & Crisp Green Apple",   icon:"fa-apple-whole",col:"#ff9f0a",kcal:210, P: 4, C:26, F:12, water:"350 ml water",                        desc:"20 g raw activated walnuts, 1 medium green apple sliced. Optional: 1 tsp natural almond butter for dipping." },
+                    { time:"08:30 PM", name:"Ginger Soy Stir-Fry Bowl",     icon:"fa-utensils",  col:"#ff375f", kcal:490, P:36, C:44, F:14, water:"500 ml water",                        desc:"150 g shrimp or firm tofu stir-fried with snap peas, bell peppers, mushrooms in ginger-soy-sesame sauce. Served over ½ cup wild rice." }
+                ],
+                workouts: [
+                    { day:"Day 1 · Functional Hybrid Power",   type:"Strength", diff:"Moderate", icon:"fa-dumbbell",       focus:"KB swings 4×15, thruster 3×12, weighted pull-ups 3×8, hanging leg raises 3×12, plank rotations 3×10. Rest 60 s between sets. 40 min.", tip:"NASM: Functional multi-joint movements build real-world strength and aesthetic muscle simultaneously — the ideal stimulus for mesomorphs." },
+                    { day:"Day 2 · Agility & Speed Cardio",   type:"Cardio",   diff:"Moderate", icon:"fa-person-running", focus:"Jump rope 2 min → box jumps ×10 → lateral shuffles 20 m ×3. Repeat 4 rounds. Rest 60 s between rounds. 5 min cool-down jog. 30 min.",  tip:"NASM: Speed and agility training improves neuromuscular coordination — mesomorphs who add this see better athletic performance and posture." },
+                    { day:"Day 3 · Strength Progression Day", type:"Strength", diff:"Hard",     icon:"fa-dumbbell",       focus:"Back squat 4×10, barbell hip thrust 4×12, single-leg RDL 3×10/leg, cable pull-through 3×15, face pulls 3×15. Rest 90 s between sets.",  tip:"NASM: Hip-dominant movements specifically target glutes and hamstrings — often underdeveloped in mesomorphs who default to quad-dominant patterns." },
+                    { day:"Day 4 · Nervous System Reset",     type:"Recovery", diff:"Easy",     icon:"fa-spa",            focus:"Dynamic mobility 15 min: leg swings, hip circles, world's greatest stretch ×5/side. Static stretching 20 min + 5 min foam rolling.",        tip:"NASM: Mesomorphs can overtrain because they recover quickly and train intensely — creeping overuse injuries are the #1 risk. Respect rest days." }
+                ]
+            },
+
+            ectomorph: {
+                title: "Flex Profile · Ectomorph Plan", bodyTitle: "Ectomorph",
+                desc: "Fast metabolism, naturally lean frame, difficulty gaining mass (NASM). Strategy: calorie-dense surplus, complex carbs 55–60%, protein 1.8 g/kg, heavy compound lifts, minimal cardio. Daily water target: 2.7 L.",
+                waterMl: 2700,
+                meals: [
+                    { time:"07:45 AM", name:"Avocado Peanut Butter Shake",      icon:"fa-blender",   col:"#00f0ff", kcal:680, P:30, C:72, F:28, water:"250 ml in shake + 200 ml water", desc:"1 scoop pea protein, 2 tbsp chia seeds, 1 large banana, ½ Hass avocado, 2 tbsp natural peanut butter, 250 ml oat milk. Blend thick." },
+                    { time:"01:00 PM", name:"Teriyaki Tempeh Brown Rice Plate", icon:"fa-leaf",      col:"#00ff66", kcal:720, P:38, C:82, F:20, water:"600 ml water",                   desc:"180 g teriyaki baked tempeh or lean beef, 1 cup brown basmati rice, 3 tbsp hummus, 10 Kalamata olives, large green salad." },
+                    { time:"05:00 PM", name:"Almond Butter Apple & Celery",     icon:"fa-apple-whole",col:"#ff9f0a",kcal:290, P: 6, C:36, F:14, water:"350 ml water",                   desc:"1 large organic apple sliced, 3 celery sticks, 2 tbsp raw almond butter for dipping." },
+                    { time:"08:30 PM", name:"Wild Salmon & Sweet Potato Mash",  icon:"fa-utensils",  col:"#ff375f", kcal:680, P:44, C:60, F:22, water:"500 ml water",                   desc:"200 g wild salmon pan-seared, large sweet potato twice-baked with 1 tsp butter, 1 cup stir-fried broccoli + mushrooms in sesame oil." }
+                ],
+                workouts: [
+                    { day:"Day 1 · Heavy Functional Strength",    type:"Strength", diff:"Hard",     icon:"fa-dumbbell",       focus:"Weighted squats 4×6, chin-ups 4×6, push-press 3×8, DB lunges 3×10/leg. Heavy weight, maximum tension. Rest 3 min between sets. 50 min.", tip:"NASM: Ectomorphs achieve hypertrophy through mechanical tension (heavy loads), not metabolic stress. Low reps (4–6) with max weight is key." },
+                    { day:"Day 2 · Active LISS Walk",             type:"Cardio",   diff:"Easy",     icon:"fa-person-walking", focus:"25 min brisk walk at 55% HRmax. Bring a 200+ kcal protein bar. Avoid hills — keep HR low to prevent glycogen depletion.",                     tip:"NASM: Ectomorphs must resist cardio — it burns the caloric surplus needed for anabolism. Walking is the ONLY form recommended more than once/week." },
+                    { day:"Day 3 · Accessory Volume Training",    type:"Strength", diff:"Moderate", icon:"fa-dumbbell",       focus:"Barbell curls 4×10, close-grip bench 4×10, cable lateral raises 3×12, chest-supported rows 4×12, hammer curls 3×12. Rest 90 s. Eat immediately after.", tip:"NASM: The anabolic window is narrower for ectomorphs — consume 40–50 g protein + 60–80 g carbs within 30 min post-session for maximal MPS." },
+                    { day:"Day 4 · Deep Rest & Yin Yoga",         type:"Recovery", diff:"Easy",     icon:"fa-spa",            focus:"Yin yoga 40 min: sleeping swan 5 min/side, dragon pose, twisted lizard, supported fish. Hold 3–5 min each. Target 9+ hours of sleep tonight.", tip:"NASM: Growth hormone — the primary anabolic hormone for ectomorphs — peaks 60–90 min after sleep onset. Poor sleep prevents muscle gain." }
+                ]
+            }
+        }
+    };
+
+    // ── Renderer ───────────────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', () => {
+
+        // Footer year
+        const yearEl = document.getElementById('footer-year');
+        if (yearEl) yearEl.textContent = new Date().getFullYear();
+
+        // URL params
+        const p        = new URLSearchParams(window.location.search);
+        const identity = p.get('identity') || 'women';
+        const goal     = p.get('goal')     || 'lose';
+        const bodytype = p.get('bodytype') || 'mesomorph';
+
+        const gData = db[identity] || db.women;
+        const data  = gData[bodytype] || gData.mesomorph;
+
+        // Header
+        document.getElementById('profile-indicator').innerText  = data.title;
+        document.getElementById('goal-indicator').innerText     = goal === 'lose' ? '🎯 Lose Fat' : goal === 'gain' ? '💪 Gain Muscle' : '⚖️ Maintain';
+        document.getElementById('bodytype-indicator').innerText = data.bodyTitle;
+        document.getElementById('bodytype-desc').innerText      = data.desc;
+
+        // ── Meal cards ────────────────────────────────────────────
+        const mealBox = document.getElementById('meal-plan-container');
+
+        // Water target banner
+        const wb = document.createElement('div');
+        wb.className = 'flex items-center gap-3 px-4 py-3 rounded-2xl';
+        wb.style.cssText = 'background:rgba(0,240,255,0.06);border:1px solid rgba(0,240,255,0.18);';
+        wb.innerHTML = `
+            <i class="fas fa-droplet text-[#00f0ff] text-sm drop-shadow-[0_0_6px_rgba(0,240,255,0.4)]"></i>
+            <span class="text-xs font-black text-[#00f0ff]/80 uppercase tracking-wider">Daily Water Goal: ${data.waterMl} ml (${(data.waterMl/1000).toFixed(1)} L)</span>
+            <span class="ml-auto text-[10px] text-white/30 font-semibold italic">spread across meals</span>`;
+        mealBox.appendChild(wb);
+
+        data.meals.forEach((m, i) => {
+            const card = document.createElement('div');
+            card.className = 'meal-card flex flex-col sm:flex-row sm:items-start gap-4 bg-white/5 border border-white/10 hover:border-[#00ff66]/35 p-5 rounded-2xl transition-all duration-300 group';
+            card.style.animationDelay = `${i * 90}ms`;
+            card.innerHTML = `
+                <div class="flex items-start gap-3 sm:w-[44%] shrink-0 min-w-0">
+                    <div class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/5 group-hover:border-[#00ff66]/30 transition-colors shrink-0 mt-0.5">
+                        <i class="fas ${m.icon} text-sm drop-shadow-[0_0_8px_rgba(0,255,102,0.2)]" style="color:${m.col}"></i>
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <span class="text-[10px] text-white/35 uppercase font-black tracking-widest block">${m.time}</span>
+                        <h4 class="text-white font-bold text-sm leading-snug mt-0.5">${m.name}</h4>
+                        <div class="flex flex-wrap gap-1.5 mt-2">
+                            <span class="text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wide" style="background:rgba(0,255,102,0.12);color:#00ff66;">${m.kcal} kcal</span>
+                            <span class="text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wide" style="background:rgba(255,159,10,0.12);color:#ff9f0a;">P ${m.P}g</span>
+                            <span class="text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wide" style="background:rgba(0,210,255,0.12);color:#00d2ff;">C ${m.C}g</span>
+                            <span class="text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wide" style="background:rgba(255,55,95,0.12);color:#ff375f;">F ${m.F}g</span>
                         </div>
-                        <div class="min-w-0">
-                            <span class="text-[10px] text-white/40 uppercase font-black tracking-widest block">${item.time}</span>
-                            <h4 class="text-white font-bold text-sm truncate">${item.meal}</h4>
-                        </div>
                     </div>
-                    <div class="flex-1 text-slate-300 text-xs leading-relaxed">
-                        ${item.desc}
+                </div>
+                <div class="flex-1 space-y-2 min-w-0">
+                    <p class="text-slate-300 text-xs leading-relaxed">${m.desc}</p>
+                    <div class="flex items-center gap-1.5">
+                        <i class="fas fa-droplet text-[#00f0ff] text-[9px] shrink-0"></i>
+                        <span class="text-[10px] text-[#00f0ff]/60 font-semibold">${m.water}</span>
                     </div>
-                `;
-                mealContainer.appendChild(card);
-            });
-
-            // Populate workouts
-            const workoutContainer = document.getElementById('workout-routine-container');
-            data.workout.forEach(item => {
-                const card = document.createElement('div');
-                card.className = "flex gap-4 bg-white/5 border border-white/10 hover:border-[#00f0ff]/30 p-5 rounded-2xl transition-all duration-300 group";
-                card.innerHTML = `
-                    <div class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/5 group-hover:border-[#00f0ff]/30 transition-colors shrink-0">
-                        <i class="fas ${item.icon} text-[#00f0ff] text-sm drop-shadow-[0_0_8px_rgba(0,240,255,0.25)]"></i>
-                    </div>
-                    <div class="space-y-1">
-                        <h4 class="text-white font-black text-sm uppercase tracking-wider">${item.day}</h4>
-                        <p class="text-slate-300 text-xs leading-relaxed">${item.focus}</p>
-                    </div>
-                `;
-                workoutContainer.appendChild(card);
-            });
+                </div>`;
+            mealBox.appendChild(card);
         });
+
+        // Daily total row
+        const tot = data.meals.reduce((a, m) => ({ kcal:a.kcal+m.kcal, P:a.P+m.P, C:a.C+m.C, F:a.F+m.F }), {kcal:0,P:0,C:0,F:0});
+        const tr  = document.createElement('div');
+        tr.className = 'flex flex-wrap items-center gap-2 pt-3 mt-1 border-t border-white/8';
+        tr.innerHTML = `
+            <span class="text-[10px] text-white/40 uppercase font-black tracking-wider">Daily Total:</span>
+            <span class="text-[10px] font-black px-2.5 py-1 rounded-full" style="background:rgba(0,255,102,0.12);color:#00ff66;">${tot.kcal} kcal</span>
+            <span class="text-[10px] font-black px-2.5 py-1 rounded-full" style="background:rgba(255,159,10,0.12);color:#ff9f0a;">Protein ${tot.P}g</span>
+            <span class="text-[10px] font-black px-2.5 py-1 rounded-full" style="background:rgba(0,210,255,0.12);color:#00d2ff;">Carbs ${tot.C}g</span>
+            <span class="text-[10px] font-black px-2.5 py-1 rounded-full" style="background:rgba(255,55,95,0.12);color:#ff375f;">Fat ${tot.F}g</span>
+            <span class="text-[10px] font-black px-2.5 py-1 rounded-full" style="background:rgba(0,240,255,0.10);color:#00f0ff;">💧 ${data.waterMl} ml water</span>`;
+        mealBox.appendChild(tr);
+
+        // ── Workout cards ──────────────────────────────────────────
+        const wBox = document.getElementById('workout-routine-container');
+        const dCol = { Hard:'#ff375f', Moderate:'#ff9f0a', Easy:'#00ff66' };
+        const tCol = { HIIT:'#ff375f', Cardio:'#00f0ff', Strength:'#ff9f0a', Recovery:'#00ff66' };
+
+        data.workouts.forEach((w, i) => {
+            const dc = dCol[w.diff] || '#fff';
+            const tc = tCol[w.type] || '#fff';
+            const card = document.createElement('div');
+            card.className = 'workout-card flex flex-col gap-3 bg-white/5 border border-white/10 hover:border-[#00f0ff]/35 p-5 rounded-2xl transition-all duration-300 group';
+            card.style.animationDelay = `${i * 90}ms`;
+            card.innerHTML = `
+                <div class="flex items-start gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/5 group-hover:border-[#00f0ff]/30 transition-colors shrink-0 mt-0.5">
+                        <i class="fas ${w.icon} text-[#00f0ff] text-sm drop-shadow-[0_0_8px_rgba(0,240,255,0.25)]"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <h4 class="text-white font-black text-sm uppercase tracking-wide leading-snug">${w.day}</h4>
+                        <div class="flex gap-2 mt-1.5 flex-wrap">
+                            <span class="text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wide" style="background:${tc}18;color:${tc};">${w.type}</span>
+                            <span class="text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wide" style="background:${dc}18;color:${dc};">● ${w.diff}</span>
+                        </div>
+                    </div>
+                </div>
+                <p class="text-slate-300 text-xs leading-relaxed">${w.focus}</p>
+                <div class="flex items-start gap-2 pt-2.5 border-t border-white/5">
+                    <i class="fas fa-circle-info text-[#00ff66]/50 text-xs mt-0.5 shrink-0"></i>
+                    <p class="text-[10px] text-white/40 leading-relaxed italic">${w.tip}</p>
+                </div>`;
+            wBox.appendChild(card);
+        });
+    });
     </script>
+
 </body>
 </html>
