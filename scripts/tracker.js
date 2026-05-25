@@ -363,13 +363,19 @@ window.Tracker = (() => {
     document.querySelectorAll('[data-day-next]').forEach(btn => btn.addEventListener('click', () => changeDate(1)));
   }
 
-  function changeDate(delta) {
+  async function changeDate(delta) {
     const d = new Date(currentDate + 'T00:00:00');
     d.setDate(d.getDate() + delta);
     const today = new Date();
     if (d > today) return;
     currentDate = Storage.getLocalDateString(d);
     updateDateLabel();
+
+    // Sync from backend for this specific date before refreshing the UI
+    if (window.Storage && window.Storage.sync) {
+      await window.Storage.sync(currentDate);
+    }
+
     App.refresh();
   }
 

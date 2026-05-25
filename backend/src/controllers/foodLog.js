@@ -1,5 +1,20 @@
 const foodLogService = require('../services/foodLog');
+const logger = require('../config/logger');
 const { AppError } = require('../middleware/error');
+
+/**
+ * Formats an unexpected service/DB error for the client without leaking internals.
+ * Logs the full error server-side.
+ */
+function handleUnexpectedError(err, context, next) {
+  logger.error(`[foodLog controller] ${context}: ${err.message || err}`, { stack: err.stack });
+  // Operational errors (AppError) are forwarded as-is with their status code.
+  // All other errors are masked with a generic 500 so internals are never exposed.
+  if (err.isOperational) {
+    return next(err);
+  }
+  return next(new AppError('Internal server error', 500));
+}
 
 /**
  * GET /api/v1/food-logs
@@ -18,7 +33,7 @@ const getFoodLogs = async (req, res, next) => {
       }
     });
   } catch (err) {
-    next(err);
+    handleUnexpectedError(err, 'getFoodLogs', next);
   }
 };
 
@@ -37,7 +52,7 @@ const createFoodLog = async (req, res, next) => {
       }
     });
   } catch (err) {
-    next(err);
+    handleUnexpectedError(err, 'createFoodLog', next);
   }
 };
 
@@ -64,7 +79,7 @@ const updateFoodLog = async (req, res, next) => {
       }
     });
   } catch (err) {
-    next(err);
+    handleUnexpectedError(err, 'updateFoodLog', next);
   }
 };
 
@@ -85,7 +100,7 @@ const deleteFoodLog = async (req, res, next) => {
       data: null
     });
   } catch (err) {
-    next(err);
+    handleUnexpectedError(err, 'deleteFoodLog', next);
   }
 };
 
