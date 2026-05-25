@@ -84,8 +84,7 @@ window.App = (() => {
     if (themeBtn && !themeBtn.dataset.themeInit) {
       themeBtn.dataset.themeInit = 'true';
       themeBtn.addEventListener('click', () => {
-        const isLight = ThemeManager.getTheme() === 'light';
-        ThemeManager.setTheme(isLight ? 'dark' : 'light');
+        window.ThemeService.toggleTheme();
       });
     }
   }
@@ -126,9 +125,17 @@ window.addEventListener('pageLoaded', async (e) => {
     if (!themeBtn.dataset.initialized) {
       themeBtn.dataset.initialized = 'true';
       themeBtn.addEventListener('click', () => {
-        const isLight = ThemeManager.getTheme() === 'light';
-        ThemeManager.setTheme(isLight ? 'dark' : 'light');
+        window.ThemeService.toggleTheme();
       });
     }
   });
+
+  // Re-init animations on page change
+  setTimeout(() => {
+    if (window.AnimationManager) window.AnimationManager.init();
+    if (window.Transitions) window.Transitions.init();
+    if (page === 'landing' && window.HeroAnimations) window.HeroAnimations.init();
+    if (window.ScrollAnimations) window.ScrollAnimations.init();
+    if (window.Interactions) window.Interactions.init();
+  }, 50);
 });

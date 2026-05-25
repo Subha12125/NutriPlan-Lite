@@ -1,10 +1,25 @@
-window.ThemeManager = (() => {
+window.ThemeService = (() => {
+  function injectTransitionCSS() {
+    const style = document.createElement('style');
+    style.textContent = `
+      *, *::before, *::after {
+        transition: background-color 200ms ease, border-color 200ms ease, color 200ms ease, fill 200ms ease, stroke 200ms ease, box-shadow 200ms ease !important;
+      }
+      .progress-fill {
+        transition: width 550ms cubic-bezier(0.22, 1, 0.36, 1), background-color 200ms ease !important;
+      }
+      .chart-bar {
+        transition: height 500ms cubic-bezier(0.22, 1, 0.36, 1), background-color 200ms ease !important;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
   function getTheme() {
     return localStorage.getItem('theme');
   }
 
-  function setTheme(theme) {
-    localStorage.setItem('theme', theme);
+  function applyTheme(theme) {
     if (theme === 'light') {
       document.documentElement.classList.add('light-mode');
     } else {
@@ -16,21 +31,43 @@ window.ThemeManager = (() => {
     });
   }
 
-  function initializeTheme() {
-    let saved = getTheme();
-    if (!saved) {
-      // System preference only used on first visit
-      const prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
-      saved = prefersLight ? 'light' : 'dark';
-      // We explicitly don't save to localStorage yet until they toggle, 
-      // but applying it right away is fine. Actually, safer to save it:
-      localStorage.setItem('theme', saved);
-    }
-    setTheme(saved);
+  function setTheme(theme) {
+    localStorage.setItem('theme', theme);
+    applyTheme(theme);
   }
 
-  // Apply immediately during page load
-  initializeTheme();
+  function restoreTheme() {
+    const saved = getTheme();
+    if (saved) {
+      applyTheme(saved);
+    } else {
+      const prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+      applyTheme(prefersLight ? 'light' : 'dark');
+    }
+  }
 
-  return { getTheme, setTheme, initializeTheme };
+  function toggleTheme() {
+    const saved = getTheme();
+    let currentTheme;
+    if (saved) {
+      currentTheme = saved;
+    } else {
+      currentTheme = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    }
+    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+  }
+
+  function initializeTheme() {
+    // Inject global transition AFTER initial load to prevent FOUC on first paint
+    setTimeout(injectTransitionCSS, 50);
+    restoreTheme();
+  }
+
+  // Apply immediately during page load to prevent flash of wrong theme
+  restoreTheme();
+  // Call init to attach transitions
+  window.addEventListener('DOMContentLoaded', initializeTheme);
+
+  return { initializeTheme, toggleTheme, saveTheme: setTheme, restoreTheme, getTheme, setTheme };
 })();

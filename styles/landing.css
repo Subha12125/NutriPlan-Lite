@@ -17,12 +17,17 @@ body:not(.page-landing) #landing-header {
   transform: translateX(-50%);
   z-index: 100;
   width: min(900px, calc(100% - 2rem));
-  background: rgba(6, 10, 18, 0.65);
+  background: var(--header-bg, rgba(6, 10, 18, 0.65));
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--header-border, rgba(255, 255, 255, 0.08));
   border-radius: 999px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--header-shadow, 0 8px 32px rgba(0, 0, 0, 0.4));
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.landing-header.scrolled {
+  background: var(--header-bg-scrolled, rgba(6, 10, 18, 0.85));
 }
 
 .landing-header-container {
@@ -113,12 +118,13 @@ body:not(.page-landing) #landing-header {
 }
 
 .container {
-  width: min(1200px, calc(100% - 2rem));
+  width: min(100%, 1440px);
+  padding: 0 clamp(1rem, 5vw, 4rem);
   margin: 0 auto;
 }
 
 .landing-hero {
-  padding: 6rem 0 4rem;
+  padding: clamp(5rem, 12vh, 8rem) 0 clamp(3rem, 7vh, 4.5rem);
   text-align: center;
 }
 
@@ -127,11 +133,13 @@ body:not(.page-landing) #landing-header {
   line-height: 1.1;
   letter-spacing: -0.05em;
   margin-bottom: 1.5rem;
+  font-weight: 900;
 }
 
 .text-gradient {
   background: linear-gradient(135deg, var(--green), #b7ffe1);
   -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
   color: transparent;
 }
 
@@ -159,7 +167,7 @@ body:not(.page-landing) #landing-header {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.2s ease, opacity 0.2s ease;
+  transition: transform 0.2s ease, opacity 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .hero-cta .cta-button:hover {
@@ -171,10 +179,18 @@ body:not(.page-landing) #landing-header {
   color: #000;
 }
 
+.hero-cta .primary-button:hover {
+  box-shadow: 0 8px 20px rgba(56, 242, 166, 0.3);
+}
+
 .hero-cta .secondary-button {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
   color: var(--text);
   border: 1px solid var(--line);
+}
+
+.hero-cta .secondary-button:hover {
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .hero-visual {
@@ -188,7 +204,9 @@ body:not(.page-landing) #landing-header {
 .mock-card {
   padding: 1.5rem;
   border-radius: 20px;
-  min-width: 280px;
+  width: 100%;
+  max-width: 320px;
+  min-width: 0;
   text-align: left;
 }
 
@@ -221,7 +239,7 @@ body:not(.page-landing) #landing-header {
 }
 
 .landing-features {
-  padding: 4rem 0;
+  padding: 3rem 0;
 }
 
 .section-header {
@@ -240,19 +258,32 @@ body:not(.page-landing) #landing-header {
 
 .features-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
   gap: 1.5rem;
 }
 
 .feature-card {
-  padding: 2rem;
+  padding: 2.2rem 2rem;
   border-radius: 24px;
   text-align: left;
+  transition: transform 0.3s var(--ease), box-shadow 0.3s var(--ease), border-color 0.3s var(--ease);
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(56, 242, 166, 0.4);
+  box-shadow: 0 12px 30px rgba(56, 242, 166, 0.12);
 }
 
 .feature-icon {
   font-size: 2.5rem;
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
+  display: inline-block;
+  transition: transform 0.3s var(--ease);
+}
+
+.feature-card:hover .feature-icon {
+  transform: scale(1.15) rotate(5deg);
 }
 
 .feature-card h3 {
@@ -266,13 +297,13 @@ body:not(.page-landing) #landing-header {
 }
 
 .landing-cta {
-  padding: 4rem 0;
+  padding: 3rem 0;
 }
 
 .cta-panel {
   padding: 4rem 2rem;
   border-radius: 32px;
-  background: linear-gradient(180deg, rgba(20, 246, 142, 0.05), transparent);
+  background: linear-gradient(180deg, rgba(56, 242, 166, 0.05), transparent);
 }
 
 .cta-panel h2 {
@@ -294,4 +325,50 @@ body:not(.page-landing) #landing-header {
 .footer-content strong {
   display: block;
   margin: 0.5rem 0;
+}
+
+/* ── Light Mode Homepage overrides ────────────────────────────── */
+html.light-mode {
+  --header-bg: rgba(255, 255, 255, 0.7);
+  --header-bg-scrolled: rgba(255, 255, 255, 0.88);
+  --header-border: rgba(231, 234, 240, 0.8);
+  --header-shadow: 0 8px 32px rgba(17, 24, 39, 0.04);
+}
+
+html.light-mode .text-gradient {
+  background: linear-gradient(135deg, #111827 30%, #059669 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+html.light-mode .hero-cta .primary-button {
+  background: linear-gradient(135deg, #059669, #10b981);
+  color: #ffffff;
+  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.2);
+}
+
+html.light-mode .hero-cta .primary-button:hover {
+  background: linear-gradient(135deg, #047857, #059669);
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.35);
+}
+
+html.light-mode .hero-cta .secondary-button {
+  background: #ffffff;
+  color: #111827;
+  border-color: #E7EAF0;
+}
+
+html.light-mode .hero-cta .secondary-button:hover {
+  background: #FCFCFD;
+  border-color: #D1D5DB;
+}
+
+html.light-mode .feature-card:hover {
+  border-color: rgba(5, 150, 105, 0.25);
+  box-shadow: 0 12px 30px rgba(5, 150, 105, 0.06);
+}
+
+html.light-mode .cta-panel {
+  background: linear-gradient(180deg, rgba(5, 150, 105, 0.04), transparent);
 }
