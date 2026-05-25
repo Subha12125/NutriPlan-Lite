@@ -60,16 +60,37 @@ body:not(.page-landing) #landing-header {
 }
 
 .landing-nav-center a {
+  position: relative;
   color: var(--muted);
   font-size: 0.95rem;
   font-weight: 500;
   text-decoration: none;
   transition: color 0.2s ease;
+  padding: 0.25rem 0;
+}
+
+.landing-nav-center a::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--green);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.3s var(--ease);
+}
+
+.landing-nav-center a:hover::after,
+.landing-nav-center a.active::after {
+  transform: scaleX(1);
+  transform-origin: left;
 }
 
 .landing-nav-center a:hover,
 .landing-nav-center a.active {
-  color: var(--text);
+  color: var(--text-primary);
 }
 
 /* RIGHT: Actions */
@@ -142,6 +163,17 @@ body:not(.page-landing) #landing-header {
   max-width: 600px;
   margin: 0 auto 2.5rem;
   line-height: 1.6;
+}
+
+.reveal-wrap {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+}
+
+.reveal-text {
+  display: inline-block;
+  will-change: transform;
 }
 
 .hero-cta {
@@ -239,6 +271,59 @@ body:not(.page-landing) #landing-header {
   line-height: 1.5;
 }
 
+/* ── Scroll Indicator ── */
+.scroll-indicator {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 4rem;
+  opacity: 0; /* Animated in by GSAP */
+}
+
+.mouse {
+  width: 26px;
+  height: 42px;
+  border: 2px solid var(--muted-2);
+  border-radius: 14px;
+  position: relative;
+  margin-bottom: 8px;
+}
+
+.wheel {
+  width: 4px;
+  height: 6px;
+  background: var(--muted);
+  border-radius: 2px;
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: scrollWheel 2s infinite cubic-bezier(0.15, 0.41, 0.69, 0.94);
+}
+
+.arrows .arrow-down {
+  display: block;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid var(--muted-2);
+  border-bottom: 2px solid var(--muted-2);
+  transform: rotate(45deg);
+  animation: arrowDown 2s infinite cubic-bezier(0.15, 0.41, 0.69, 0.94);
+}
+
+@keyframes scrollWheel {
+  0% { transform: translate(-50%, 0); opacity: 1; }
+  100% { transform: translate(-50%, 15px); opacity: 0; }
+}
+
+@keyframes arrowDown {
+  0% { transform: rotate(45deg) translate(-2px, -2px); opacity: 0; }
+  50% { transform: rotate(45deg) translate(0, 0); opacity: 1; }
+  100% { transform: rotate(45deg) translate(2px, 2px); opacity: 0; }
+}
+
 /* ── Features Section ── */
 .landing-features {
   padding: 3rem 0;
@@ -272,8 +357,26 @@ body:not(.page-landing) #landing-header {
   text-align: left;
   background: var(--panel);
   border: 1px solid var(--line);
-  box-shadow: var(--shadow);
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  z-index: 1;
+}
+
+.feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  border-radius: 24px;
+  padding: 2px;
+  background: linear-gradient(135deg, rgba(56, 242, 166, 0.5), rgba(34, 211, 238, 0.5));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.4s var(--ease);
+  z-index: -1;
+  pointer-events: none;
 }
 
 .feature-icon {
@@ -306,7 +409,12 @@ body:not(.page-landing) #landing-header {
 /* Premium glows and hover transforms per card */
 .feature-card:hover {
   transform: translateY(-6px);
-  background: rgba(13, 22, 37, 0.88);
+  background: var(--surface-strong);
+  box-shadow: 0 10px 25px -5px rgba(0,0,0,0.2), 0 8px 10px -6px rgba(0,0,0,0.1);
+}
+
+.feature-card:hover::before {
+  opacity: 1;
 }
 
 .feature-card:hover .feature-icon {
