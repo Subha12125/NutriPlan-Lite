@@ -45,7 +45,7 @@ function loadDB() {
     const db = JSON.parse(raw);
     if (!db.profile)  db.profile  = { ...DEFAULT_PROFILE };
     if (!db.logs)     db.logs     = {};
-    if (!db.settings) db.settings = { theme: 'dark', notifications: true };
+    if (!db.settings) db.settings = { notifications: true };
     db.profile = { ...DEFAULT_PROFILE, ...db.profile };
     return db;
   } catch {
@@ -57,7 +57,7 @@ function createEmptyDB() {
   return {
     profile: { ...DEFAULT_PROFILE },
     logs: {},
-    settings: { theme: 'dark', notifications: true }
+    settings: { notifications: true }
   };
 }
 

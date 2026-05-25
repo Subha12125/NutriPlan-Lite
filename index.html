@@ -3,6 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <!-- Theme Init (Prevents FOUC) -->
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem('nutriplan-theme');
+      if (savedTheme) {
+        document.documentElement.dataset.theme = savedTheme;
+      } else {
+        const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.dataset.theme = systemDark ? 'dark' : 'light';
+      }
+    })();
+  </script>
   <title>NutriPlan Lite - Fitness Nutrition Planner</title>
   <meta name="description" content="A fitness nutrition planner for calories, macros, hydration, and personal goals.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -29,6 +41,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
   
   <!-- Scripts (load order matters) -->
+  <script src="scripts/theme.js" defer></script>
   <script src="scripts/api.js" defer></script>
   <script src="scripts/session.js" defer></script>
   <script src="scripts/storage.js" defer></script>

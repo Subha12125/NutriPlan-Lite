@@ -80,8 +80,9 @@ window.Analytics = {
     }
 
     const ctx = canvas.getContext('2d');
-    const isLight = document.body.classList.contains('light-mode');
-    const textThemeColor = isLight ? '#334155' : '#cbd5e1';
+    const isLight = window.ThemeService && window.ThemeService.getTheme() === 'light';
+    const computedStyles = getComputedStyle(document.documentElement);
+    const textThemeColor = computedStyles.getPropertyValue('--text-secondary').trim() || (isLight ? '#334155' : '#cbd5e1');
     const gridThemeColor = isLight ? 'rgba(148, 163, 184, 0.15)' : 'rgba(148, 163, 184, 0.08)';
 
     window.__calorieChart = new Chart(ctx, {
@@ -152,8 +153,9 @@ window.Analytics = {
     }
 
     const ctx = canvas.getContext('2d');
-    const isLight = document.body.classList.contains('light-mode');
-    const textThemeColor = isLight ? '#334155' : '#cbd5e1';
+    const isLight = window.ThemeService && window.ThemeService.getTheme() === 'light';
+    const computedStyles = getComputedStyle(document.documentElement);
+    const textThemeColor = computedStyles.getPropertyValue('--text-secondary').trim() || (isLight ? '#334155' : '#cbd5e1');
     const gridThemeColor = isLight ? 'rgba(148, 163, 184, 0.15)' : 'rgba(148, 163, 184, 0.08)';
 
     const fillGradient = ctx.createLinearGradient(0, 0, 0, 200);
@@ -253,8 +255,9 @@ window.Analytics = {
     }
 
     const ctx = canvas.getContext('2d');
-    const isLight = document.body.classList.contains('light-mode');
-    const textThemeColor = isLight ? '#334155' : '#cbd5e1';
+    const isLight = window.ThemeService && window.ThemeService.getTheme() === 'light';
+    const computedStyles = getComputedStyle(document.documentElement);
+    const textThemeColor = computedStyles.getPropertyValue('--text-secondary').trim() || (isLight ? '#334155' : '#cbd5e1');
 
     const total = protein + carbs + fat;
     const hasLog = total > 0;
