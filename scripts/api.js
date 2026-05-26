@@ -14,60 +14,81 @@ window.ApiService = (() => {
   const API_BASE = 'http://localhost:4000/api/v1';
   const DEFAULT_TIMEOUT_MS = 8000;
 
-  // ── Core fetch wrapper ─────────────────────────────────────────
+  const MAX_RETRIES = 3;
+
   /**
    * Internal fetch with timeout, auth headers, and normalised errors.
+   * Includes exponential backoff retry logic for safe GET requests.
    * Throws an { status, message, data } object on failure.
    */
   async function request(method, endpoint, body = null, extraHeaders = {}) {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT_MS);
+    let attempt = 0;
+    
+    while (attempt <= MAX_RETRIES) {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT_MS);
 
-    try {
-      // Token is retrieved lazily — Session module loads after this one
-      const token = window.Session ? window.Session.getToken() : localStorage.getItem('nutriplan_token');
+      try {
+        // Token is retrieved lazily — Session module loads after this one
+        const token = window.Session ? window.Session.getToken() : localStorage.getItem('nutriplan_token');
 
-      const headers = {
-        'Content-Type': 'application/json',
-        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
-        ...extraHeaders
-      };
-
-      const fetchOptions = {
-        method,
-        headers,
-        signal: controller.signal
-      };
-
-      if (body !== null) {
-        fetchOptions.body = JSON.stringify(body);
-      }
-
-      const res = await fetch(`${API_BASE}${endpoint}`, fetchOptions);
-
-      // Try to parse JSON regardless of status for error messages
-      let payload;
-      try { payload = await res.json(); } catch { payload = {}; }
-
-      if (!res.ok) {
-        throw {
-          status: res.status,
-          message: payload.message || `HTTP ${res.status} — ${res.statusText}`,
-          data: payload
+        const headers = {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+          ...extraHeaders
         };
-      }
 
-      return payload;
+        const fetchOptions = {
+          method,
+          headers,
+          signal: controller.signal
+        };
 
-    } catch (err) {
-      // Re-throw structured errors as-is; wrap network/timeout errors
-      if (err && err.status) throw err;
-      if (err && err.name === 'AbortError') {
-        throw { status: 0, message: 'Request timed out. Backend may be offline.', data: {} };
+        if (body !== null) {
+          fetchOptions.body = JSON.stringify(body);
+        }
+
+        const res = await fetch(`${API_BASE}${endpoint}`, fetchOptions);
+
+        // Try to parse JSON regardless of status for error messages
+        let payload;
+        try { payload = await res.json(); } catch { payload = {}; }
+
+        if (!res.ok) {
+          throw {
+            status: res.status,
+            message: payload.message || `HTTP ${res.status} — ${res.statusText}`,
+            data: payload
+          };
+        }
+
+        clearTimeout(timeoutId);
+        return payload;
+
+      } catch (err) {
+        clearTimeout(timeoutId);
+        
+        // Determine if this is a network/timeout error (0) or server error (500+)
+        const isTransient = !err.status || err.status === 0 || err.status >= 500;
+        const isAbort = err && err.name === 'AbortError';
+        const canRetry = method === 'GET' && (isTransient || isAbort) && attempt < MAX_RETRIES;
+        
+        if (canRetry) {
+          attempt++;
+          // Exponential backoff: 2^attempt seconds + jitter
+          const delay = Math.pow(2, attempt) * 1000 + Math.random() * 500;
+          console.warn(`[API] Transient failure on ${method} ${endpoint}. Retrying (Attempt ${attempt}/${MAX_RETRIES}) in ${Math.round(delay)}ms...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+          continue;
+        }
+
+        // Re-throw structured errors as-is; wrap network/timeout errors
+        if (err && err.status) throw err;
+        if (isAbort) {
+          throw { status: 0, message: 'Request timed out. Backend may be offline.', data: {} };
+        }
+        throw { status: 0, message: err.message || 'Network error. Backend may be offline.', data: {} };
       }
-      throw { status: 0, message: err.message || 'Network error. Backend may be offline.', data: {} };
-    } finally {
-      clearTimeout(timeoutId);
     }
   }
 

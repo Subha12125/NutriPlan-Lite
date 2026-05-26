@@ -503,21 +503,37 @@ async function sync(dateFilter) {
     const waterRes = await ApiService.water.get(dateFilter);
     const waterLogs = (waterRes && waterRes.data && waterRes.data.waterLogs) || [];
 
-    // Rebuild logs from server — clear only for full sync, preserve for date-scoped
-    if (!dateFilter) {
-      db.logs = {};
-    } else {
-      // Only wipe the targeted date so other days are untouched
-      if (db.logs[dateFilter]) {
-        db.logs[dateFilter] = { foods: [], water: 0 };
-      }
-    }
+    // Rebuild logs from server — merge safely instead of destructively wiping
 
     foodLogs.forEach(beFood => {
       const key = formatDate(beFood.log_date);
       if (!db.logs[key]) db.logs[key] = { foods: [], water: 0 };
-      db.logs[key].foods.push(mapBackendToFrontendFood(beFood));
+
+      const foodsArray = db.logs[key].foods;
+      const existingIdx = foodsArray.findIndex(f => f.id === beFood.id);
+      
+      const beTimestamp = new Date(beFood.updated_at || beFood.created_at || 0).getTime();
+
+      if (existingIdx >= 0) {
+        const localTimestamp = new Date(foodsArray[existingIdx].timestamp || 0).getTime();
+        // Newest wins merge strategy
+        if (beTimestamp > localTimestamp) {
+          foodsArray[existingIdx] = mapBackendToFrontendFood(beFood);
+        }
+      } else {
+        foodsArray.push(mapBackendToFrontendFood(beFood));
+      }
     });
+
+    // For water (aggregate sum), reset only the days the server knows about, then sum
+    const waterDaysOnServer = new Set(waterLogs.map(w => formatDate(w.log_date)));
+    if (!dateFilter) {
+      waterDaysOnServer.forEach(key => {
+        if (db.logs[key]) db.logs[key].water = 0;
+      });
+    } else {
+      if (db.logs[dateFilter]) db.logs[dateFilter].water = 0;
+    }
 
     waterLogs.forEach(beWater => {
       const key = formatDate(beWater.log_date);
