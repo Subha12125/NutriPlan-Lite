@@ -43,6 +43,9 @@ window.App = (() => {
   }
 
   async function init() {
+    if (window.Storage && window.Storage.initDB) {
+      await window.Storage.initDB();
+    }
     // Perform full sync from backend if the user is authenticated
     const authenticated = window.Session
       ? window.Session.isAuthenticated()
@@ -94,6 +97,9 @@ window.addEventListener('pageLoaded', async (e) => {
   if (window.Auth) window.Auth.renderAuthWidgets();
 
   if (page === 'dashboard') {
+    if (window.Storage && window.Storage.initDB) {
+      await window.Storage.initDB();
+    }
     // Sync from backend on dashboard load
     if (window.Storage && window.Storage.sync) {
       await window.Storage.sync();

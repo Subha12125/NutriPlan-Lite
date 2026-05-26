@@ -38,19 +38,49 @@ const DEFAULT_PROFILE = {
 
 // ── Core DB helpers ────────────────────────────────────────────────
 
-function loadDB() {
+let dbCache = null;
+
+async function initDB() {
+  if (dbCache) return dbCache; // already loaded
+
   try {
-    const raw = localStorage.getItem(DB_KEY);
-    if (!raw) return createEmptyDB();
-    const db = JSON.parse(raw);
-    if (!db.profile)  db.profile  = { ...DEFAULT_PROFILE };
-    if (!db.logs)     db.logs     = {};
-    if (!db.settings) db.settings = { notifications: true };
-    db.profile = { ...DEFAULT_PROFILE, ...db.profile };
-    return db;
-  } catch {
+    const data = await window.IDB.get('db');
+    if (data) {
+      dbCache = data;
+    } else {
+      // Check localStorage for migration
+      const raw = localStorage.getItem(DB_KEY);
+      if (raw) {
+        dbCache = JSON.parse(raw);
+        console.log('[Storage] Migrating from localStorage to IndexedDB');
+        await window.IDB.put('db', dbCache);
+        // Clean up legacy storage once migrated successfully
+        localStorage.removeItem(DB_KEY);
+      } else {
+        dbCache = createEmptyDB();
+        await window.IDB.put('db', dbCache);
+      }
+    }
+  } catch (err) {
+    console.error('[Storage] IndexedDB init failed, falling back to empty db', err);
+    dbCache = createEmptyDB();
+  }
+
+  // Ensure defaults are populated
+  if (!dbCache.profile)  dbCache.profile  = { ...DEFAULT_PROFILE };
+  if (!dbCache.logs)     dbCache.logs     = {};
+  if (!dbCache.settings) dbCache.settings = { notifications: true };
+  dbCache.profile = { ...DEFAULT_PROFILE, ...dbCache.profile };
+
+  return dbCache;
+}
+
+function loadDB() {
+  if (!dbCache) {
+    console.warn('[Storage] loadDB called before initDB! Returning fallback.');
     return createEmptyDB();
   }
+  return dbCache;
 }
 
 function createEmptyDB() {
@@ -61,9 +91,15 @@ function createEmptyDB() {
   };
 }
 
+function clearDB() {
+  dbCache = createEmptyDB();
+  window.IDB.put('db', dbCache).catch(e => console.error('[Storage] clearDB failed:', e));
+}
+
 function saveDB(db) {
   try {
-    localStorage.setItem(DB_KEY, JSON.stringify(db));
+    dbCache = db; // ensure cache matches (though it usually is the same ref)
+    window.IDB.put('db', db).catch(e => console.error('[Storage] Async IDB write failed:', e));
   } catch (e) {
     console.error('Storage write failed:', e);
   }
@@ -479,6 +515,7 @@ async function sync(dateFilter) {
 // ── Global export ──────────────────────────────────────────────────
 
 window.Storage = {
+  initDB,
   getProfile, saveProfile,
   getFoods, addFood, updateFood, deleteFood,
   getWater, addWater, setWater,
@@ -488,5 +525,5 @@ window.Storage = {
   clearMemactConnection,
   getStreak,
   todayKey, getLocalDateString,
-  sync
+  sync, clearDB
 };

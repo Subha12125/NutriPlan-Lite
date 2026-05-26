@@ -109,6 +109,9 @@ window.Auth = (() => {
 
     // Reset local DB to go back to demo defaults
     localStorage.removeItem('nutriplan_v2');
+    if (window.Storage && window.Storage.clearDB) {
+      window.Storage.clearDB();
+    }
 
     Toast.show('Signed out. Local Demo mode active.', 'info');
     renderAuthWidgets();
