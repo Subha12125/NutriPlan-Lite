@@ -6,6 +6,11 @@ window.LandingAnimations = (() => {
   let ctx;
 
   function init() {
+    // Check for reduced motion preference
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return; // Bypass GSAP timelines entirely
+    }
+
     // Only run if gsap is loaded
     if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
 

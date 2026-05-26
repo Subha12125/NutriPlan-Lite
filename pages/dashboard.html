@@ -142,9 +142,9 @@
         <div class="analytics-header-actions" style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
           <!-- Chart Tabs -->
           <div class="analytics-tabs" role="tablist" aria-label="Nutrition analytics charts">
-            <button class="tab-btn active" data-chart-tab="calorie" type="button" role="tab" aria-selected="true">Calorie Trends</button>
-            <button class="tab-btn" data-chart-tab="macro" type="button" role="tab" aria-selected="false">Macro Ratios</button>
-            <button class="tab-btn" data-chart-tab="water" type="button" role="tab" aria-selected="false">Hydration Log</button>
+            <button class="tab-btn active" data-chart-tab="calorie" type="button" role="tab" aria-selected="true" tabindex="0">Calorie Trends</button>
+            <button class="tab-btn" data-chart-tab="macro" type="button" role="tab" aria-selected="false" tabindex="-1">Macro Ratios</button>
+            <button class="tab-btn" data-chart-tab="water" type="button" role="tab" aria-selected="false" tabindex="-1">Hydration Log</button>
           </div>
           <button id="btn-generate-report" class="secondary-button" type="button" style="gap:0.4rem; min-height:36px; font-size:0.8rem; border-radius:99px; font-weight:800; padding:0 0.85rem;" title="Generate Weekly PDF Report">📄 Report</button>
         </div>
@@ -179,19 +179,19 @@
         <!-- Calorie Trend Chart Wrapper -->
         <div id="chart-wrapper-calorie" class="chart-wrapper">
           <div class="chart-canvas-container">
-            <canvas id="calorieChartCanvas"></canvas>
+            <canvas id="calorieChartCanvas" role="img" aria-label="Line chart showing daily calorie intake trends compared to target allowance over the past seven days."></canvas>
           </div>
         </div>
         <!-- Macro Breakdown Chart Wrapper -->
         <div id="chart-wrapper-macro" class="chart-wrapper hidden">
           <div class="chart-canvas-container doughnut-container">
-            <canvas id="macroChartCanvas"></canvas>
+            <canvas id="macroChartCanvas" role="img" aria-label="Doughnut chart displaying your weekly breakdown of protein, carbohydrates, and fats."></canvas>
           </div>
         </div>
         <!-- Hydration Trend Chart Wrapper -->
         <div id="chart-wrapper-water" class="chart-wrapper hidden">
           <div class="chart-canvas-container">
-            <canvas id="waterChartCanvas"></canvas>
+            <canvas id="waterChartCanvas" role="img" aria-label="Bar chart illustrating daily fluid and hydration consumption patterns against targets over the past seven days."></canvas>
           </div>
         </div>
       </div>

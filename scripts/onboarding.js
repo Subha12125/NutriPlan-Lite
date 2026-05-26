@@ -10,6 +10,19 @@ window.Onboarding = (() => {
   let tourIndex = 0;
   let activeTourElement = null;
 
+  let activeElementBeforeModal = null;
+  let activeElementBeforeTour = null;
+
+  function getFocusableElements(container) {
+    return Array.from(container.querySelectorAll(
+      'a[href], area[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), iframe, object, embed, [tabindex]:not([tabindex="-1"]), [contenteditable]'
+    )).filter(el => {
+      const rect = el.getBoundingClientRect();
+      const style = window.getComputedStyle(el);
+      return rect.width > 0 && rect.height > 0 && style.display !== 'none' && style.visibility !== 'hidden';
+    });
+  }
+
   // ── Step-by-Step Onboarding Profile Wizard ─────────────────────
 
   function showWizardStep(stepNum) {
@@ -30,15 +43,16 @@ window.Onboarding = (() => {
       progressFill.style.width = `${(stepNum / totalSteps) * 100}%`;
     }
 
+    const titles = [
+      'Welcome',
+      'Physical Metrics',
+      'Goals & Activity',
+      'Dietary & Hydration',
+      'Memact Context'
+    ];
+
     const stepLabel = document.getElementById('onboarding-eyebrow');
     if (stepLabel) {
-      const titles = [
-        'Welcome',
-        'Physical Metrics',
-        'Goals & Activity',
-        'Dietary & Hydration',
-        'Memact Context'
-      ];
       stepLabel.textContent = `Step ${stepNum} of ${totalSteps} • ${titles[stepNum - 1]}`;
     }
 
@@ -52,6 +66,26 @@ window.Onboarding = (() => {
         'Optional Fitness Sync'
       ];
       modalTitle.textContent = headings[stepNum - 1];
+    }
+
+    // Update screen reader announcer
+    const announcer = document.getElementById('onboarding-sr-announcer');
+    if (announcer) {
+      announcer.textContent = `Step ${stepNum} of ${totalSteps}: ${titles[stepNum - 1]} loaded.`;
+    }
+
+    // Shift focus automatically to the first interactive field inside the step panel
+    const currentPanel = document.getElementById(`onboarding-step-${stepNum}`);
+    if (currentPanel) {
+      setTimeout(() => {
+        const focusables = getFocusableElements(currentPanel);
+        if (focusables.length > 0) {
+          focusables[0].focus();
+        } else {
+          currentPanel.setAttribute('tabindex', '-1');
+          currentPanel.focus();
+        }
+      }, 50);
     }
 
     // 3. Update wizard step dot indicators
@@ -124,8 +158,19 @@ window.Onboarding = (() => {
   function showWizard() {
     const modal = document.getElementById('onboarding-modal');
     if (modal) {
+      activeElementBeforeModal = document.activeElement;
       modal.classList.remove('hidden');
       showWizardStep(1);
+    }
+  }
+
+  function closeWizard() {
+    const modal = document.getElementById('onboarding-modal');
+    if (modal && !modal.classList.contains('hidden')) {
+      modal.classList.add('hidden');
+      if (activeElementBeforeModal && typeof activeElementBeforeModal.focus === 'function') {
+        activeElementBeforeModal.focus();
+      }
     }
   }
 
@@ -171,6 +216,7 @@ window.Onboarding = (() => {
   ];
 
   function startTour() {
+    activeElementBeforeTour = document.activeElement;
     // Hide onboarding wizard drawer if open
     const onboardingModal = document.getElementById('onboarding-modal');
     if (onboardingModal) onboardingModal.classList.add('hidden');
@@ -255,6 +301,12 @@ window.Onboarding = (() => {
 
       // 4. Calculate floating tooltip placement next to targeted element
       positionTooltip(targetEl, step.position);
+
+      // 5. Shift focus to tooltip container to trap focus
+      const container = document.getElementById('tour-tooltip-container');
+      if (container) {
+        container.focus();
+      }
     }, 350);
   }
 
@@ -400,6 +452,10 @@ window.Onboarding = (() => {
 
     window.removeEventListener('resize', repositionSpotlight);
     window.removeEventListener('scroll', repositionSpotlight);
+
+    if (activeElementBeforeTour && typeof activeElementBeforeTour.focus === 'function') {
+      activeElementBeforeTour.focus();
+    }
   }
 
   // ── Global Event Wiring & Delegation ───────────────────────────
@@ -408,6 +464,91 @@ window.Onboarding = (() => {
   function init() {
     if (initialized) return;
     initialized = true;
+
+    document.addEventListener('keydown', e => {
+      // Escape to close open overlays
+      if (e.key === 'Escape') {
+        const onboardingModal = document.getElementById('onboarding-modal');
+        if (onboardingModal && !onboardingModal.classList.contains('hidden')) closeWizard();
+
+        const tourOverlay = document.getElementById('tour-spotlight-overlay');
+        if (tourOverlay && !tourOverlay.classList.contains('hidden')) closeTour();
+
+        const foodDrawer = document.getElementById('food-drawer');
+        if (foodDrawer && !foodDrawer.classList.contains('hidden')) {
+          foodDrawer.classList.add('hidden');
+          const trigger = document.querySelector('[data-open-food-drawer]');
+          if (trigger) trigger.focus();
+        }
+
+        const goalPanel = document.getElementById('target-goal-panel');
+        if (goalPanel && !goalPanel.classList.contains('hidden')) {
+          goalPanel.classList.add('hidden');
+          const updateGoalBtn = document.getElementById('update-goal-button');
+          if (updateGoalBtn) updateGoalBtn.focus();
+        }
+
+        const authModal = document.getElementById('auth-modal');
+        if (authModal && !authModal.classList.contains('hidden')) {
+          authModal.classList.add('hidden');
+        }
+      }
+
+      // Arrow navigation for Onboarding Wizard
+      const onboardingModal = document.getElementById('onboarding-modal');
+      if (onboardingModal && !onboardingModal.classList.contains('hidden')) {
+        if (e.key === 'ArrowRight') nextWizardStep();
+        if (e.key === 'ArrowLeft') prevWizardStep();
+      }
+      
+      // Arrow navigation for Tour
+      const tourOverlay = document.getElementById('tour-spotlight-overlay');
+      if (tourOverlay && !tourOverlay.classList.contains('hidden')) {
+        if (e.key === 'ArrowRight') nextStep();
+        if (e.key === 'ArrowLeft') prevStep();
+      }
+
+      // Focus trap for Onboarding Wizard
+      if (e.key === 'Tab' && onboardingModal && !onboardingModal.classList.contains('hidden')) {
+        const focusables = getFocusableElements(onboardingModal);
+        if (focusables.length === 0) return;
+        const firstFocusable = focusables[0];
+        const lastFocusable = focusables[focusables.length - 1];
+
+        if (e.shiftKey) {
+          if (document.activeElement === firstFocusable) {
+            lastFocusable.focus();
+            e.preventDefault();
+          }
+        } else {
+          if (document.activeElement === lastFocusable) {
+            firstFocusable.focus();
+            e.preventDefault();
+          }
+        }
+      }
+
+      // Focus trap for Tour Tooltip
+      const tourContainer = document.getElementById('tour-tooltip-container');
+      if (e.key === 'Tab' && tourContainer && !tourContainer.classList.contains('hidden')) {
+        const focusables = getFocusableElements(tourContainer);
+        if (focusables.length === 0) return;
+        const firstFocusable = focusables[0];
+        const lastFocusable = focusables[focusables.length - 1];
+
+        if (e.shiftKey) {
+          if (document.activeElement === firstFocusable) {
+            lastFocusable.focus();
+            e.preventDefault();
+          }
+        } else {
+          if (document.activeElement === lastFocusable) {
+            firstFocusable.focus();
+            e.preventDefault();
+          }
+        }
+      }
+    });
 
     // Document level clicks event delegation
     document.addEventListener('click', e => {

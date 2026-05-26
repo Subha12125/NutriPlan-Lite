@@ -98,11 +98,15 @@ select {
   padding: 0.78rem 0.86rem;
 }
 
+a:focus-visible,
+button:focus-visible,
 input:focus,
 select:focus,
-button:focus-visible {
-  outline: 2px solid rgba(56, 242, 166, 0.72);
-  outline-offset: 2px;
+[role="tab"]:focus-visible,
+[tabindex="0"]:focus-visible {
+  outline: 3px solid var(--green) !important;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 5px rgba(56, 242, 166, 0.28) !important;
 }
 
 input::placeholder {
