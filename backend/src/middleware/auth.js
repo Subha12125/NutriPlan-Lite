@@ -40,9 +40,11 @@ const protect = async (req, res, next) => {
       );
     }
 
-    // 3) Confirm that the user still exists in the database
+    // 3) Confirm that the user still exists and the token has not been revoked.
+    //    token_version is incremented on logout, so any token issued before the
+    //    last logout will carry a stale version and is rejected here.
     const userResult = await db.query(
-      'SELECT id, email FROM users WHERE id = $1',
+      'SELECT id, email, token_version FROM users WHERE id = $1',
       [decoded.id]
     );
 
@@ -52,8 +54,22 @@ const protect = async (req, res, next) => {
       );
     }
 
+    const currentUser = userResult.rows[0];
+
+    // Only enforce the version check if the token actually carries the field.
+    // Tokens issued before this migration was applied will not have it, so we
+    // allow them through once and they pick up a versioned token on next login.
+    if (
+      decoded.version !== undefined &&
+      decoded.version !== currentUser.token_version
+    ) {
+      return next(
+        new AppError('Your session has been revoked. Please log in again.', 401)
+      );
+    }
+
     // 4) Attach user object to request and proceed
-    req.user = userResult.rows[0];
+    req.user = currentUser;
     next();
   } catch (err) {
     next(err);
