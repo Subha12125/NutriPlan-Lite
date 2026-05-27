@@ -540,7 +540,7 @@
           <div class="footer-column footer-nav-col">
             <h4 class="footer-col-title">Resources</h4>
             <nav class="footer-links">
-              <a href="#" onclick="alert('Privacy Policy: All data is stored locally in your browser/device localStorage and is never transmitted to our servers.')">Privacy Policy</a>
+              <a href="#privacy" data-nav="privacy">Privacy Policy</a>
               <a href="https://github.com/Subha12125" target="_blank" rel="noopener">Github</a>
               <a href="#faq" data-nav="faq">FAQ & Support</a>
             </nav>
@@ -924,7 +924,7 @@
         <div class="footer-column footer-nav-col">
           <h4 class="footer-col-title">Resources</h4>
           <nav class="footer-links">
-            <a href="#" onclick="alert('Privacy Policy: All data is stored locally in your browser/device localStorage and is never transmitted to our servers.')">Privacy Policy</a>
+            <a href="#privacy" data-nav="privacy">Privacy Policy</a>
             <a href="https://github.com/Subha12125" target="_blank" rel="noopener">Github</a>
             <a href="#faq" data-nav="faq">FAQ & Support</a>
           </nav>
@@ -1033,7 +1033,7 @@
         <div class="footer-column footer-nav-col">
           <h4 class="footer-col-title">Resources</h4>
           <nav class="footer-links">
-            <a href="#" onclick="alert('Privacy Policy: All data is stored locally in your browser/device localStorage and is never transmitted to our servers.')">Privacy Policy</a>
+            <a href="#privacy" data-nav="privacy">Privacy Policy</a>            
             <a href="https://github.com/Subha12125" target="_blank" rel="noopener">Github</a>
             <a href="#faq" data-nav="faq">FAQ & Support</a>
           </nav>
@@ -1294,6 +1294,45 @@
           <div class="glass-panel" style="padding: 2rem; text-align: left;">
             <h3 style="margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;"><span style="font-size: 1.5rem;">🤖</span> How does the AI Coach work offline?</h3>
             <p style="color: var(--text-muted);">The AI Coach utilizes an API key that securely communicates directly from your browser to the AI service. It only sends the specific context you approve, keeping the rest of your data safely on your device.</p>
+          </div>
+
+        </div>
+      </section>
+      
+      <div class="footer-divider"></div>
+      
+      <footer class="landing-footer container">
+        <div class="footer-bottom" style="justify-content: center;">
+          <p class="muted">© 2026 NutriPlan Lite. All rights reserved. Built for a healthier tomorrow.</p>
+        </div>
+      </footer>
+    </div>
+  </template>
+
+  <template id="template-privacy">
+    <div class="landing-page">
+      <section class="container" style="padding-top: 8rem; padding-bottom: 4rem; min-height: 80vh;">
+        <div class="section-header text-center">
+          <p class="eyebrow">Trust & Transparency</p>
+          <h2>Privacy <span class="text-gradient">Policy</span></h2>
+          <p>Your data belongs to you. Here is how we ensure it stays that way.</p>
+        </div>
+
+        <div class="features-grid" style="grid-template-columns: 1fr; max-width: 800px; margin: 0 auto; gap: 1.5rem;">
+          
+          <div class="glass-panel" style="padding: 2rem; text-align: left;">
+            <h3 style="margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;"><span style="font-size: 1.5rem;">💾</span> Local Storage Only</h3>
+            <p style="color: var(--muted);">NutriPlan Lite is a local-first application. All your nutritional logs, goals, and physical metrics are stored securely within your device's browser using `localStorage`. We do not have servers to store or process your personal data.</p>
+          </div>
+
+          <div class="glass-panel" style="padding: 2rem; text-align: left;">
+            <h3 style="margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;"><span style="font-size: 1.5rem;">🚫</span> No Tracking or Telemetry</h3>
+            <p style="color: var(--muted);">We do not use tracking cookies, analytics scripts, or any third-party telemetry. Your usage patterns and daily habits remain completely private and unmonitored.</p>
+          </div>
+
+          <div class="glass-panel" style="padding: 2rem; text-align: left;">
+            <h3 style="margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;"><span style="font-size: 1.5rem;">🤖</span> AI Coach Privacy</h3>
+            <p style="color: var(--muted);">If you use the AI Coach feature, only the specific context (like your current macros or food logs) that you explicitly approve is sent to the AI provider. No personally identifiable information is ever transmitted.</p>
           </div>
 
         </div>
