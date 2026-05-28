@@ -207,3 +207,18 @@ window.Auth = (() => {
 document.addEventListener('DOMContentLoaded', () => {
   window.Auth.init();
 });
+
+// Password Visibility Toggle Logic
+document.addEventListener('DOMContentLoaded', () => {
+  const toggleBtn = document.getElementById('toggle-password-btn');
+  const passwordInput = document.getElementById('auth-password');
+
+  if (toggleBtn && passwordInput) {
+    toggleBtn.addEventListener('click', () => {
+      const isPassword = passwordInput.getAttribute('type') === 'password';
+      passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
+      
+      toggleBtn.textContent = isPassword ? '🙈' : '👁️'; 
+    });
+  }
+});
