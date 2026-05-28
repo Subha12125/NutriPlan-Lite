@@ -7,7 +7,8 @@ window.Navigation = {
     'landing': 'pages/landing.html',
     'dashboard': 'pages/dashboard.html',
     'ai-helper': 'pages/ai-helper.html',
-    'faq': 'pages/faq.html'
+    'faq': 'pages/faq.html',
+    'privacy': 'pages/privacy.html'
   },
   
   currentPage: null,
