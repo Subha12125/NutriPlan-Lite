@@ -1,6 +1,12 @@
 import crypto from "node:crypto";
 
-const SESSION_SECRET = process.env.MEMACT_SESSION_SECRET || process.env.MEMACT_API_KEY || "nutriplan-dev-session";
+const SESSION_SECRET = process.env.MEMACT_SESSION_SECRET || process.env.MEMACT_API_KEY;
+if (!SESSION_SECRET) {
+  throw new Error(
+    "MEMACT_SESSION_SECRET (or MEMACT_API_KEY) must be set. " +
+    "Refusing to start with a hardcoded fallback secret."
+  );
+}
 const STATE_TTL_MS = Number(process.env.MEMACT_STATE_TTL_MS || 10 * 60 * 1000);
 const MEMACT_TIMEOUT_MS = Number(process.env.MEMACT_TIMEOUT_MS || 8000);
 

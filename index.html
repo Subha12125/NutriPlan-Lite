@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <!-- Theme Init (Prevents FOUC) -->
   <script>
     (function() {
       const savedTheme = localStorage.getItem('nutriplan-theme');
@@ -21,48 +20,14 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
-  <!-- Styles -->
-  <link rel="stylesheet" href="styles/base.css">
-  <link rel="stylesheet" href="styles/dashboard.css">
-  <link rel="stylesheet" href="styles/tracker.css">
-  <link rel="stylesheet" href="styles/hydration.css">
-  <link rel="stylesheet" href="styles/ai-panel.css">
-  <link rel="stylesheet" href="styles/animations.css">
-  <link rel="stylesheet" href="styles/responsive.css">
-  <link rel="stylesheet" href="styles/components.css">
-  <link rel="stylesheet" href="styles/landing.css">
-  <link rel="stylesheet" href="styles/ai.css">
-  <link rel="stylesheet" href="styles/memact.css">
-  <link rel="stylesheet" href="styles/charts-dashboard.css">
   
-  <!-- GSAP & ScrollTrigger -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js" defer></script>
-  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
-  <!-- html2canvas & jsPDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
   
-  <!-- Scripts (load order matters) -->
-  <script src="scripts/theme.js" defer></script>
-  <script src="scripts/api.js" defer></script>
-  <script src="scripts/session.js" defer></script>
-  <script src="scripts/db.js" defer></script>
-  <script src="scripts/storage.js" defer></script>
-  <script src="scripts/sync.js" defer></script>
-  <script src="scripts/auth.js" defer></script>
-  <script src="scripts/analytics.js" defer></script>
-  <script src="scripts/reports.js" defer></script>
-  <script src="scripts/onboarding.js" defer></script>
-  <script src="scripts/tracker.js" defer></script>
-  <script src="scripts/hydration.js" defer></script>
-  <script src="scripts/dashboard.js" defer></script>
-  <script src="scripts/ai.js" defer></script>
-  <script src="scripts/memact.js" defer></script>
-  <script src="scripts/navigation.js" defer></script>
-  <script src="scripts/app.js" defer></script>
-  <script type="module" src="scripts/animations/index.js"></script>
+  <script type="module" src="/script.js"></script>
 </head>
 <body>
   <!-- Toast container -->
@@ -122,6 +87,7 @@
         <div id="auth-status-container" class="auth-status-container"></div>
         <button id="btn-replay-tour" class="icon-button" type="button" aria-label="Onboarding Tour" title="Start interactive tour">❓</button>
         <button id="theme-toggle" class="icon-button" type="button" aria-label="Toggle theme" title="Toggle theme">☀️</button>
+        <button class="icon-button mobile-menu-btn app-header-menu-btn" type="button" aria-label="Open menu">☰</button>
       </div>
     </header>
 
@@ -456,6 +422,11 @@
             <h3>AI Nutrition Coach</h3>
             <p>Your personal 24/7 nutrition guide. Receive tailored recipes, wellness feedback, and action suggestions instantly.</p>
           </div>
+          <div class="feature-card glass-panel card-bmi">
+            <div class="feature-icon">📊</div>
+            <h3>BMI Calculator</h3>
+            <p>Quickly assess your body mass index with our accurate calculator and receive personalized health insights.</p>
+          </div>
           <div class="feature-card glass-panel card-goals">
             <div class="feature-icon">🏆</div>
             <h3>Goal Tracking</h3>
@@ -540,9 +511,9 @@
           <div class="footer-column footer-nav-col">
             <h4 class="footer-col-title">Resources</h4>
             <nav class="footer-links">
-              <a href="#" onclick="alert('Privacy Policy: All data is stored locally in your browser/device localStorage and is never transmitted to our servers.')">Privacy Policy</a>
+              <a href="#privacy" data-nav="privacy">Privacy Policy</a>
               <a href="https://github.com/Subha12125" target="_blank" rel="noopener">Github</a>
-              <a href="#" onclick="alert('NutriPlan Lite is a local-first web app. No account setup or billing needed.')">FAQ & Support</a>
+              <a href="#faq" data-nav="faq">FAQ & Support</a>
             </nav>
           </div>
 
@@ -924,9 +895,9 @@
         <div class="footer-column footer-nav-col">
           <h4 class="footer-col-title">Resources</h4>
           <nav class="footer-links">
-            <a href="#" onclick="alert('Privacy Policy: All data is stored locally in your browser/device localStorage and is never transmitted to our servers.')">Privacy Policy</a>
+            <a href="#privacy" data-nav="privacy">Privacy Policy</a>
             <a href="https://github.com/Subha12125" target="_blank" rel="noopener">Github</a>
-            <a href="#" onclick="alert('NutriPlan Lite is a local-first web app. No account setup or billing needed.')">FAQ & Support</a>
+            <a href="#faq" data-nav="faq">FAQ & Support</a>
           </nav>
         </div>
 
@@ -1033,9 +1004,9 @@
         <div class="footer-column footer-nav-col">
           <h4 class="footer-col-title">Resources</h4>
           <nav class="footer-links">
-            <a href="#" onclick="alert('Privacy Policy: All data is stored locally in your browser/device localStorage and is never transmitted to our servers.')">Privacy Policy</a>
+            <a href="#privacy" data-nav="privacy">Privacy Policy</a>            
             <a href="https://github.com/Subha12125" target="_blank" rel="noopener">Github</a>
-            <a href="#" onclick="alert('NutriPlan Lite is a local-first web app. No account setup or billing needed.')">FAQ & Support</a>
+            <a href="#faq" data-nav="faq">FAQ & Support</a>
           </nav>
         </div>
 
@@ -1265,5 +1236,91 @@
     </div>
   </div>
 
+  <template id="template-faq">
+    <div class="landing-page">
+      <section class="container" style="padding-top: 8rem; padding-bottom: 4rem; min-height: 80vh;">
+        <div class="section-header text-center">
+          <p class="eyebrow">Support & Help</p>
+          <h2>Frequently Asked <span class="text-gradient">Questions</span></h2>
+          <p>Everything you need to know about NutriPlan Lite and your privacy.</p>
+        </div>
+
+        <div class="features-grid" style="grid-template-columns: 1fr; max-width: 800px; margin: 0 auto; gap: 1.5rem;">
+          
+          <div class="glass-panel" style="padding: 2rem; text-align: left;">
+            <h3 style="margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;"><span style="font-size: 1.5rem;">⚡</span> Do I need to create an account?</h3>
+            <p style="color: var(--text-muted);">No, NutriPlan Lite is a completely local-first web app. There is no account setup, and no billing is required. You can start tracking your health immediately.</p>
+          </div>
+
+          <div class="glass-panel" style="padding: 2rem; text-align: left;">
+            <h3 style="margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;"><span style="font-size: 1.5rem;">🛡️</span> Where is my data stored?</h3>
+            <p style="color: var(--text-muted);">Your privacy is our highest priority. All your logs, fitness metrics, and preferences are stored securely in your device's browser (Local Storage). We never transmit or sell your personal data to external servers.</p>
+          </div>
+
+          <div class="glass-panel" style="padding: 2rem; text-align: left;">
+            <h3 style="margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;"><span style="font-size: 1.5rem;">💰</span> Is there a premium or paid version?</h3>
+            <p style="color: var(--text-muted);">NutriPlan Lite is 100% free and open-source. There are no paywalls, hidden fees, or premium subscriptions.</p>
+          </div>
+
+          <div class="glass-panel" style="padding: 2rem; text-align: left;">
+            <h3 style="margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;"><span style="font-size: 1.5rem;">🤖</span> How does the AI Coach work offline?</h3>
+            <p style="color: var(--text-muted);">The AI Coach utilizes an API key that securely communicates directly from your browser to the AI service. It only sends the specific context you approve, keeping the rest of your data safely on your device.</p>
+          </div>
+
+        </div>
+      </section>
+      
+      <div class="footer-divider"></div>
+      
+      <footer class="landing-footer container">
+        <div class="footer-bottom" style="justify-content: center;">
+          <p class="muted">© 2026 NutriPlan Lite. All rights reserved. Built for a healthier tomorrow.</p>
+        </div>
+      </footer>
+    </div>
+  </template>
+<div class="custom-cursor-dot" id="cursorDot"></div>
+<div class="custom-cursor-outline" id="cursorOutline"></div>
+
+  <template id="template-privacy">
+    <div class="landing-page">
+      <section class="container" style="padding-top: 8rem; padding-bottom: 4rem; min-height: 80vh;">
+        <div class="section-header text-center">
+          <p class="eyebrow">Trust & Transparency</p>
+          <h2>Privacy <span class="text-gradient">Policy</span></h2>
+          <p>Your data belongs to you. Here is how we ensure it stays that way.</p>
+        </div>
+
+        <div class="features-grid" style="grid-template-columns: 1fr; max-width: 800px; margin: 0 auto; gap: 1.5rem;">
+          
+          <div class="glass-panel" style="padding: 2rem; text-align: left;">
+            <h3 style="margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;"><span style="font-size: 1.5rem;">💾</span> Local Storage Only</h3>
+            <p style="color: var(--muted);">NutriPlan Lite is a local-first application. All your nutritional logs, goals, and physical metrics are stored securely within your device's browser using `localStorage`. We do not have servers to store or process your personal data.</p>
+          </div>
+
+          <div class="glass-panel" style="padding: 2rem; text-align: left;">
+            <h3 style="margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;"><span style="font-size: 1.5rem;">🚫</span> No Tracking or Telemetry</h3>
+            <p style="color: var(--muted);">We do not use tracking cookies, analytics scripts, or any third-party telemetry. Your usage patterns and daily habits remain completely private and unmonitored.</p>
+          </div>
+
+          <div class="glass-panel" style="padding: 2rem; text-align: left;">
+            <h3 style="margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;"><span style="font-size: 1.5rem;">🤖</span> AI Coach Privacy</h3>
+            <p style="color: var(--muted);">If you use the AI Coach feature, only the specific context (like your current macros or food logs) that you explicitly approve is sent to the AI provider. No personally identifiable information is ever transmitted.</p>
+          </div>
+
+        </div>
+      </section>
+      
+      <div class="footer-divider"></div>
+      
+      <footer class="landing-footer container">
+        <div class="footer-bottom" style="justify-content: center;">
+          <p class="muted">© 2026 NutriPlan Lite. All rights reserved. Built for a healthier tomorrow.</p>
+        </div>
+      </footer>
+    </div>
+  </template>
+
+<script src="scripts/ui.js"></script>
 </body>
 </html>

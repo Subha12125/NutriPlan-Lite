@@ -113,6 +113,9 @@ const validateFoodLog = (req, res, next) => {
     if (!food_name || typeof food_name !== 'string' || food_name.trim() === '') {
       return next(new AppError('Food name is required and must be a valid string.', 400));
     }
+    if (food_name.trim().length > 255) {
+      return next(new AppError('Food name must not exceed 255 characters.', 400));
+    }
   }
 
   if (isPost || quantity_grams !== undefined) {
@@ -153,6 +156,9 @@ const validateFoodLog = (req, res, next) => {
   if (isPost || meal_type !== undefined) {
     if (!meal_type || typeof meal_type !== 'string' || meal_type.trim() === '') {
       return next(new AppError('Meal type must be a valid string.', 400));
+    }
+    if (meal_type.trim().length > 20) {
+      return next(new AppError('Meal type must not exceed 20 characters.', 400));
     }
   }
 
