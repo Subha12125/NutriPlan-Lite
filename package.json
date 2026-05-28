@@ -7,8 +7,26 @@
     "node": ">=20"
   },
   "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
     "check": "node scripts/check.mjs",
     "start": "npx serve ."
   },
-  "description": "Local-first fitness nutrition planner with optional Memact fitness context integration."
+  "description": "Local-first fitness nutrition planner with optional Memact fitness context integration.",
+  "main": "script.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/priyanshu-1010101/NutriPlan-Lite.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/priyanshu-1010101/NutriPlan-Lite/issues"
+  },
+  "homepage": "https://github.com/priyanshu-1010101/NutriPlan-Lite#readme",
+  "devDependencies": {
+    "vite": "^8.0.14"
+  }
 }

@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <!-- Theme Init (Prevents FOUC) -->
   <script>
     (function() {
       const savedTheme = localStorage.getItem('nutriplan-theme');
@@ -21,48 +20,14 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
-  <!-- Styles -->
-  <link rel="stylesheet" href="styles/base.css">
-  <link rel="stylesheet" href="styles/dashboard.css">
-  <link rel="stylesheet" href="styles/tracker.css">
-  <link rel="stylesheet" href="styles/hydration.css">
-  <link rel="stylesheet" href="styles/ai-panel.css">
-  <link rel="stylesheet" href="styles/animations.css">
-  <link rel="stylesheet" href="styles/responsive.css">
-  <link rel="stylesheet" href="styles/components.css">
-  <link rel="stylesheet" href="styles/landing.css">
-  <link rel="stylesheet" href="styles/ai.css">
-  <link rel="stylesheet" href="styles/memact.css">
-  <link rel="stylesheet" href="styles/charts-dashboard.css">
   
-  <!-- GSAP & ScrollTrigger -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js" defer></script>
-  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
-  <!-- html2canvas & jsPDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
   
-  <!-- Scripts (load order matters) -->
-  <script src="scripts/theme.js" defer></script>
-  <script src="scripts/api.js" defer></script>
-  <script src="scripts/session.js" defer></script>
-  <script src="scripts/db.js" defer></script>
-  <script src="scripts/storage.js" defer></script>
-  <script src="scripts/sync.js" defer></script>
-  <script src="scripts/auth.js" defer></script>
-  <script src="scripts/analytics.js" defer></script>
-  <script src="scripts/reports.js" defer></script>
-  <script src="scripts/onboarding.js" defer></script>
-  <script src="scripts/tracker.js" defer></script>
-  <script src="scripts/hydration.js" defer></script>
-  <script src="scripts/dashboard.js" defer></script>
-  <script src="scripts/ai.js" defer></script>
-  <script src="scripts/memact.js" defer></script>
-  <script src="scripts/navigation.js" defer></script>
-  <script src="scripts/app.js" defer></script>
-  <script type="module" src="scripts/animations/index.js"></script>
+  <script type="module" src="/script.js"></script>
 </head>
 <body>
   <!-- Toast container -->
@@ -1312,6 +1277,5 @@
 <div class="custom-cursor-dot" id="cursorDot"></div>
 <div class="custom-cursor-outline" id="cursorOutline"></div>
 
-<script src="scripts/ui.js"></script>
 </body>
 </html>
