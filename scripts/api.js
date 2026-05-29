@@ -116,6 +116,15 @@ export const auth = {
   register(email, password) {
     return post('/auth/register', { email, password });
   },
+  /**
+   * POST /auth/logout (requires token)
+   * Increments token_version on the backend so all existing JWTs for this
+   * user are immediately invalidated, even those held by other sessions.
+   * @returns {Promise<{status: string, message: string}>}
+   */
+  logout() {
+    return post('/auth/logout', {});
+  },
   profile() {
     return get('/auth/profile');
   }
