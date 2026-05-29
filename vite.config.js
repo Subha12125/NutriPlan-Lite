@@ -1,14 +1,15 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  server: {
-    port: 3000,
-    open: true
-  },
+  root: './',
   build: {
     outDir: 'dist',
-    assetsDir: 'assets',
-    minify: 'terser',
-    emptyOutDir: true
+    emptyOutDir: true,
+    cssCodeSplit: false, // Saari 12+ CSS files ko ek jagah bundle karega
+    sourcemap: true
+  },
+  server: {
+    port: 3000,
+    open: true // Command chalate hi browser apne aap open ho jayega
   }
 });
