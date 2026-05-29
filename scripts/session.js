@@ -34,9 +34,41 @@ window.Session = (() => {
 
   // ── Authentication state ────────────────────────────────────────
 
-  /** True when a JWT is present in storage. */
+  /**
+   * True when a valid, non-expired JWT is present in storage.
+   *
+   * The check decodes the token payload (without verifying the signature,
+   * which is a server-side concern) and compares the exp claim against the
+   * current time. If the token is expired the stored credentials are cleared
+   * immediately so the app does not keep presenting protected UI and
+   * generating 401 errors until the user manually signs out.
+   */
   function isAuthenticated() {
-    return !!getToken();
+    const token = getToken();
+    if (!token) return false;
+
+    try {
+      // JWT payload is the second dot-delimited segment, base64url-encoded.
+      const payloadBase64 = token.split('.')[1];
+      if (!payloadBase64) return false;
+
+      // base64url uses - and _ instead of + and /; atob requires standard base64.
+      const jsonStr = atob(payloadBase64.replace(/-/g, '+').replace(/_/g, '/'));
+      const payload = JSON.parse(jsonStr);
+
+      if (payload.exp && Math.floor(Date.now() / 1000) >= payload.exp) {
+        // Token is expired: wipe stored credentials so the UI resets to
+        // guest/demo mode rather than silently generating 401 errors.
+        clear();
+        return false;
+      }
+
+      return true;
+    } catch {
+      // Malformed token: treat as unauthenticated and clean up.
+      clear();
+      return false;
+    }
   }
 
   /** Returns the decoded email from storage (not from JWT payload). */
