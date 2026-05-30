@@ -1,3 +1,13 @@
+<!-- Add at top of dashboard -->
+<div class="gamification-banner">
+    <div class="daily-affirmation" id="dailyAffirmation"></div>
+    <div class="points-display">
+        <span class="points-icon">⭐</span>
+        <span id="totalPoints">0</span> Points
+    </div>
+    <div class="badges-container" id="badgesContainer"></div>
+</div>
+
 <div class="dashboard-layout">
   <!-- Hero Panel -->
   <section class="hero-panel glass-panel">
@@ -103,7 +113,44 @@
       </div>
     </article>
   </section>
+  <!-- Add new tab or section -->
+<div class="sleep-tracker-section">
+    <h2>Sleep Tracking</h2>
+    
+    <div class="sleep-input-form">
+        <label>Sleep Duration (hours)</label>
+        <input type="number" id="sleepDuration" min="0" max="24" step="0.5" value="8">
+        
+        <label>Sleep Quality</label>
+        <select id="sleepQuality">
+            <option value="poor">Poor</option>
+            <option value="average" selected>Average</option>
+            <option value="good">Good</option>
+        </select>
+        
+        <label>Bedtime</label>
+        <input type="time" id="bedtime" value="22:00">
+        
+        <label>Wake Time</label>
+        <input type="time" id="wakeTime" value="06:00">
+        
+        <button onclick="logSleep()">Log Sleep</button>
+    </div>
+    
+    <div class="sleep-chart" id="sleepChart"></div>
+    
+    <div class="sleep-insights" id="sleepInsights">
+        <!-- Correlation insights will appear here -->
+    </div>
+</div>
 
+  
+<div class="bmi-card glass-card">
+    <h3>Your BMI</h3>
+    <div class="bmi-value" id="bmiValue">--</div>
+    <div class="bmi-category" id="bmiCategory">--</div>
+    <div class="bmi-recommendations" id="bmiRecommendations"></div>
+</div>
   <!-- ── Main tracker column ─────────────────────────────── -->
   <section id="meals" class="tracker-column">
     <div class="section-heading">

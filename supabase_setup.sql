@@ -44,10 +44,24 @@ CREATE TABLE IF NOT EXISTS public.water_logs (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
+-- Add this new table 
+CREATE TABLE IF NOT EXISTS public.sleep_logs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES auth.users(id) NOT NULL,
+    log_date DATE NOT NULL DEFAULT CURRENT_DATE,
+    sleep_duration_hours NUMERIC NOT NULL DEFAULT 0,
+    sleep_quality VARCHAR(20) DEFAULT 'average', -- 'poor', 'average', 'good'
+    bedtime TIME,
+    wake_time TIME,
+    notes TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- 4. Enable Row Level Security (RLS) on all tables
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.food_logs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.water_logs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.sleep_logs ENABLE ROW LEVEL SECURITY;
 
 -- 5. Define RLS Policies for Profiles
 CREATE POLICY "Users can view their own profile" 
@@ -95,6 +109,17 @@ CREATE POLICY "Users can update their own water logs"
 CREATE POLICY "Users can delete their own water logs" 
     ON public.water_logs FOR DELETE 
     USING (auth.uid() = user_id);
+
+-- RLS Policies for Sleep Logs
+ALTER TABLE public.sleep_logs ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can view own sleep logs"
+    ON public.sleep_logs FOR SELECT
+    USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert own sleep logs"
+    ON public.sleep_logs FOR INSERT
+    WITH CHECK (auth.uid() = user_id);
 
 -- 8. Trigger to Automatically Create Profile Row on User Sign Up
 CREATE OR REPLACE FUNCTION public.handle_new_user()

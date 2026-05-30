@@ -1,0 +1,23 @@
+.sleep-tracker-section {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: var(--glass-bg);
+    border-radius: var(--border-radius);
+}
+
+.sleep-input-form {
+    display: grid;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.sleep-chart {
+    height: 300px;
+    margin-bottom: 2rem;
+}
+
+.sleep-insights {
+    padding: 1rem;
+    background: var(--secondary-bg);
+    border-left: 4px solid var(--primary-color);
+}

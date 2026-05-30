@@ -444,6 +444,21 @@ window.Dashboard = (() => {
   return { computeTargets, refresh, initProfilePanel };
 })();
 
+function calculateBMI(weight, height) {
+    const heightInMeters = height / 100;
+    const bmi = weight / (heightInMeters * heightInMeters);
+    return {
+        value: bmi.toFixed(1),
+        category: getBMICategory(bmi)
+    };
+}
+
+function getBMICategory(bmi) {
+    if (bmi < 18.5) return 'Underweight';
+    if (bmi < 25) return 'Normal';
+    if (bmi < 30) return 'Overweight';
+    return 'Obese';
+}
 document.addEventListener('themeChanged', () => {
   if (window.Dashboard && window.Tracker && window.Tracker.currentDate) {
     window.Dashboard.refresh();
