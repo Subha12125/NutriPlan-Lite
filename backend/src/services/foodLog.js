@@ -28,6 +28,14 @@ const getFoodLogsByUserId = async (userId, date = null) => {
  * Creates a new food log entry.
  */
 const createFoodLogEntry = async (userId, logData) => {
+  // Explicitly reject any caller-supplied id. Accepting a client-provided
+  // primary key allows force-inserting records with arbitrary UUIDs, enabling
+  // collisions with existing entries or reservation of future IDs. The
+  // database generates the id; callers must never supply one.
+  if (logData.id !== undefined) {
+    throw new AppError('The id field cannot be supplied by the caller.', 400);
+  }
+
   const {
     food_name,
     quantity_grams,
