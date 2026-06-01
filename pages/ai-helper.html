@@ -26,8 +26,12 @@
       <button class="prompt-btn">Give me a health tip</button>
     </div>
 
-    <form class="ai-chat-input-area" id="main-ai-form">
-          <input type="text" id="main-ai-input" placeholder="Ask about meals, macros, or hydration..." autocomplete="off">
+    <form class="ai-chat-input-area" id="main-ai-form" style="display: flex; gap: 0.5rem; align-items: center;">
+      <button type="button" id="voice-input-btn" class="icon-button mic-btn" aria-label="Start voice input" title="Voice Input" style="font-size: 1.2rem; background: transparent; border: none; cursor: pointer; transition: transform 0.2s;">
+        🎤
+      </button>
+      
+      <input type="text" id="main-ai-input" placeholder="Ask about meals, macros, or hydration..." autocomplete="off" style="flex: 1;">
       <button type="submit" class="primary-button send-btn" aria-label="Send message">↑</button>
     </form>
   </div>

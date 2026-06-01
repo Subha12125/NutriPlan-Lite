@@ -218,11 +218,67 @@ window.AI = (() => {
     const form = document.getElementById('main-ai-form');
     const input = document.getElementById('main-ai-input');
     const clearBtn = document.getElementById('clear-ai-chat');
+    const micBtn = document.getElementById('voice-input-btn');
     
     if (!form || !feed) return; 
 
     if (form.dataset.initialized) return;
     form.dataset.initialized = 'true';
+
+    // VOICE-TO-TEXT IMPLEMENTATION (Web Speech API)
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    
+    if (!SpeechRecognition && micBtn) {
+      micBtn.style.display = 'none'; // Hide mic if browser doesn't support it
+      micBtn.title = "Voice input not supported in this browser";
+    } else if (micBtn) {
+      const recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.lang = 'en-US';
+
+      micBtn.addEventListener('click', () => {
+        try {
+          recognition.start();
+        } catch (e) {
+          console.error("Speech recognition already started or failed", e);
+        }
+      });
+
+      recognition.onstart = () => {
+        micBtn.textContent = '🔴'; // Change icon to indicate recording
+        micBtn.style.transform = 'scale(1.2)';
+        if (input) input.placeholder = "Listening...";
+      };
+
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        if (input) input.value = transcript;
+      };
+
+      recognition.onend = () => {
+        micBtn.textContent = '🎤';
+        micBtn.style.transform = 'scale(1)';
+        if (input) input.placeholder = "Ask about meals, macros, or hydration...";
+        
+        // Auto-submit form if text was transcribed
+        if (input && input.value.trim() !== '') {
+          form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+        }
+      };
+
+      recognition.onerror = (event) => {
+        console.error("Speech recognition error:", event.error);
+        micBtn.textContent = '🎤';
+        micBtn.style.transform = 'scale(1)';
+        if (input) input.placeholder = "Ask about meals, macros, or hydration...";
+        
+        if (event.error === 'not-allowed') {
+          alert("Microphone access denied. Please allow mic permissions in your browser.");
+        }
+      };
+    }
+    // ------------------------------------------------------------
 
     if (clearBtn) {
       clearBtn.addEventListener('click', () => {
