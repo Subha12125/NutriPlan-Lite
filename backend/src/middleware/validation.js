@@ -225,6 +225,13 @@ const validateWaterLog = (req, res, next) => {
     return next(new AppError('Amount in ml must be a positive integer.', 400));
   }
 
+  // Upper bound: a single water intake event cannot exceed 2,000 ml (2 L).
+  // Values above this are physiologically impossible for a single drink and
+  // indicate a data entry error or an attempt to corrupt daily totals.
+  if (asNumber > 2000) {
+    return next(new AppError('Amount in ml cannot exceed 2,000 ml per entry.', 400));
+  }
+
   if (log_date !== undefined && log_date !== null && !dateRegex.test(log_date)) {
     return next(new AppError('Log date must be in YYYY-MM-DD format.', 400));
   }
