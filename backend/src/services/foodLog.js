@@ -4,21 +4,32 @@ const { AppError } = require('../middleware/error');
 
 /**
  * Retrieves food log entries for a user, optionally filtered by log_date.
+ * When no date is provided, pagination is applied to prevent returning unbounded result sets.
+ * When a date is provided, all entries for that date are returned (expected to be manageable).
  */
-const getFoodLogsByUserId = async (userId, date = null) => {
+const getFoodLogsByUserId = async (userId, date = null, page = 1, limit = 50) => {
+  const offset = (page - 1) * limit;
   let queryText = `
-    SELECT id, user_id, log_date, food_name, quantity_grams, calories, protein, carbs, fat, meal_type, created_at 
-    FROM food_logs 
+    SELECT id, user_id, log_date, food_name, quantity_grams, calories, protein, carbs, fat, meal_type, created_at
+    FROM food_logs
     WHERE user_id = $1
   `;
   const queryParams = [userId];
+  let paramIndex = 2;
 
   if (date) {
-    queryText += ' AND log_date = $2';
+    queryText += ` AND log_date = $${paramIndex}`;
     queryParams.push(date);
+    paramIndex++;
   }
 
   queryText += ' ORDER BY created_at DESC';
+
+  // Apply LIMIT/OFFSET only when no date filter is provided
+  if (!date) {
+    queryText += ` LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`;
+    queryParams.push(limit, offset);
+  }
 
   const result = await db.query(queryText, queryParams);
   return result.rows;

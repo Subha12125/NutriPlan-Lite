@@ -18,16 +18,35 @@ function handleUnexpectedError(err, context, next) {
 
 /**
  * GET /api/v1/food-logs
- * Retrieves the user's food logs, with optional date filtering.
+ * Retrieves the user's food logs, with optional date filtering and pagination.
+ * Query parameters:
+ *   - date: (optional) Filter logs to a specific date (YYYY-MM-DD format)
+ *   - page: (optional, default: 1) Pagination page number
+ *   - limit: (optional, default: 50) Maximum number of records per page
  */
 const getFoodLogs = async (req, res, next) => {
   try {
     const { date } = req.query;
-    const foodLogs = await foodLogService.getFoodLogsByUserId(req.user.id, date);
+    let { page, limit } = req.query;
+
+    // Parse and validate pagination parameters
+    page = Math.max(1, parseInt(page) || 1);
+    limit = Math.max(1, Math.min(100, parseInt(limit) || 50)); // Cap limit at 100
+
+    const foodLogs = await foodLogService.getFoodLogsByUserId(
+      req.user.id,
+      date,
+      page,
+      limit
+    );
 
     res.status(200).json({
       status: 'success',
       results: foodLogs.length,
+      pagination: {
+        page,
+        limit
+      },
       data: {
         foodLogs
       }
