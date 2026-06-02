@@ -68,8 +68,14 @@ window.Auth = (() => {
       closeModal();
       renderAuthWidgets();
 
-      // Full sync from server then refresh UI
-      await Storage.sync();
+      // Push offline data to cloud FIRST
+      if (window.Storage && window.Storage.syncLocalToCloud) {
+        await window.Storage.syncLocalToCloud();
+      } else {
+        // Fallback Full sync from server
+        await Storage.sync();
+      }
+
       if (window.App) window.App.refresh();
 
     } catch (err) {
@@ -93,7 +99,14 @@ window.Auth = (() => {
       closeModal();
       renderAuthWidgets();
 
-      await Storage.sync();
+      // Push offline data to cloud FIRST
+      if (window.Storage && window.Storage.syncLocalToCloud) {
+        await window.Storage.syncLocalToCloud();
+      } else {
+        // Fallback Full sync from server
+        await Storage.sync();
+      }
+      
       if (window.App) window.App.refresh();
 
     } catch (err) {
@@ -103,7 +116,7 @@ window.Auth = (() => {
       _setSubmitLoading(false, 'Register');
     }
   }
-
+  
   async function logout() {
     // Notify the backend first so it increments token_version, instantly
     // invalidating every outstanding JWT for this user (including copies
