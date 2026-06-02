@@ -15,14 +15,22 @@ const getProfileByUserId = async (userId) => {
 };
 
 /**
- * Creates default profile linked to a user.
+ * Creates an empty profile row linked to a user.
+ * All demographic fields (age, weight, height, gender, activity_level) are left
+ * NULL so calorie and macro calculations are not performed until the user
+ * explicitly provides their own values via PATCH /api/v1/profile.
+ *
+ * A modest default water_target of 2,500 ml is set as a starting point
+ * because the UI renders a progress bar on first login; NULL would produce
+ * a divide-by-zero in the frontend. Users can update this at any time.
+ *
  * Supports passing a database client for running inside PostgreSQL transaction blocks.
  */
 const createDefaultProfile = async (userId, dbClient = null) => {
   const executor = dbClient || db;
   const result = await executor.query(
-    `INSERT INTO profiles (user_id, age, weight, height, gender, activity_level, water_target) 
-     VALUES ($1, 25, 70, 175, 'male', 1.2, 2500) 
+    `INSERT INTO profiles (user_id, water_target)
+     VALUES ($1, 2500)
      RETURNING *`,
     [userId]
   );
