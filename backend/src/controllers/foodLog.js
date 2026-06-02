@@ -2,6 +2,8 @@ const foodLogService = require('../services/foodLog');
 const logger = require('../config/logger');
 const { AppError } = require('../middleware/error');
 
+const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
+
 /**
  * Formats an unexpected service/DB error for the client without leaking internals.
  * Logs the full error server-side.
@@ -23,6 +25,11 @@ function handleUnexpectedError(err, context, next) {
 const getFoodLogs = async (req, res, next) => {
   try {
     const { date } = req.query;
+
+    if (date !== undefined && !DATE_REGEX.test(date)) {
+      return next(new AppError('date query parameter must be in YYYY-MM-DD format.', 400));
+    }
+
     const foodLogs = await foodLogService.getFoodLogsByUserId(req.user.id, date);
 
     res.status(200).json({
