@@ -2,34 +2,51 @@ const db = require('../config/db');
 const { AppError } = require('../middleware/error');
 
 
-/**
- * Retrieves food log entries for a user, optionally filtered by log_date.
- */
-// Maximum number of food log rows returned in a single query.
-// Without a LIMIT the query performs a full user-partition scan and
-// loads all historical records into memory, making response time and
-// memory usage proportional to the total number of entries ever logged
-// by the user. For date-filtered requests the date index bounds the
-// scan anyway, so LIMIT adds negligible overhead there.
-const FOOD_LOG_MAX_ROWS = 500;
+const FOOD_LOG_DEFAULT_LIMIT = 50;
+const FOOD_LOG_MAX_LIMIT = 200;
 
-const getFoodLogsByUserId = async (userId, date = null) => {
-  let queryText = `
+/**
+ * Retrieves food log entries for a user with optional date filter and pagination.
+ *
+ * When a date filter is supplied the daily count is inherently bounded so
+ * pagination is skipped and all matching rows are returned.
+ *
+ * When no date is supplied, page and limit control the result window.
+ * Returns { rows, total } where total is the full count for the user/date
+ * partition (used by the caller to build pagination metadata).
+ */
+const getFoodLogsByUserId = async (userId, date = null, page = 1, limit = FOOD_LOG_DEFAULT_LIMIT) => {
+  const safeLimit = Math.min(Math.max(parseInt(limit, 10) || FOOD_LOG_DEFAULT_LIMIT, 1), FOOD_LOG_MAX_LIMIT);
+  const safePage = Math.max(parseInt(page, 10) || 1, 1);
+  const offset = (safePage - 1) * safeLimit;
+
+  const baseSelect = `
     SELECT id, user_id, log_date, food_name, quantity_grams, calories, protein, carbs, fat, meal_type, created_at
     FROM food_logs
     WHERE user_id = $1
   `;
+  const countSelect = `SELECT COUNT(*) FROM food_logs WHERE user_id = $1`;
   const queryParams = [userId];
 
   if (date) {
-    queryText += ' AND log_date = $2';
-    queryParams.push(date);
+    // Date-filtered: return all entries for that day without pagination.
+    const dataQuery = baseSelect + ' AND log_date = $2 ORDER BY created_at DESC';
+    const countQuery = countSelect + ' AND log_date = $2';
+    const [dataResult, countResult] = await Promise.all([
+      db.query(dataQuery, [userId, date]),
+      db.query(countQuery, [userId, date])
+    ]);
+    return { rows: dataResult.rows, total: parseInt(countResult.rows[0].count, 10) };
   }
 
-  queryText += ` ORDER BY created_at DESC LIMIT ${FOOD_LOG_MAX_ROWS}`;
-
-  const result = await db.query(queryText, queryParams);
-  return result.rows;
+  // No date filter: apply pagination.
+  const dataQuery = baseSelect + ` ORDER BY created_at DESC LIMIT $2 OFFSET $3`;
+  queryParams.push(safeLimit, offset);
+  const [dataResult, countResult] = await Promise.all([
+    db.query(dataQuery, queryParams),
+    db.query(countSelect, [userId])
+  ]);
+  return { rows: dataResult.rows, total: parseInt(countResult.rows[0].count, 10) };
 };
 
 /**

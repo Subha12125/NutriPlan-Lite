@@ -2,6 +2,8 @@ const foodLogService = require('../services/foodLog');
 const logger = require('../config/logger');
 const { AppError } = require('../middleware/error');
 
+const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
+
 /**
  * Formats an unexpected service/DB error for the client without leaking internals.
  * Logs the full error server-side.
@@ -18,15 +20,39 @@ function handleUnexpectedError(err, context, next) {
 
 /**
  * GET /api/v1/food-logs
- * Retrieves the user's food logs, with optional date filtering.
+ * Retrieves the user's food logs with optional date filter and pagination.
+ *
+ * Query parameters:
+ *   date  (optional) YYYY-MM-DD  - return all entries for a specific day
+ *   page  (optional) integer     - page number, default 1
+ *   limit (optional) integer     - entries per page, default 50, max 200
+ *
+ * When date is provided pagination is omitted; all entries for that day
+ * are returned since the daily count is inherently bounded.
  */
 const getFoodLogs = async (req, res, next) => {
   try {
-    const { date } = req.query;
-    const foodLogs = await foodLogService.getFoodLogsByUserId(req.user.id, date);
+    const { date, page, limit } = req.query;
+
+    if (date !== undefined && !DATE_REGEX.test(date)) {
+      return next(new AppError('date query parameter must be in YYYY-MM-DD format.', 400));
+    }
+
+    const pageNum = Math.max(parseInt(page, 10) || 1, 1);
+    const limitNum = Math.min(Math.max(parseInt(limit, 10) || 50, 1), 200);
+
+    const { rows: foodLogs, total } = await foodLogService.getFoodLogsByUserId(
+      req.user.id,
+      date,
+      pageNum,
+      limitNum
+    );
 
     res.status(200).json({
       status: 'success',
+      total,
+      page: date ? null : pageNum,
+      limit: date ? null : limitNum,
       results: foodLogs.length,
       data: {
         foodLogs
