@@ -16,6 +16,16 @@ const validateRegister = (req, res, next) => {
     return next(new AppError('Password must be at least 6 characters long.', 400));
   }
 
+  // bcrypt silently truncates passwords longer than 72 bytes. Accepting
+  // arbitrarily long passwords does not increase security (anything beyond
+  // 72 characters is ignored) but enables CPU-amplified DoS attacks because
+  // bcrypt work factor scales with rounds, not input length up to 72 bytes.
+  // Requests with passwords exceeding 72 characters waste server CPU and
+  // can be submitted in rapid succession to exhaust the thread pool.
+  if (password.length > 72) {
+    return next(new AppError('Password must not exceed 72 characters.', 400));
+  }
+
   next();
 };
 
