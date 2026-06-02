@@ -2,6 +2,9 @@ const { AppError } = require('./error');
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+// Maximum password length to prevent CPU amplification attacks via bcrypt
+const MAX_PASSWORD_LENGTH = 128;
+
 /**
  * Validation for registering new accounts.
  */
@@ -14,6 +17,10 @@ const validateRegister = (req, res, next) => {
 
   if (!password || password.length < 6) {
     return next(new AppError('Password must be at least 6 characters long.', 400));
+  }
+
+  if (password.length > MAX_PASSWORD_LENGTH) {
+    return next(new AppError(`Password must not exceed ${MAX_PASSWORD_LENGTH} characters.`, 400));
   }
 
   next();
@@ -31,6 +38,10 @@ const validateLogin = (req, res, next) => {
 
   if (!password) {
     return next(new AppError('Please provide your password.', 400));
+  }
+
+  if (password.length > MAX_PASSWORD_LENGTH) {
+    return next(new AppError(`Password must not exceed ${MAX_PASSWORD_LENGTH} characters.`, 400));
   }
 
   next();
