@@ -388,7 +388,7 @@ window.AI = (() => {
     generateInsights();
   }
 
-  return { init, initMainChat, generateInsights, getReply };
+  return { init, initMainChat, generateInsights, getReply, queryCloudGeminiAI, isCloudModeActive: () => Boolean(activeGeminiKey) };
 })();
 
 if (document.readyState === 'loading') {
