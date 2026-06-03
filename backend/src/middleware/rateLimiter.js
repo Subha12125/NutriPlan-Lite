@@ -1,27 +1,38 @@
 const rateLimit = require('express-rate-limit');
 
 /**
- * Custom MemoryStore with automatic TTL-based cleanup.
+ * Custom MemoryStore with interval-based TTL cleanup.
  *
  * express-rate-limit v7 defines a modern async store contract:
- *   - increment(key)  → async, returns { totalHits, resetTime }
- *   - decrement(key)  → async
- *   - resetKey(key)   → async
- *   - resetAll()      → async (optional)
+ *   - increment(key)  -> async, returns { totalHits, resetTime }
+ *   - decrement(key)  -> async
+ *   - resetKey(key)   -> async
+ *   - resetAll()      -> async (optional)
  *
  * The old callback-based increment(key, cb) signature is the *legacy* interface
  * (detected by the presence of `incr`, not `increment`). Defining `increment`
  * with a second `cb` parameter caused v7 to call it as a modern store, pass no
  * callback, and then crash with "cb is not a function" when cb() was invoked.
  *
- * This implementation uses the v7 async-return contract and additionally prunes
- * expired TTL entries on every increment to prevent unbounded Map growth.
+ * Cleanup strategy: a setInterval fires once per window and removes all
+ * expired entries in a single pass. This is O(n) per interval, not O(n) per
+ * request. Under burst traffic with many unique IPs the per-request _prune()
+ * approach iterated the full Map on every single increment call, turning a
+ * 1000-IP burst into 1000 * 1000 = 1,000,000 Map iterations per window.
  */
 class CleaningMemoryStore {
   constructor(windowMs) {
     this.windowMs = windowMs;
     // Map<ip, { hits: number, resetTime: number }>
     this._store = new Map();
+
+    // Schedule one cleanup pass per window instead of pruning on every
+    // increment. unref() prevents this timer from keeping the process alive
+    // when the server is shutting down.
+    this._pruneInterval = setInterval(() => this._prune(), windowMs);
+    if (this._pruneInterval.unref) {
+      this._pruneInterval.unref();
+    }
   }
 
   /** Remove all entries whose window has already expired. */
@@ -42,9 +53,6 @@ class CleaningMemoryStore {
    * @returns {Promise<{ totalHits: number, resetTime: Date }>}
    */
   async increment(key) {
-    // Prune stale entries before recording a new hit
-    this._prune();
-
     const now = Date.now();
     const existing = this._store.get(key);
 
