@@ -551,6 +551,49 @@ async function sync(dateFilter) {
   }
 }
 
+// ── Local-to-Cloud Sync Engine  ────────────────────────
+
+async function syncLocalToCloud() {
+  if (!isOnline()) return;
+
+  try {
+    const db = loadDB();
+    const offlineDates = Object.keys(db.logs);
+    let syncCount = 0;
+
+    if (offlineDates.length === 0) return;
+
+    window.Toast && window.Toast.show('Syncing offline data to Cloud...', 'info', 2000);
+
+    for (const dateKey of offlineDates) {
+      const log = db.logs[dateKey];
+      
+      if (log.foods && log.foods.length > 0) {
+        for (const food of log.foods) {
+          await ApiService.food.create(mapFrontendToBackendFood(food, dateKey));
+          syncCount++;
+        }
+      }
+
+      if (log.water && log.water > 0) {
+        await ApiService.water.create(log.water, dateKey);
+        syncCount++;
+      }
+    }
+
+    if (syncCount > 0) {
+      console.log(`[Storage] Synced ${syncCount} offline entries to Cloud.`);
+      clearDB();
+      await sync();
+      window.Toast && window.Toast.show('Offline data synced successfully!', 'success');
+    }
+
+  } catch (error) {
+    console.error('[Storage] Local-to-Cloud sync failed:', error);
+    window.Toast && window.Toast.show('Sync failed. Will retry later.', 'error');
+  }
+}
+
 // ── Global export ──────────────────────────────────────────────────
 
 window.Storage = {
@@ -564,5 +607,6 @@ window.Storage = {
   clearMemactConnection,
   getStreak,
   todayKey, getLocalDateString,
-  sync, clearDB
+  sync, clearDB,
+  syncLocalToCloud
 };
