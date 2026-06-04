@@ -23,7 +23,7 @@ const getFoodLogsByUserId = async (userId, date = null, page = 1, limit = 50) =>
     paramIndex++;
   }
 
-  queryText += ' ORDER BY created_at DESC';
+  queryText += ` ORDER BY created_at DESC LIMIT ${FOOD_LOG_MAX_ROWS}`;
 
   // Apply LIMIT/OFFSET only when no date filter is provided
   if (!date) {
@@ -39,8 +39,15 @@ const getFoodLogsByUserId = async (userId, date = null, page = 1, limit = 50) =>
  * Creates a new food log entry.
  */
 const createFoodLogEntry = async (userId, logData) => {
+  // Explicitly reject any caller-supplied id. Accepting a client-provided
+  // primary key allows force-inserting records with arbitrary UUIDs, enabling
+  // collisions with existing entries or reservation of future IDs. The
+  // database generates the id; callers must never supply one.
+  if (logData.id !== undefined) {
+    throw new AppError('The id field cannot be supplied by the caller.', 400);
+  }
+
   const {
-    id,
     food_name,
     quantity_grams,
     calories,
@@ -51,8 +58,8 @@ const createFoodLogEntry = async (userId, logData) => {
     log_date
   } = logData;
 
-  // Fix 4: accept 0 calories explicitly; reject null / undefined / non-numeric types.
-  // Number(null) === 0 which would silently accept null — so we guard first.
+  // Accept 0 calories explicitly; reject null / undefined / non-numeric values.
+  // Number(null) === 0 which would silently accept null, so guard first.
   if (calories === null || calories === undefined) {
     throw new AppError('Calories must be provided.', 400);
   }
@@ -61,49 +68,24 @@ const createFoodLogEntry = async (userId, logData) => {
     throw new AppError('Calories must be a non-negative number.', 400);
   }
 
-  let queryText;
-  let queryParams;
-
-  if (id) {
-    queryText = `
-      INSERT INTO food_logs 
-        (id, user_id, food_name, quantity_grams, calories, protein, carbs, fat, meal_type, log_date) 
-      VALUES 
-        ($1, $2, $3, $4, $5, $6, $7, $8, $9, COALESCE($10, CURRENT_DATE)) 
-      RETURNING id, user_id, log_date, food_name, quantity_grams, calories, protein, carbs, fat, meal_type, created_at
-    `;
-    queryParams = [
-      id,
-      userId,
-      food_name,
-      quantity_grams,
-      calories,
-      protein,
-      carbs,
-      fat,
-      meal_type,
-      log_date || null
-    ];
-  } else {
-    queryText = `
-      INSERT INTO food_logs 
-        (user_id, food_name, quantity_grams, calories, protein, carbs, fat, meal_type, log_date) 
-      VALUES 
-        ($1, $2, $3, $4, $5, $6, $7, $8, COALESCE($9, CURRENT_DATE)) 
-      RETURNING id, user_id, log_date, food_name, quantity_grams, calories, protein, carbs, fat, meal_type, created_at
-    `;
-    queryParams = [
-      userId,
-      food_name,
-      quantity_grams,
-      calories,
-      protein,
-      carbs,
-      fat,
-      meal_type,
-      log_date || null
-    ];
-  }
+  const queryText = `
+    INSERT INTO food_logs
+      (user_id, food_name, quantity_grams, calories, protein, carbs, fat, meal_type, log_date)
+    VALUES
+      ($1, $2, $3, $4, $5, $6, $7, $8, COALESCE($9, CURRENT_DATE))
+    RETURNING id, user_id, log_date, food_name, quantity_grams, calories, protein, carbs, fat, meal_type, created_at
+  `;
+  const queryParams = [
+    userId,
+    food_name,
+    quantity_grams,
+    calories,
+    protein,
+    carbs,
+    fat,
+    meal_type,
+    log_date || null
+  ];
 
   const result = await db.query(queryText, queryParams);
   return result.rows[0];

@@ -2,6 +2,8 @@ const foodLogService = require('../services/foodLog');
 const logger = require('../config/logger');
 const { AppError } = require('../middleware/error');
 
+const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
+
 /**
  * Formats an unexpected service/DB error for the client without leaking internals.
  * Logs the full error server-side.

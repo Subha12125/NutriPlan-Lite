@@ -38,32 +38,70 @@ const DEFAULT_PROFILE = {
 
 // ── Core DB helpers ────────────────────────────────────────────────
 
-function loadDB() {
+let dbCache = null;
+
+async function initDB() {
+  if (dbCache) return dbCache; // already loaded
+
   try {
-    const raw = localStorage.getItem(DB_KEY);
-    if (!raw) return createEmptyDB();
-    const db = JSON.parse(raw);
-    if (!db.profile)  db.profile  = { ...DEFAULT_PROFILE };
-    if (!db.logs)     db.logs     = {};
-    if (!db.settings) db.settings = { notifications: true };
-    db.profile = { ...DEFAULT_PROFILE, ...db.profile };
-    return db;
-  } catch {
+    const data = await window.IDB.get('db');
+    if (data) {
+      dbCache = data;
+    } else {
+      // Check localStorage for migration
+      const raw = localStorage.getItem(DB_KEY);
+      if (raw) {
+        dbCache = JSON.parse(raw);
+        console.log('[Storage] Migrating from localStorage to IndexedDB');
+        await window.IDB.put('db', dbCache);
+        // Clean up legacy storage once migrated successfully
+        localStorage.removeItem(DB_KEY);
+      } else {
+        dbCache = createEmptyDB();
+        await window.IDB.put('db', dbCache);
+      }
+    }
+  } catch (err) {
+    console.error('[Storage] IndexedDB init failed, falling back to empty db', err);
+    dbCache = createEmptyDB();
+  }
+
+  // Ensure defaults are populated
+  if (!dbCache.profile)  dbCache.profile  = { ...DEFAULT_PROFILE };
+  if (!dbCache.logs)     dbCache.logs     = {};
+  if (!dbCache.settings) dbCache.settings = { notifications: true };
+  if (!dbCache.sync_queue) dbCache.sync_queue = [];
+  dbCache.profile = { ...DEFAULT_PROFILE, ...dbCache.profile };
+
+  return dbCache;
+}
+
+function loadDB() {
+  if (!dbCache) {
+    console.warn('[Storage] loadDB called before initDB! Returning fallback.');
     return createEmptyDB();
   }
+  return dbCache;
 }
 
 function createEmptyDB() {
   return {
     profile: { ...DEFAULT_PROFILE },
     logs: {},
-    settings: { notifications: true }
+    settings: { notifications: true },
+    sync_queue: []
   };
+}
+
+function clearDB() {
+  dbCache = createEmptyDB();
+  window.IDB.put('db', dbCache).catch(e => console.error('[Storage] clearDB failed:', e));
 }
 
 function saveDB(db) {
   try {
-    localStorage.setItem(DB_KEY, JSON.stringify(db));
+    dbCache = db; // ensure cache matches (though it usually is the same ref)
+    window.IDB.put('db', db).catch(e => console.error('[Storage] Async IDB write failed:', e));
   } catch (e) {
     console.error('Storage write failed:', e);
   }
@@ -89,7 +127,10 @@ function saveProfile(updates) {
   // Background sync — non-blocking
   if (isOnline()) {
     ApiService.profile.update(mapFrontendToBackendProfile(db.profile))
-      .catch(err => console.warn('[Storage] Profile sync failed (non-fatal):', err.message));
+      .catch(err => {
+        console.warn('[Storage] Profile sync failed, queuing action.', err.message);
+        if (window.SyncQueue) window.SyncQueue.enqueue('profile', 'update', [mapFrontendToBackendProfile(db.profile)]);
+      });
   }
 
   return db.profile;
@@ -145,7 +186,10 @@ function addFood(dateKey, entry) {
   // Background sync
   if (isOnline()) {
     ApiService.food.create(mapFrontendToBackendFood(food, dateKey))
-      .catch(err => console.warn('[Storage] addFood sync failed (non-fatal):', err.message));
+      .catch(err => {
+        console.warn('[Storage] addFood sync failed, queuing action.', err.message);
+        if (window.SyncQueue) window.SyncQueue.enqueue('food', 'create', [mapFrontendToBackendFood(food, dateKey)]);
+      });
   }
 
   return food;
@@ -164,7 +208,10 @@ function updateFood(dateKey, id, updates) {
   if (isOnline()) {
     const updated = db.logs[dateKey].foods[idx];
     ApiService.food.update(id, mapFrontendToBackendFood(updated, dateKey))
-      .catch(err => console.warn('[Storage] updateFood sync failed (non-fatal):', err.message));
+      .catch(err => {
+        console.warn('[Storage] updateFood sync failed, queuing action.', err.message);
+        if (window.SyncQueue) window.SyncQueue.enqueue('food', 'update', [id, mapFrontendToBackendFood(updated, dateKey)]);
+      });
   }
 }
 
@@ -177,7 +224,10 @@ function deleteFood(dateKey, id) {
   // Background sync
   if (isOnline()) {
     ApiService.food.delete(id)
-      .catch(err => console.warn('[Storage] deleteFood sync failed (non-fatal):', err.message));
+      .catch(err => {
+        console.warn('[Storage] deleteFood sync failed, queuing action.', err.message);
+        if (window.SyncQueue) window.SyncQueue.enqueue('food', 'delete', [id]);
+      });
   }
 }
 
@@ -196,7 +246,10 @@ function addWater(dateKey, ml) {
   // Background sync
   if (isOnline()) {
     ApiService.water.create(ml, dateKey)
-      .catch(err => console.warn('[Storage] addWater sync failed (non-fatal):', err.message));
+      .catch(err => {
+        console.warn('[Storage] addWater sync failed, queuing action.', err.message);
+        if (window.SyncQueue) window.SyncQueue.enqueue('water', 'create', [ml, dateKey]);
+      });
   }
 
   return db.logs[dateKey].water;
@@ -217,7 +270,13 @@ function setWater(dateKey, ml) {
           await ApiService.water.create(ml, dateKey);
         }
       } catch (err) {
-        console.warn('[Storage] setWater sync failed (non-fatal):', err.message);
+        console.warn('[Storage] setWater sync failed, queuing actions.', err.message);
+        if (window.SyncQueue) {
+          window.SyncQueue.enqueue('water', 'reset', [dateKey]);
+          if (ml > 0) {
+            window.SyncQueue.enqueue('water', 'create', [ml, dateKey]);
+          }
+        }
       }
     })();
   }
@@ -444,21 +503,37 @@ async function sync(dateFilter) {
     const waterRes = await ApiService.water.get(dateFilter);
     const waterLogs = (waterRes && waterRes.data && waterRes.data.waterLogs) || [];
 
-    // Rebuild logs from server — clear only for full sync, preserve for date-scoped
-    if (!dateFilter) {
-      db.logs = {};
-    } else {
-      // Only wipe the targeted date so other days are untouched
-      if (db.logs[dateFilter]) {
-        db.logs[dateFilter] = { foods: [], water: 0 };
-      }
-    }
+    // Rebuild logs from server — merge safely instead of destructively wiping
 
     foodLogs.forEach(beFood => {
       const key = formatDate(beFood.log_date);
       if (!db.logs[key]) db.logs[key] = { foods: [], water: 0 };
-      db.logs[key].foods.push(mapBackendToFrontendFood(beFood));
+
+      const foodsArray = db.logs[key].foods;
+      const existingIdx = foodsArray.findIndex(f => f.id === beFood.id);
+      
+      const beTimestamp = new Date(beFood.updated_at || beFood.created_at || 0).getTime();
+
+      if (existingIdx >= 0) {
+        const localTimestamp = new Date(foodsArray[existingIdx].timestamp || 0).getTime();
+        // Newest wins merge strategy
+        if (beTimestamp > localTimestamp) {
+          foodsArray[existingIdx] = mapBackendToFrontendFood(beFood);
+        }
+      } else {
+        foodsArray.push(mapBackendToFrontendFood(beFood));
+      }
     });
+
+    // For water (aggregate sum), reset only the days the server knows about, then sum
+    const waterDaysOnServer = new Set(waterLogs.map(w => formatDate(w.log_date)));
+    if (!dateFilter) {
+      waterDaysOnServer.forEach(key => {
+        if (db.logs[key]) db.logs[key].water = 0;
+      });
+    } else {
+      if (db.logs[dateFilter]) db.logs[dateFilter].water = 0;
+    }
 
     waterLogs.forEach(beWater => {
       const key = formatDate(beWater.log_date);
@@ -476,9 +551,53 @@ async function sync(dateFilter) {
   }
 }
 
+// ── Local-to-Cloud Sync Engine  ────────────────────────
+
+async function syncLocalToCloud() {
+  if (!isOnline()) return;
+
+  try {
+    const db = loadDB();
+    const offlineDates = Object.keys(db.logs);
+    let syncCount = 0;
+
+    if (offlineDates.length === 0) return;
+
+    window.Toast && window.Toast.show('Syncing offline data to Cloud...', 'info', 2000);
+
+    for (const dateKey of offlineDates) {
+      const log = db.logs[dateKey];
+      
+      if (log.foods && log.foods.length > 0) {
+        for (const food of log.foods) {
+          await ApiService.food.create(mapFrontendToBackendFood(food, dateKey));
+          syncCount++;
+        }
+      }
+
+      if (log.water && log.water > 0) {
+        await ApiService.water.create(log.water, dateKey);
+        syncCount++;
+      }
+    }
+
+    if (syncCount > 0) {
+      console.log(`[Storage] Synced ${syncCount} offline entries to Cloud.`);
+      clearDB();
+      await sync();
+      window.Toast && window.Toast.show('Offline data synced successfully!', 'success');
+    }
+
+  } catch (error) {
+    console.error('[Storage] Local-to-Cloud sync failed:', error);
+    window.Toast && window.Toast.show('Sync failed. Will retry later.', 'error');
+  }
+}
+
 // ── Global export ──────────────────────────────────────────────────
 
 window.Storage = {
+  initDB,
   getProfile, saveProfile,
   getFoods, addFood, updateFood, deleteFood,
   getWater, addWater, setWater,
@@ -488,5 +607,6 @@ window.Storage = {
   clearMemactConnection,
   getStreak,
   todayKey, getLocalDateString,
-  sync
+  sync, clearDB,
+  syncLocalToCloud
 };

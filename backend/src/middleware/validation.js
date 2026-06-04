@@ -16,6 +16,16 @@ const validateRegister = (req, res, next) => {
     return next(new AppError('Password must be at least 6 characters long.', 400));
   }
 
+  // bcrypt silently truncates passwords longer than 72 bytes. Accepting
+  // arbitrarily long passwords does not increase security (anything beyond
+  // 72 characters is ignored) but enables CPU-amplified DoS attacks because
+  // bcrypt work factor scales with rounds, not input length up to 72 bytes.
+  // Requests with passwords exceeding 72 characters waste server CPU and
+  // can be submitted in rapid succession to exhaust the thread pool.
+  if (password.length > 72) {
+    return next(new AppError('Password must not exceed 72 characters.', 400));
+  }
+
   next();
 };
 
@@ -113,6 +123,13 @@ const validateFoodLog = (req, res, next) => {
     if (!food_name || typeof food_name !== 'string' || food_name.trim() === '') {
       return next(new AppError('Food name is required and must be a valid string.', 400));
     }
+    if (food_name.trim().length > 255) {
+      return next(new AppError('Food name must not exceed 255 characters.', 400));
+    }
+    // Normalize: store the trimmed value so leading/trailing whitespace does
+    // not persist in the database. Validation already rejects empty strings
+    // after trimming, so this assignment is safe.
+    req.body.food_name = food_name.trim();
   }
 
   if (isPost || quantity_grams !== undefined) {
@@ -120,12 +137,22 @@ const validateFoodLog = (req, res, next) => {
     if (quantity_grams === undefined || isNaN(qty) || qty <= 0) {
       return next(new AppError('Quantity in grams must be a positive number.', 400));
     }
+    // Upper bound: no single serving exceeds 10 kg (10,000 g). Values above
+    // this are physiologically impossible and indicate a data entry error.
+    if (qty > 10000) {
+      return next(new AppError('Quantity in grams cannot exceed 10,000 g (10 kg).', 400));
+    }
   }
 
   if (isPost || calories !== undefined) {
     const cals = parseInt(calories, 10);
     if (calories === undefined || isNaN(cals) || cals < 0) {
       return next(new AppError('Calories must be a non-negative integer.', 400));
+    }
+    // Upper bound: no single food item exceeds 10,000 kcal. Storing values
+    // above this would skew daily total calculations and reports.
+    if (cals > 10000) {
+      return next(new AppError('Calories cannot exceed 10,000 kcal per entry.', 400));
     }
   }
 
@@ -154,15 +181,39 @@ const validateFoodLog = (req, res, next) => {
     if (!meal_type || typeof meal_type !== 'string' || meal_type.trim() === '') {
       return next(new AppError('Meal type must be a valid string.', 400));
     }
+    // Restrict meal_type to a fixed allowlist so per-meal analytics grouping
+    // is consistent. Accepting any non-empty string silently stores corrupted
+    // values that break aggregation queries and analytics reports.
+    const ALLOWED_MEAL_TYPES = ['breakfast', 'lunch', 'dinner', 'snack'];
+    if (!ALLOWED_MEAL_TYPES.includes(meal_type.trim().toLowerCase())) {
+      return next(
+        new AppError(
+          `Meal type must be one of: ${ALLOWED_MEAL_TYPES.join(', ')}.`,
+          400
+        )
+      );
+    }
+    // Normalize to lowercase trimmed form so the stored value is always
+    // canonical (e.g. "  Breakfast  " -> "breakfast").
+    req.body.meal_type = meal_type.trim().toLowerCase();
   }
 
   if (log_date !== undefined && log_date !== null && !dateRegex.test(log_date)) {
     return next(new AppError('Log date must be in YYYY-MM-DD format.', 400));
   }
 
-  // Normalize: optional nutritional fields not provided in a PUT body → null
+  // Normalize: optional nutritional fields absent from a PUT body are set to
+  // null so the service layer receives a clean null instead of undefined.
+  //
+  // log_date is intentionally excluded from this list. The updateFoodLogEntry
+  // service uses `updateData[field] !== undefined` to decide whether to
+  // include a field in the SQL SET clause. Setting log_date to null when it
+  // is not present in the PUT body would make the service write
+  // `log_date = NULL`, silently wiping the existing date on every partial
+  // update that does not resend a log_date. Keeping it as undefined means
+  // the service skips it entirely, preserving the stored value.
   if (!isPost) {
-    const optionalFoodFields = ['protein', 'carbs', 'fat', 'log_date'];
+    const optionalFoodFields = ['protein', 'carbs', 'fat'];
     optionalFoodFields.forEach((field) => {
       if (req.body[field] === undefined) {
         req.body[field] = null;
@@ -189,6 +240,13 @@ const validateWaterLog = (req, res, next) => {
   const asNumber = Number(amount_ml);
   if (!Number.isFinite(asNumber) || asNumber <= 0 || !Number.isInteger(asNumber)) {
     return next(new AppError('Amount in ml must be a positive integer.', 400));
+  }
+
+  // Upper bound: a single water intake event cannot exceed 2,000 ml (2 L).
+  // Values above this are physiologically impossible for a single drink and
+  // indicate a data entry error or an attempt to corrupt daily totals.
+  if (asNumber > 2000) {
+    return next(new AppError('Amount in ml cannot exceed 2,000 ml per entry.', 400));
   }
 
   if (log_date !== undefined && log_date !== null && !dateRegex.test(log_date)) {
