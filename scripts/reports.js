@@ -20,6 +20,16 @@ window.WeeklyReport = (() => {
     // 1. Populate Report Summary Data
     updateReportPrintDOM(weeklyData, targetCalories, targetProtein, targetWater, profile.goal || 'maintain');
 
+    // Reset AI report trigger placeholder
+    const contentDiv = document.getElementById('report-ai-insights-content');
+    if (contentDiv) {
+      contentDiv.innerHTML = `
+        <div class="ai-insights-placeholder" style="text-align: center; padding: 1.5rem; color: #64748b; font-size: 0.82rem; border: 1px dashed #cbd5e1; border-radius: 12px; background: #f8fafc;">
+          <p style="margin: 0;">Click "Generate AI Insights" to analyze your week-over-week trends, compute your Weekly Nutrition Score, and fetch personalized AI advice.</p>
+        </div>
+      `;
+    }
+
     // 2. Open drawer and lock scroll
     modal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
@@ -196,6 +206,280 @@ window.WeeklyReport = (() => {
     return insights;
   }
 
+  // ── AI Weekly Report Generation logic ──────────────────────────────
+  async function generateAIReport() {
+    const btnAI = document.getElementById('btn-generate-ai-report');
+    const contentDiv = document.getElementById('report-ai-insights-content');
+    if (!contentDiv) return;
+
+    if (btnAI) {
+      btnAI.disabled = true;
+      btnAI.textContent = 'Generating...';
+    }
+
+    contentDiv.innerHTML = `
+      <div class="ai-loading-container" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; gap: 1rem; color: #06b6d4;">
+        <div class="spinner" style="width: 32px; height: 32px; border: 3px solid rgba(6,182,212,0.2); border-top-color: #06b6d4; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+        <span style="font-size: 0.85rem; font-weight: 600; animation: pulse 1.5s ease-in-out infinite;">Analyzing weekly nutrition logs and compiling trends...</span>
+      </div>
+      <style>
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
+      </style>
+    `;
+
+    try {
+      const currentWeek = window.Storage.getWeeklyData(0);
+      const prevWeek = window.Storage.getWeeklyData(1);
+      const profile = window.Storage.getProfile();
+
+      const targets = window.Dashboard ? window.Dashboard.computeTargets(profile) : { calories: 2000, protein: 120, waterTarget: 2500 };
+      const targetCalories = profile.targetCalories || targets.calories;
+      const targetProtein = profile.targetProtein || targets.protein;
+      const targetCarbs = profile.targetCarbs || targets.carbs || 200;
+      const targetFat = profile.targetFat || targets.fat || 65;
+      const targetWater = profile.targetWater || profile.waterTarget || 2500;
+
+      // Current week aggregates
+      const avgCal = Math.round(currentWeek.reduce((s, d) => s + d.calories, 0) / 7);
+      const avgProt = Math.round((currentWeek.reduce((s, d) => s + d.protein, 0) / 7) * 10) / 10;
+      const avgCarbs = Math.round((currentWeek.reduce((s, d) => s + d.carbs, 0) / 7) * 10) / 10;
+      const avgFat = Math.round((currentWeek.reduce((s, d) => s + d.fat, 0) / 7) * 10) / 10;
+      const avgWater = Math.round(currentWeek.reduce((s, d) => s + d.water, 0) / 7);
+
+      const totalMeals = currentWeek.reduce((sum, day) => {
+        const log = window.Storage.getDayLog(day.date);
+        return sum + (log && log.foods ? log.foods.length : 0);
+      }, 0);
+
+      // Compliance calculation
+      const calCompliance = Math.max(0, 100 - Math.round(Math.abs(avgCal - targetCalories) / targetCalories * 100));
+      const protCompliance = targetProtein > 0 ? Math.min(100, Math.round((avgProt / targetProtein) * 100)) : 0;
+      const carbsCompliance = targetCarbs > 0 ? Math.max(0, 100 - Math.round(Math.abs(avgCarbs - targetCarbs) / targetCarbs * 100)) : 0;
+      const fatCompliance = targetFat > 0 ? Math.max(0, 100 - Math.round(Math.abs(avgFat - targetFat) / targetFat * 100)) : 0;
+      const waterCompliance = targetWater > 0 ? Math.min(100, Math.round((avgWater / targetWater) * 100)) : 0;
+
+      const weeklyScore = Math.round((calCompliance + protCompliance + carbsCompliance + fatCompliance + waterCompliance) / 5);
+
+      // Score status mapping
+      let scoreCategory = 'Needs Improvement';
+      let scoreColor = '#ef4444'; // Red
+      let scoreEmoji = '🔴';
+      if (weeklyScore >= 85) {
+        scoreCategory = 'Excellent';
+        scoreColor = '#10b981'; // Green
+        scoreEmoji = '🟢';
+      } else if (weeklyScore >= 70) {
+        scoreCategory = 'Good';
+        scoreColor = '#f59e0b'; // Amber/Yellow
+        scoreEmoji = '🟡';
+      } else if (weeklyScore >= 50) {
+        scoreCategory = 'Fair';
+        scoreColor = '#ff781f'; // Orange
+        scoreEmoji = '🟠';
+      }
+
+      // WoW comparison
+      const prevTotalCal = prevWeek.reduce((s, d) => s + d.calories, 0);
+      const prevAvgCal = Math.round(prevTotalCal / 7);
+      const prevAvgProt = Math.round((prevWeek.reduce((s, d) => s + d.protein, 0) / 7) * 10) / 10;
+      const prevAvgWater = Math.round(prevWeek.reduce((s, d) => s + d.water, 0) / 7);
+
+      const currentCalAdherenceDays = currentWeek.filter(d => d.calories > 0 && Math.abs(d.calories - targetCalories) / targetCalories <= 0.15).length;
+      const currentWaterAdherenceDays = currentWeek.filter(d => d.water > 0 && d.water >= targetWater * 0.75).length;
+      const consistencyScoreCurrent = Math.min(100, Math.round(((currentCalAdherenceDays + currentWaterAdherenceDays) / 14) * 100));
+
+      const prevCalAdherenceDays = prevWeek.filter(d => d.calories > 0 && Math.abs(d.calories - targetCalories) / targetCalories <= 0.15).length;
+      const prevWaterAdherenceDays = prevWeek.filter(d => d.water > 0 && d.water >= targetWater * 0.75).length;
+      const consistencyScorePrev = Math.min(100, Math.round(((prevCalAdherenceDays + prevWaterAdherenceDays) / 14) * 100));
+
+      const calTrend = prevAvgCal > 0 ? Math.round(((avgCal - prevAvgCal) / prevAvgCal) * 100) : 0;
+      const protTrend = prevAvgProt > 0 ? Math.round(((avgProt - prevAvgProt) / prevAvgProt) * 100) : 0;
+      const waterTrend = prevAvgWater > 0 ? Math.round(((avgWater - prevAvgWater) / prevAvgWater) * 100) : 0;
+      const consistencyChange = consistencyScoreCurrent - consistencyScorePrev;
+
+      const trendsHTML = `
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 0.5rem; margin-top: 0.5rem; margin-bottom: 1rem;">
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.5rem; text-align: center;">
+            <small style="color: #64748b; font-size: 0.65rem; font-weight: 700; text-transform: uppercase;">Calories</small>
+            <div style="font-size: 0.85rem; font-weight: 800; color: #0f172a; margin-top: 0.15rem;">
+              ${calTrend >= 0 ? '+' : ''}${calTrend}%
+            </div>
+            <span style="font-size: 0.55rem; color: #94a3b8;">vs last week</span>
+          </div>
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.5rem; text-align: center;">
+            <small style="color: #64748b; font-size: 0.65rem; font-weight: 700; text-transform: uppercase;">Protein</small>
+            <div style="font-size: 0.85rem; font-weight: 800; color: #0f172a; margin-top: 0.15rem;">
+              ${protTrend >= 0 ? '+' : ''}${protTrend}%
+            </div>
+            <span style="font-size: 0.55rem; color: #94a3b8;">vs last week</span>
+          </div>
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.5rem; text-align: center;">
+            <small style="color: #64748b; font-size: 0.65rem; font-weight: 700; text-transform: uppercase;">Water</small>
+            <div style="font-size: 0.85rem; font-weight: 800; color: #0f172a; margin-top: 0.15rem;">
+              ${waterTrend >= 0 ? '+' : ''}${waterTrend}%
+            </div>
+            <span style="font-size: 0.55rem; color: #94a3b8;">vs last week</span>
+          </div>
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.5rem; text-align: center;">
+            <small style="color: #64748b; font-size: 0.65rem; font-weight: 700; text-transform: uppercase;">Consistency</small>
+            <div style="font-size: 0.85rem; font-weight: 800; color: #0f172a; margin-top: 0.15rem;">
+              ${consistencyChange > 0 ? '+' + consistencyChange + '%' : consistencyChange < 0 ? consistencyChange + '%' : 'Same'}
+            </div>
+            <span style="font-size: 0.55rem; color: #94a3b8;">vs last week</span>
+          </div>
+        </div>
+      `;
+
+      const scoreCardHTML = `
+        <div style="display: flex; align-items: center; justify-content: space-between; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.75rem 1rem; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+          <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <div style="width: 42px; height: 42px; border-radius: 50%; border: 3px solid ${scoreColor}; display: flex; align-items: center; justify-content: center; font-size: 0.95rem; font-weight: 900; color: #0f172a;">
+              ${weeklyScore}
+            </div>
+            <div>
+              <div style="font-size: 0.65rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em;">Weekly Nutrition Score</div>
+              <div style="font-size: 0.85rem; font-weight: 800; color: ${scoreColor}; display: flex; align-items: center; gap: 0.25rem; margin-top: 0.1rem;">
+                <span>${scoreEmoji}</span> <span>${scoreCategory}</span>
+              </div>
+            </div>
+          </div>
+          <div style="font-size: 0.76rem; color: #475569; font-weight: 550; max-width: 250px;">
+            Target Adherence: Calories ${calCompliance}%, Protein ${protCompliance}%, Water ${waterCompliance}%.
+          </div>
+        </div>
+      `;
+
+      let aiResponseText = null;
+
+      if (window.AI && typeof window.AI.queryCloudGeminiAI === 'function' && window.AI.isCloudModeActive()) {
+        const prompt = `You are a clinical nutritionist and health coach analyzing a user's fitness and nutrition logs.
+Analyze the user's weekly nutrition data:
+- Goal: ${profile.goal || 'maintain'}
+- Metrics: Age ${profile.age}, Weight ${profile.weight}kg, Height ${profile.height}cm, Gender ${profile.gender}, Activity Multiplier: ${profile.activity || 1.55}
+
+Current Week Summary Averages:
+- Calories: ${avgCal} kcal (Target: ${targetCalories} kcal)
+- Protein: ${avgProt}g (Target: ${targetProtein}g)
+- Carbs: ${avgCarbs}g (Target: ${targetCarbs}g)
+- Fats: ${avgFat}g (Target: ${targetFat}g)
+- Water: ${avgWater} ml (Target: ${targetWater} ml)
+- Total Tracked Meals: ${totalMeals} meals
+
+Weekly Nutrition Adherence/Compliance:
+- Calories compliance: ${calCompliance}%
+- Protein compliance: ${protCompliance}%
+- Carbs compliance: ${carbsCompliance}%
+- Fats compliance: ${fatCompliance}%
+- Water compliance: ${waterCompliance}%
+
+Weekly Nutrition Score: ${weeklyScore}/100
+
+Week-over-Week Trends:
+- Calories: ${calTrend >= 0 ? '+' : ''}${calTrend}% (vs last week)
+- Protein: ${protTrend >= 0 ? '+' : ''}${protTrend}% (vs last week)
+- Water: ${waterTrend >= 0 ? '+' : ''}${waterTrend}% (vs last week)
+- Consistency: ${consistencyChange > 0 ? '+' + consistencyChange + '%' : consistencyChange < 0 ? consistencyChange + '%' : 'Same'} (vs last week)
+
+Provide a brief clinical health report in markdown containing:
+1. AI Health Insights: 3 bullet points of actionable advice based on compliance/trends.
+2. Recommendations for the upcoming week.
+
+Be encouraging, concise, professional, and clear. Format key metrics in bold. Do not use generic placeholders.`;
+
+        aiResponseText = await window.AI.queryCloudGeminiAI(prompt);
+      }
+
+      if (!aiResponseText) {
+        // Local Fallback (privacy-focused offline response)
+        const ruleBasedInsights = [];
+        if (avgCal > 0) {
+          const calPct = avgCal / targetCalories;
+          if (profile.goal === 'lose') {
+            if (calPct >= 0.8 && calPct <= 1.0) {
+              ruleBasedInsights.push("Your calorie deficit remains optimal for fat loss, supporting steady lean-mass retention.");
+            } else if (calPct > 1.0) {
+              ruleBasedInsights.push(`Your calories average exceeds the deficit target by **${avgCal - targetCalories} kcal**. Try tracking snacks closer.`);
+            } else {
+              ruleBasedInsights.push("Calorie intake is extremely low; ensure you're consuming enough macros to support basic metabolism.");
+            }
+          } else if (profile.goal === 'gain') {
+            if (calPct >= 1.0 && calPct <= 1.15) {
+              ruleBasedInsights.push("Your caloric surplus is perfect for lean muscle growth when combined with resistance workouts.");
+            } else {
+              ruleBasedInsights.push("Calorie average is currently in a deficit. Increase calorie-dense healthy fats (nuts, seeds) to support muscle gain.");
+            }
+          } else {
+            if (Math.abs(calPct - 1) <= 0.1) {
+              ruleBasedInsights.push("Caloric baseline is matching maintenance levels cleanly. Great consistency.");
+            }
+          }
+        }
+
+        if (avgProt > 0) {
+          if (avgProt >= targetProtein * 0.85) {
+            ruleBasedInsights.push("Excellent protein compliance. High amino acid availability helps preserve muscle mass and support training.");
+          } else {
+            ruleBasedInsights.push(`Protein average is at **${avgProt}g** against target **${targetProtein}g**. Focus on lean poultry, tofu, fish, or legumes.`);
+          }
+        }
+
+        if (avgWater > 0) {
+          if (avgWater >= targetWater * 0.85) {
+            ruleBasedInsights.push("Hydration levels are superb. High compliance supports cognitive function and digestion.");
+          } else {
+            ruleBasedInsights.push(`Average hydration (${avgWater} ml) is low compared to goal (${targetWater} ml). Increase water frequency.`);
+          }
+        }
+
+        if (ruleBasedInsights.length === 0) {
+          ruleBasedInsights.push("Start logging meals consistently to unlock customized weekly insights.");
+        }
+
+        const recommendations = [];
+        if (avgWater < targetWater * 0.8) recommendations.push("💧 Drink an extra 500ml water starting with a full glass upon waking.");
+        if (avgProt < targetProtein * 0.8) recommendations.push("🍗 Add a protein source to your breakfast (e.g., eggs, protein shake, tofu scramble).");
+        if (calTrend > 10 && profile.goal === 'lose') recommendations.push("⚖️ Watch out for portion sizes in dinner meals to prevent minor calorie creep.");
+        if (recommendations.length === 0) recommendations.push("✨ Keep up your current daily logging routines and maintain consistency.");
+
+        aiResponseText = `### AI Health Insights
+${ruleBasedInsights.map(insight => `- ${insight}`).join('\n')}
+
+### Recommendations for Next Week
+${recommendations.map(rec => `- ${rec}`).join('\n')}`;
+      }
+
+      // Convert Markdown to premium HTML layout
+      const formattedAIResponse = aiResponseText
+        .replace(/### (.*)/g, '<h5 style="margin: 0.75rem 0 0.4rem 0; font-size: 0.82rem; font-weight: 850; color: #1e293b; text-transform: uppercase; letter-spacing: 0.01em;">$1</h5>')
+        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+        .replace(/- (.*)/g, '<div class="report-insight-item" style="margin-bottom: 0.4rem; padding: 0.6rem 0.75rem; font-size: 0.78rem;">• $1</div>');
+
+      contentDiv.innerHTML = `
+        ${scoreCardHTML}
+        ${trendsHTML}
+        <div style="border-top: 1px solid #e2e8f0; padding-top: 0.5rem; text-align: left;">
+          ${formattedAIResponse}
+        </div>
+      `;
+      Toast.show('AI Weekly Insights compiled successfully!', 'success');
+
+    } catch (err) {
+      console.error(err);
+      contentDiv.innerHTML = `
+        <div style="text-align: center; padding: 1.5rem; color: #ef4444; font-size: 0.82rem; border: 1px solid #fecaca; border-radius: 12px; background: #fef2f2;">
+          <p style="margin: 0; font-weight: 600;">Failed to generate AI insights. Please check your connectivity and try again.</p>
+        </div>
+      `;
+      Toast.show('AI Report generation failed.', 'error');
+    } finally {
+      if (btnAI) {
+        btnAI.disabled = false;
+        btnAI.textContent = 'Generate AI Insights';
+      }
+    }
+  }
+
   // ── PDF Document Exporter using html2canvas & jsPDF ──────────────────
   async function exportPDF() {
     const reportSheet = document.getElementById('nutrition-report-print');
@@ -334,6 +618,8 @@ window.WeeklyReport = (() => {
         exportPDF();
       } else if (e.target.closest('#btn-export-csv')) {
         exportCSV();
+      } else if (e.target.closest('#btn-generate-ai-report')) {
+        generateAIReport();
       }
     });
   }

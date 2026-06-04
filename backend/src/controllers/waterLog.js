@@ -1,6 +1,8 @@
 const waterLogService = require('../services/waterLog');
 const { AppError } = require('../middleware/error');
 
+const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
+
 /**
  * GET /api/v1/water-logs
  * Retrieves all water log entries, with optional date filtering.
@@ -9,6 +11,11 @@ const { AppError } = require('../middleware/error');
 const getWaterLogs = async (req, res, next) => {
   try {
     const { date } = req.query;
+
+    if (date !== undefined && !DATE_REGEX.test(date)) {
+      return next(new AppError('date query parameter must be in YYYY-MM-DD format.', 400));
+    }
+
     const waterLogs = await waterLogService.getWaterLogsByUserId(req.user.id, date);
 
     // Calculate sum of water consumed for the filtered list
@@ -58,6 +65,10 @@ const createWaterLog = async (req, res, next) => {
  */
 const resetWaterLogs = async (req, res, next) => {
   const { date } = req.query;
+
+  if (date !== undefined && !DATE_REGEX.test(date)) {
+    return next(new AppError('date query parameter must be in YYYY-MM-DD format.', 400));
+  }
 
   try {
     await waterLogService.resetWaterLogsByDate(req.user.id, date);
