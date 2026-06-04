@@ -159,7 +159,7 @@ window.Onboarding = (() => {
     {
       selector: '.memact-context-card',
       title: 'AI Recommendations & Context',
-      desc: 'Receive personalized action recommendations based on your goals, and manage your high-privacy Memact connections securely.',
+      desc: 'Connect Memact only if you want NutriPlan to reuse approved fitness memory and skip setup questions it already knows.',
       position: 'left'
     },
     {
