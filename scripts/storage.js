@@ -284,12 +284,13 @@ function setWater(dateKey, ml) {
 
 // ── Weekly data for analytics ──────────────────────────────────────
 
-function getWeeklyData() {
+function getWeeklyData(offsetWeeks = 0) {
   const db = loadDB();
   const result = [];
+  const startOffset = offsetWeeks * 7;
   for (let i = 6; i >= 0; i--) {
     const d = new Date();
-    d.setDate(d.getDate() - i);
+    d.setDate(d.getDate() - i - startOffset);
     const key = getLocalDateString(d);
     const log = db.logs[key] || { foods: [], water: 0 };
     const calories = log.foods.reduce((s, f) => s + (f.calories || 0), 0);

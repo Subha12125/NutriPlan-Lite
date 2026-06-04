@@ -16,6 +16,16 @@ const validateRegister = (req, res, next) => {
     return next(new AppError('Password must be at least 6 characters long.', 400));
   }
 
+  // bcrypt silently truncates passwords longer than 72 bytes. Accepting
+  // arbitrarily long passwords does not increase security (anything beyond
+  // 72 characters is ignored) but enables CPU-amplified DoS attacks because
+  // bcrypt work factor scales with rounds, not input length up to 72 bytes.
+  // Requests with passwords exceeding 72 characters waste server CPU and
+  // can be submitted in rapid succession to exhaust the thread pool.
+  if (password.length > 72) {
+    return next(new AppError('Password must not exceed 72 characters.', 400));
+  }
+
   next();
 };
 
@@ -116,6 +126,10 @@ const validateFoodLog = (req, res, next) => {
     if (food_name.trim().length > 255) {
       return next(new AppError('Food name must not exceed 255 characters.', 400));
     }
+    // Normalize: store the trimmed value so leading/trailing whitespace does
+    // not persist in the database. Validation already rejects empty strings
+    // after trimming, so this assignment is safe.
+    req.body.food_name = food_name.trim();
   }
 
   if (isPost || quantity_grams !== undefined) {
@@ -179,6 +193,9 @@ const validateFoodLog = (req, res, next) => {
         )
       );
     }
+    // Normalize to lowercase trimmed form so the stored value is always
+    // canonical (e.g. "  Breakfast  " -> "breakfast").
+    req.body.meal_type = meal_type.trim().toLowerCase();
   }
 
   if (log_date !== undefined && log_date !== null && !dateRegex.test(log_date)) {

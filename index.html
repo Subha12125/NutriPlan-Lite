@@ -51,6 +51,7 @@
   <script type="module" src="scripts/ui.js"></script>
   <script type="module" src="scripts/session.js"></script>
   <script type="module" src="scripts/api.js"></script>
+  <script type="module" src="scripts/db.js"></script>
   <script type="module" src="scripts/storage.js"></script>
   <script type="module" src="scripts/auth.js"></script>
   <script type="module" src="scripts/sync.js"></script>
@@ -1243,6 +1244,22 @@
             <div id="report-deficiency-content">
               <div class="deficiency-placeholder" style="text-align: center; padding: 1.5rem; color: #64748b; font-size: 0.82rem; border: 1px dashed #cbd5e1; border-radius: 12px; background: #f8fafc;">
                 <p style="margin: 0;">Click "Run Deficiency Check" to analyze your weekly meals, calculate your Nutrient Sufficiency Score, check trends, and get smart food recommendations.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- AI Health Insights & Trend Analysis -->
+          <div class="report-insights-section ai-insights-container" style="margin-top: 1.5rem; border-top: 1px solid #cbd5e1; padding-top: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h4 style="margin: 0; color: #1e293b; font-size: 0.95rem; font-weight: 850;">🤖 AI Health Insights & Trend Analysis</h4>
+              <button id="btn-generate-ai-report" class="primary-button" type="button" style="min-height: 32px; padding: 0 0.8rem; font-size: 0.76rem; background: linear-gradient(135deg, #10b981, #06b6d4); color: white; border: 0; border-radius: 8px; font-weight: 700; cursor: pointer; transition: transform 0.2s ease;">
+                Generate AI Insights
+              </button>
+            </div>
+            
+            <div id="report-ai-insights-content">
+              <div class="ai-insights-placeholder" style="text-align: center; padding: 1.5rem; color: #64748b; font-size: 0.82rem; border: 1px dashed #cbd5e1; border-radius: 12px; background: #f8fafc;">
+                <p style="margin: 0;">Click "Generate AI Insights" to analyze your week-over-week trends, compute your Weekly Nutrition Score, and fetch personalized AI advice.</p>
               </div>
             </div>
           </div>
