@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <!-- Theme Init (Prevents FOUC) -->
   <script>
     (function() {
       const savedTheme = localStorage.getItem('nutriplan-theme');
@@ -16,42 +15,23 @@
     })();
   </script>
   <title>NutriPlan Lite - Fitness Nutrition Planner</title>
+  <link rel="manifest" href="/assets/manifest-t5QQzlnO.json">
+  <meta name="theme-color" content="#000000">
   <meta name="description" content="A fitness nutrition planner for calories, macros, hydration, and personal goals.">
   <link rel="icon" type="image/x-icon" href="/assets/favicon-B_SY1GJM.ico">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
-  <!-- Styles -->
+  
   
-  <!-- GSAP & ScrollTrigger -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js" defer></script>
-  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
-  <!-- html2canvas & jsPDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
-  
-  <!-- Scripts (load order matters) -->
-  <script src="scripts/theme.js" defer></script>
-  <script src="scripts/api.js" defer></script>
-  <script src="scripts/session.js" defer></script>
-  <script src="scripts/db.js" defer></script>
-  <script src="scripts/storage.js" defer></script>
-  <script src="scripts/sync.js" defer></script>
-  <script src="scripts/auth.js" defer></script>
-  <script src="scripts/analytics.js" defer></script>
-  <script src="scripts/reports.js" defer></script>
-  <script src="scripts/onboarding.js" defer></script>
-  <script src="scripts/tracker.js" defer></script>
-  <script src="scripts/hydration.js" defer></script>
-  <script src="scripts/dashboard.js" defer></script>
-  <script src="scripts/ai.js" defer></script>
-  <script src="scripts/memact.js" defer></script>
-  <script src="scripts/navigation.js" defer></script>
-  <script src="scripts/app.js" defer></script>
-  <script type="module" crossorigin src="/assets/index-sN_8-iNZ.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/index-Oft9zHJW.css">
+  
+  <script type="module" crossorigin src="/assets/index-C6drWzY7.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/style-EY9gpQa9.css">
 </head>
 <body>
   <!-- Toast container -->
@@ -70,6 +50,8 @@
           <a href="#landing" data-nav="landing">Home</a>
           <a href="#features">Features</a>
           <a href="#dashboard" data-nav="dashboard">Dashboard</a>
+          <a href="#grocery" data-nav="grocery">Grocery</a>
+          <a href="#reminders" data-nav="reminders">Reminders</a>
           <a href="#ai-helper" data-nav="ai-helper">Coach</a>
         </nav>
 
@@ -104,6 +86,8 @@
       <nav class="desktop-nav" aria-label="Primary">
         <a href="#landing" data-nav="landing">Home</a>
         <a href="#dashboard" data-nav="dashboard">Dashboard</a>
+        <a href="#grocery" data-nav="grocery">Grocery</a>
+        <a href="#reminders" data-nav="reminders">Reminders</a>
         <a href="#ai-helper" data-nav="ai-helper">Coach</a>
       </nav>
 
@@ -124,7 +108,8 @@
     <nav class="bottom-nav" aria-label="Mobile navigation">
       <a href="#landing" data-nav="landing">🏠<span>Home</span></a>
       <a href="#dashboard" data-nav="dashboard">📊<span>Dashboard</span></a>
-      <button type="button" data-open-food-drawer class="bottom-nav-add">＋</button>
+      <a href="#grocery" data-nav="grocery">🛒<span>Grocery</span></a>
+      <a href="#reminders" data-nav="reminders">🔔<span>Alerts</span></a>
       <a href="#ai-helper" data-nav="ai-helper">💬<span>Coach</span></a>
     </nav>
   </div>
@@ -844,6 +829,21 @@
         </section>
 
         <!-- Recommendations -->
+        <section class="backup-panel glass-panel" style="margin-bottom: 1.5rem;">
+          <div class="section-heading compact">
+            <div>
+              <p class="eyebrow">Data Management</p>
+              <h2>Backup & Restore</h2>
+            </div>
+          </div>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">Export your local data as a JSON file or restore from a previous backup.</p>
+          <div style="display: flex; gap: 0.5rem; flex-direction: column;">
+            <button id="exportBtn" class="primary-button full-width" type="button">💾 Download Backup</button>
+            <button id="restoreBtn" class="secondary-button full-width" type="button">📂 Restore Backup</button>
+            <input type="file" id="importFile" accept=".json" style="display: none;">
+          </div>
+        </section>
+
         <section class="recommendations glass-panel">
           <div class="section-heading compact">
             <div>
@@ -985,8 +985,13 @@
           <button class="prompt-btn">Give me a health tip</button>
         </div>
     
-        <form class="ai-chat-input-area" id="main-ai-form">
-          <input type="text" id="main-ai-input" placeholder="Ask about meals, macros, or hydration..." autocomplete="off">
+        <form class="ai-chat-input-area" id="main-ai-form" style="display: flex; gap: 0.5rem; align-items: center;">
+          <button type="button" id="voice-input-btn" class="icon-button mic-btn" aria-label="Start voice input" title="Voice Input" style="font-size: 1.2rem; background: transparent; border: none; cursor: pointer; transition: transform 0.2s;">🎤</button>
+          
+          <label for="image-upload-input" class="icon-button camera-btn" aria-label="Upload food image" title="Snap & Log" style="font-size: 1.2rem; background: transparent; border: none; cursor: pointer; transition: transform 0.2s; margin: 0;">📸</label>
+          <input type="file" id="image-upload-input" accept="image/*" capture="environment" style="display: none;">
+          
+          <input type="text" id="main-ai-input" placeholder="Ask about meals or snap a photo..." autocomplete="off" style="flex: 1;">
           <button type="submit" class="primary-button send-btn" aria-label="Send message">↑</button>
         </form>
       </div>
@@ -1082,6 +1087,8 @@
         <a href="#landing" data-nav="landing">Home</a>
         <a href="#features">Features</a>
         <a href="#dashboard" data-nav="dashboard">Dashboard</a>
+        <a href="#grocery" data-nav="grocery">Grocery</a>
+        <a href="#reminders" data-nav="reminders">Reminders</a>
         <a href="#ai-helper" data-nav="ai-helper">Coach</a>
         <a href="#" id="mobile-btn-replay-tour" class="mobile-nav-tour-link">❓ Start Onboarding Tour</a>
         <hr class="mobile-nav-divider">
@@ -1192,6 +1199,22 @@
             </div>
           </div>
 
+          <!-- AI Health Insights & Trend Analysis -->
+          <div class="report-insights-section ai-insights-container" style="margin-top: 1.5rem; border-top: 1px solid #cbd5e1; padding-top: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h4 style="margin: 0; color: #1e293b; font-size: 0.95rem; font-weight: 850;">🤖 AI Health Insights & Trend Analysis</h4>
+              <button id="btn-generate-ai-report" class="primary-button" type="button" style="min-height: 32px; padding: 0 0.8rem; font-size: 0.76rem; background: linear-gradient(135deg, #10b981, #06b6d4); color: white; border: 0; border-radius: 8px; font-weight: 700; cursor: pointer; transition: transform 0.2s ease;">
+                Generate AI Insights
+              </button>
+            </div>
+            
+            <div id="report-ai-insights-content">
+              <div class="ai-insights-placeholder" style="text-align: center; padding: 1.5rem; color: #64748b; font-size: 0.82rem; border: 1px dashed #cbd5e1; border-radius: 12px; background: #f8fafc;">
+                <p style="margin: 0;">Click "Generate AI Insights" to analyze your week-over-week trends, compute your Weekly Nutrition Score, and fetch personalized AI advice.</p>
+              </div>
+            </div>
+          </div>
+
           <div class="report-print-footer">
             <p>NutriPlan Lite is 100% free, offline-first, and private by design. Your metrics remain secure on your device.</p>
             <small>© 2026 NutriPlan Lite. Generated on <span id="report-generation-time">May 25, 2026</span>.</small>
@@ -1226,7 +1249,12 @@
         </label>
         <label>
           <span>Password</span>
+          <div class="password-wrapper"></div>
           <input id="auth-password" type="password" placeholder="••••••••" required autocomplete="current-password">
+          <button type="button" id="toggle-password-btn" class="password-toggle-btn" aria-label="Toggle password visibility" title="Show/Hide Password">
+      👁️
+    </button>
+          </div>
         </label>
         <button id="auth-submit-btn" class="primary-button full-width" type="submit">Sign In</button>
       </form>
@@ -1259,6 +1287,69 @@
       </div>
     </div>
   </div>
+
+  <template id="template-grocery">
+    <div class="grocery-layout container" style="padding-top: 8rem; padding-bottom: 4rem; min-height: 80vh;">
+      <section class="grocery-hero glass-panel">
+        <div class="grocery-hero-text">
+          <p class="eyebrow">Smart Planner</p>
+          <h1>Weekly Grocery List</h1>
+          <p>Your personalized shopping items computed automatically to match your demographic baseline and nutritional targets.</p>
+        </div>
+        <div class="grocery-progress-card">
+          <div class="grocery-progress-ring" id="grocery-progress-ring">
+            <span>0%</span>
+          </div>
+          <small class="eyebrow">Shopping Progress</small>
+        </div>
+      </section>
+
+      <section id="grocery-timeline" aria-live="polite">
+        <!-- Structured lists filled dynamically by scripts/grocery.js -->
+      </section>
+
+      <div class="grocery-action-bar">
+        <button id="grocery-btn-reset" class="secondary-button" type="button">Reset Shopping Checklist</button>
+        <button id="grocery-btn-copy" class="primary-button" type="button">Copy List to Clipboard</button>
+      </div>
+    </div>
+
+    <!-- Footer Divider -->
+    <div class="footer-divider"></div>
+
+    <!-- Footer -->
+    <footer class="landing-footer container">
+      <div class="footer-bottom" style="justify-content: center;">
+        <p class="muted">© 2026 NutriPlan Lite. All rights reserved. Built for a healthier tomorrow.</p>
+      </div>
+    </footer>
+  </template>
+
+  <template id="template-reminders">
+    <div class="reminders-layout container" style="padding-top: 8rem; padding-bottom: 4rem; min-height: 80vh;">
+      <section class="reminders-hero glass-panel">
+        <div class="reminders-hero-text">
+          <p class="eyebrow">Smart System</p>
+          <h1>Meal Reminders & Habit Compliance</h1>
+          <p>Schedule meal time triggers, configure browser push alerts, and track daily consistency habits automatically calculated for your constraints.</p>
+        </div>
+      </section>
+
+      <section id="reminders-timeline" aria-live="polite">
+        <!-- Reminders and Habits filled dynamically by scripts/reminders.js -->
+      </section>
+    </div>
+
+    <!-- Footer Divider -->
+    <div class="footer-divider"></div>
+
+    <!-- Footer -->
+    <footer class="landing-footer container">
+      <div class="footer-bottom" style="justify-content: center;">
+        <p class="muted">© 2026 NutriPlan Lite. All rights reserved. Built for a healthier tomorrow.</p>
+      </div>
+    </footer>
+  </template>
 
   <template id="template-faq">
     <div class="landing-page">
@@ -1344,6 +1435,6 @@
       </footer>
     </div>
   </template>
-
+
 </body>
 </html>
