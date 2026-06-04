@@ -4,6 +4,9 @@ const { AppError } = require('./error');
 // Rejects patterns like 'a@b.' or 'a@b' without proper domain structure
 const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
 
+// Password complexity validation: minimum 8 characters with mixed case and number
+const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+
 /**
  * Validation for registering new accounts.
  */
@@ -14,8 +17,8 @@ const validateRegister = (req, res, next) => {
     return next(new AppError('Please provide a valid email address.', 400));
   }
 
-  if (!password || password.length < 6) {
-    return next(new AppError('Password must be at least 6 characters long.', 400));
+  if (!password || !passwordRegex.test(password)) {
+    return next(new AppError('Password must be at least 8 characters and contain uppercase, lowercase, and numbers.', 400));
   }
 
   next();
@@ -23,6 +26,7 @@ const validateRegister = (req, res, next) => {
 
 /**
  * Validation for user login attempts.
+ * Note: Password complexity check enforced at registration; login only requires non-empty password.
  */
 const validateLogin = (req, res, next) => {
   const { email, password } = req.body;
