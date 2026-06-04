@@ -70,8 +70,9 @@ const validateProfileUpdate = (req, res, next) => {
   }
 
   if (gender !== undefined) {
-    if (gender !== 'male' && gender !== 'female') {
-      return next(new AppError('Gender must be either "male" or "female".', 400));
+    const validGenders = ['male', 'female', 'non-binary', 'agender', 'genderqueer', 'prefer not to say'];
+    if (!validGenders.includes(gender.toLowerCase())) {
+      return next(new AppError(`Gender must be one of: ${validGenders.join(', ')}.`, 400));
     }
   }
 
