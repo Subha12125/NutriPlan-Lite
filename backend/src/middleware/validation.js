@@ -116,6 +116,10 @@ const validateFoodLog = (req, res, next) => {
     if (food_name.trim().length > 255) {
       return next(new AppError('Food name must not exceed 255 characters.', 400));
     }
+    // Normalize: store the trimmed value so leading/trailing whitespace does
+    // not persist in the database. Validation already rejects empty strings
+    // after trimming, so this assignment is safe.
+    req.body.food_name = food_name.trim();
   }
 
   if (isPost || quantity_grams !== undefined) {
@@ -179,6 +183,9 @@ const validateFoodLog = (req, res, next) => {
         )
       );
     }
+    // Normalize to lowercase trimmed form so the stored value is always
+    // canonical (e.g. "  Breakfast  " -> "breakfast").
+    req.body.meal_type = meal_type.trim().toLowerCase();
   }
 
   if (log_date !== undefined && log_date !== null && !dateRegex.test(log_date)) {
