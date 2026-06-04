@@ -6,11 +6,34 @@
 [![AI-Coach: Gemini](https://img.shields.io/badge/AI--Coach-Gemini-blue)](https://deepmind.google/technologies/gemini/)
 [![Vanilla JS](https://img.shields.io/badge/Vanilla-JS-yellow)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 
-NutriplanLite is a modern, lightweight, and privacy-first single-page web application (SPA) designed to help users log food, track daily macronutrients, monitor hydration, and receive intelligent advice from an AI nutrition coach.
+A privacy-first nutrition tracker that works offline, tracks calories, macros, hydration, and provides intelligent nutrition guidance.
 
-The application operates in a dual-mode model: by default, it functions as a local-first application using browser `localStorage` ("Local Demo Mode"), enabling instant offline use with zero setup. When configured with a **Supabase** backend, it seamlessly upgrades to "Online Sync Mode", providing secure multi-user authentication and real-time cloud data synchronization.
+✅ Works offline by default
+✅ No account required
+✅ Optional cloud sync with Supabase
+✅ Lightweight Vanilla JavaScript SPA
+✅ AI-assisted nutrition coaching
+
+NutriplanLite is a modern, lightweight, and privacy-first single-page web application designed to help users log food, track macronutrients, monitor hydration, and receive personalized nutrition insights. It works offline out of the box using local storage and can optionally connect to Supabase for cloud synchronization and authentication.
+
+## Quick Start
+
+```bash
+git clone https://github.com/Subha12125/NutriPlan-Lite.git
+
+cd NutriPlan-Lite
+
+python -m http.server 8000
+```
+
+Open your browser and visit:
+
+```text
+http://localhost:8000
+```
 
 ---
+
 
 ## Features
 
