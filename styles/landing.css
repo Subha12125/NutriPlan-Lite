@@ -988,3 +988,34 @@ body:not(.page-landing) #landing-header {
   font-weight: 900;
   padding: 0 1rem;
 }
+
+.cta-left h2,
+.cta-left p,
+.cta-badge-item h4,
+.cta-badge-item p {
+  color: var(--text-primary); /* ensures bright readable text */
+}
+
+.text-gradient {
+  background: linear-gradient(90deg, #4cafef, #81c784);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.glass-panel.cta-panel {
+  background: rgba(255, 255, 255, 0.05); /* subtle glass look */
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.primary-button.cta-button {
+  background: var(--accent);
+  color: #04150e;
+  font-weight: 700;
+  padding: 0.9rem 1.6rem;
+  border-radius: var(--radius-md);
+  transition: background 0.2s ease;
+}
+.primary-button.cta-button:hover {
+  background: #3efaa6;
+}
