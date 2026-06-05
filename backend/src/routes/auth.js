@@ -21,10 +21,7 @@ const router = express.Router();
 // Public routes (Rate Limited)
 router.post('/register', authLimiter, validateRegister, register);
 router.post('/login', authLimiter, validateLogin, login);
-
-// Logout requires authentication so req.user is available to increment token_version.
-// Unauthenticated callers simply get a 401 from protect; no version bump is needed.
-router.post('/logout', protect, logout);
+router.post('/logout', authLimiter, logout);
 
 // Protected routes (Require valid token header)
 router.get('/profile', protect, getProfile);
