@@ -591,3 +591,34 @@
   text-transform: uppercase;
   color: var(--muted);
 }
+
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.password-wrapper input {
+  width: 100%;
+  padding-right: 2.8rem; 
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 0.75rem;
+  background: transparent;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  color: var(--muted);
+  padding: 0;
+  display: grid;
+  place-items: center;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.password-toggle-btn:hover {
+  color: var(--text);
+  transform: scale(1.1);
+}
