@@ -84,6 +84,13 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  transition: transform 0.2s ease;
+}
+
+.grocery-card:hover {
+  transform: translateY(-3px);
 }
 
 .grocery-card-header {
@@ -92,6 +99,7 @@
   align-items: center;
   border-bottom: 1px solid var(--border);
   padding-bottom: var(--space-sm);
+  margin-bottom: 12px;
 }
 
 .grocery-card-header h3 {
@@ -212,4 +220,38 @@
   .grocery-progress-card {
     min-width: 100%;
   }
+}
+
+.progress-container {
+  width: 100%;
+  background: #2a2a2a;
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 20px 0;
+}
+
+.progress-bar {
+  height: 20px;
+  width: 0;
+  background: linear-gradient(90deg, #4caf50, #81c784);
+  border-radius: 12px;
+  transition: width 0.5s ease-in-out;
+}
+
+.badge-protein { background: #2196f3; }
+.badge-carbs { background: #ff9800; }
+.badge-fats { background: #4caf50; }
+.badge-micronutrients { background: #9c27b0; }
+
+.grocery-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid #333;
+}
+
+.grocery-item.checked .grocery-name {
+  text-decoration: line-through;
+  color: #888;
 }
