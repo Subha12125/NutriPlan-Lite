@@ -1,6 +1,8 @@
 const { AppError } = require('./error');
 
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// Email validation regex: requires proper domain format with valid TLD
+// Rejects patterns like 'a@b.' or 'a@b' without proper domain structure
+const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
 
 /**
  * Validation for registering new accounts.
