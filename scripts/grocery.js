@@ -243,3 +243,56 @@ window.Grocery = (() => {
 
   return { init, refresh: init };
 })();
+
+// 1. Inject the Grocery layout into the SPA container
+document.getElementById("app-content").innerHTML = `
+  <section class="grocery-layout">
+    <div class="grocery-hero">
+      <div class="grocery-hero-text">
+        <h1>Weekly Grocery List</h1>
+        <p>Your personalized shopping items computed automatically.</p>
+      </div>
+      <div class="grocery-progress-card">
+        <div class="grocery-progress-ring"><span>0%</span></div>
+        <small>Shopping Progress</small>
+      </div>
+    </div>
+    <div id="grocery-timeline"></div>
+
+    <!-- Action buttons -->
+    <div class="grocery-action-bar">
+      <button id="grocery-btn-reset">Reset Shopping Checklist</button>
+      <button id="grocery-btn-copy">Copy List to Clipboard</button>
+    </div>
+  </section>
+`;
+
+// 2. Define init() AFTER layout exists
+function init() {
+  generateWeeklyList();   // builds shoppingListState
+  render();               // injects cards into #grocery-timeline
+  updateProgress(getProgress());
+
+  // Bind Action Buttons
+  const copyBtn = document.getElementById("grocery-btn-copy");
+  if (copyBtn) copyBtn.addEventListener("click", copyToClipboard);
+
+  const resetBtn = document.getElementById("grocery-btn-reset");
+  if (resetBtn) resetBtn.addEventListener("click", resetChecklist);
+}
+
+// 3. Toggle items + update progress
+document.addEventListener("click", e => {
+  const itemEl = e.target.closest(".grocery-item");
+  if (!itemEl) return;
+
+  const id = itemEl.dataset.groceryItemId;
+  const item = shoppingListState.find(x => x.id == id);
+  item.checked = !item.checked;
+
+  render();
+  updateProgress(getProgress());
+});
+
+// 4. Run init() when Grocery page loads
+init();
