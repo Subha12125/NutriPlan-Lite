@@ -184,6 +184,7 @@ form.addEventListener('submit', e => {
 
   // Loading state handling
   if (submitBtn) {
+    // Prevent duplicate submissions while AI is responding
     submitBtn.disabled = true;
     submitBtn.innerHTML = '⌛';
     submitBtn.style.opacity = '0.7';
