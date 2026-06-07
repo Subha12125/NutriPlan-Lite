@@ -142,6 +142,7 @@ window.AI = (() => {
     const feed = document.getElementById('main-ai-feed');
     const form = document.getElementById('main-ai-form');
     const input = document.getElementById('main-ai-input');
+    const submitBtn = form.querySelector('button[type="submit"]');
     const clearBtn = document.getElementById('clear-ai-chat');
     
     if (!form || !feed) return; // not on ai-helper page
@@ -172,13 +173,21 @@ window.AI = (() => {
     });
 
     // Form submission
-    form.addEventListener('submit', e => {
-      e.preventDefault();
-      const prompt = input?.value.trim();
-      if (!prompt) return;
-      
-      appendMessage('user-bubble', prompt);
-      input.value = '';
+form.addEventListener('submit', e => {
+  e.preventDefault();
+
+  const prompt = input?.value.trim();
+  if (!prompt) return;
+
+  appendMessage('user-bubble', prompt);
+  input.value = '';
+
+  // Loading state handling
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '⌛';
+    submitBtn.style.opacity = '0.7';
+  }
       
       // Show typing indicator
       const typingId = 'typing-' + Date.now();
@@ -189,6 +198,12 @@ window.AI = (() => {
         if (typingEl) typingEl.remove();
         const reply = getReply(prompt);
         appendMessage('ai-bubble', reply);
+
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '↑';
+          submitBtn.style.opacity = '1';
+        }
       }, 600 + Math.random() * 400);
     });
   }
