@@ -428,3 +428,46 @@
   }
 }
 
+@media (max-width: 992px) {
+    
+    /* 1. Force the onboarding drawer to stack or sit full-screen on mobile */
+    #onboarding-modal.drawer {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 100% !important; /* Prevents it from shrinking horizontally */
+        height: 100%;
+        z-index: 9999; /* Ensures it sits completely on top of the dashboard layout */
+    }
+
+    /* 2. Adjust the inner content block of the drawer if it needs padding tweaks */
+    #onboarding-modal .drawer-backdrop {
+        width: 100%;
+        height: 100%;
+    }
+
+    /* 3. Give the dashboard area room to breathe when the modal isn't crowding it */
+    .page-dashboard {
+        width: 100%;
+        display: block;
+    }
+}
+
+
+/* Responsive fix for onboarding wizard card overlap on mobile (#166) */
+@media (max-width: 768px) {
+    
+    /* Force the wizard card container to overlay nicely over the screen instead of crushing layouts */
+    aside.drawer-card.onboarding-wizard-card {
+        width: 100% !important; /* Forces it to fill the mobile width smoothly */
+        max-width: 100% !important;
+        position: fixed !important; /* Layer it like a clean modal overlay */
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        height: 100vh !important;
+        border-radius: 0 !important; /* Removes desktop rounded corners on mobile edge */
+        overflow-y: auto !important; /* Lets users scroll up and down if text is long */
+    }
+}
