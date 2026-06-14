@@ -346,3 +346,86 @@
   line-height: 1.4;
 }
 
+/* ── Daily Challenge System ────────────────────────────── */
+
+.challenge-panel {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  animation: fade-in 0.3s ease-out;
+}
+
+.challenge-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.challenge-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  color: var(--text);
+}
+
+.challenge-icon {
+  font-size: 1.25rem;
+}
+
+.challenge-difficulty {
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 0.25rem 0.6rem;
+  border-radius: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.diff-easy { color: var(--green); background: rgba(34, 197, 94, 0.15); }
+.diff-medium { color: var(--amber); background: rgba(245, 158, 11, 0.15); }
+.diff-hard { color: var(--rose); background: rgba(244, 63, 94, 0.15); }
+
+.challenge-desc {
+  font-size: 0.95rem;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.challenge-stats {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.challenge-done {
+  padding: 1rem;
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px dashed rgba(34, 197, 94, 0.4);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0.5rem;
+  animation: pop-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.done-icon-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 800;
+  color: var(--green);
+}
+
+.done-icon {
+  font-size: 1.4rem;
+}
+
+@keyframes pop-in {
+  0% { opacity: 0; transform: scale(0.95); }
+  100% { opacity: 1; transform: scale(1); }
+}
