@@ -62,3 +62,18 @@ self.addEventListener('fetch', (event) => {
       .catch(() => caches.match(event.request)) // Offline fallback
   );
 });
+
+// Notification Click Event: Focus the app window
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
+      // If a window is already open, focus it
+      if (windowClients.length > 0) {
+        return windowClients[0].focus();
+      }
+      // Otherwise, open a new window
+      return clients.openWindow('/');
+    })
+  );
+});
