@@ -492,3 +492,28 @@ window.Tracker = (() => {
     updateDateLabel
   };
 })();
+
+document.addEventListener('DOMContentLoaded', () => {
+  const clearBtn = document.getElementById('clear-log-btn');
+  if (clearBtn) {
+    clearBtn.addEventListener('click', clearTodayLog);
+  }
+});
+
+function clearTodayLog() {
+  if (!confirm("Are you sure you want to clear all food entries for today?")) {
+    return;
+  }
+
+  const today = getLocalDateString(new Date());
+  if (localState.history[today]) {
+    localState.history[today].loggedEntries = [];
+    localState.history[today].waterConsumed = 0; // optional reset
+  }
+
+  // Clear UI
+  const list = document.getElementById('food-log-list');
+  if (list) list.innerHTML = '';
+
+  notify("Today's food log has been cleared.", "success");
+}
