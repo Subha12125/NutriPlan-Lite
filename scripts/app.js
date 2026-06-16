@@ -43,6 +43,9 @@ window.App = (() => {
   }
 
   async function init() {
+    if (window.Storage && window.Storage.initDB) {
+      await window.Storage.initDB();
+    }
     // Perform full sync from backend if the user is authenticated
     const authenticated = window.Session
       ? window.Session.isAuthenticated()
@@ -63,6 +66,8 @@ window.App = (() => {
     Hydration.init();
     AI.init();
     Dashboard.initProfilePanel();
+    if (window.WeeklyReport) window.WeeklyReport.init();
+    if (window.Onboarding) window.Onboarding.init();
 
     // Initial UI render
     refresh();
@@ -79,19 +84,6 @@ window.App = (() => {
       });
     });
 
-    // Dark/light theme toggle
-    const themeBtn = document.getElementById('theme-toggle');
-    if (themeBtn) {
-      const settings = Storage.getSettings();
-      if (settings.theme === 'light') document.body.classList.add('light-mode');
-      themeBtn.addEventListener('click', () => {
-        document.body.classList.toggle('light-mode');
-        const isLight = document.body.classList.contains('light-mode');
-        Storage.saveSettings({ theme: isLight ? 'light' : 'dark' });
-        themeBtn.textContent = isLight ? '🌙' : '☀️';
-      });
-      themeBtn.textContent = settings.theme === 'light' ? '🌙' : '☀️';
-    }
   }
 
   return { init, refresh };
@@ -105,6 +97,9 @@ window.addEventListener('pageLoaded', async (e) => {
   if (window.Auth) window.Auth.renderAuthWidgets();
 
   if (page === 'dashboard') {
+    if (window.Storage && window.Storage.initDB) {
+      await window.Storage.initDB();
+    }
     // Sync from backend on dashboard load
     if (window.Storage && window.Storage.sync) {
       await window.Storage.sync();
@@ -113,15 +108,16 @@ window.addEventListener('pageLoaded', async (e) => {
     await Tracker.init();
     Hydration.init();
     Dashboard.initProfilePanel();
-
-    if (!window.Storage.getProfile().isSetup) {
-      const modal = document.getElementById('onboarding-modal');
-      if (modal) modal.classList.remove('hidden');
-    }
+    if (window.WeeklyReport) window.WeeklyReport.init();
+    if (window.Onboarding) window.Onboarding.init();
 
     App.refresh();
   } else if (page === 'ai-helper') {
     if (window.AI) AI.initMainChat();
+  } else if (page === 'grocery') {
+    if (window.Grocery) window.Grocery.init();
+  } else if (page === 'reminders') {
+    if (window.Reminders) window.Reminders.init();
   }
 
   // Global theme toggle (always available in headers)
@@ -129,17 +125,62 @@ window.addEventListener('pageLoaded', async (e) => {
   themeBtns.forEach(themeBtn => {
     if (!themeBtn.dataset.initialized) {
       themeBtn.dataset.initialized = 'true';
-      const settings = Storage.getSettings();
-      if (settings.theme === 'light') document.body.classList.add('light-mode');
       themeBtn.addEventListener('click', () => {
-        document.body.classList.toggle('light-mode');
-        const isLight = document.body.classList.contains('light-mode');
-        Storage.saveSettings({ theme: isLight ? 'light' : 'dark' });
+        const newTheme = window.ThemeService.toggleTheme();
         document.querySelectorAll('.theme-btn, #theme-toggle').forEach(btn => {
-          btn.textContent = isLight ? '🌙' : '☀️';
+          btn.textContent = newTheme === 'light' ? '🌙' : '☀️';
         });
       });
-      themeBtn.textContent = settings.theme === 'light' ? '🌙' : '☀️';
+      themeBtn.textContent = window.ThemeService.getTheme() === 'light' ? '🌙' : '☀️';
     }
   });
+});
+
+// ── PWA & Service Worker Registration ──────────────────────────────
+let deferredPrompt;
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then((registration) => {
+        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+      })
+      .catch((err) => {
+        console.error('ServiceWorker registration failed: ', err);
+      });
+  });
+}
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  
+  // Show the custom install panel in the dashboard
+  const installPanel = document.getElementById('pwa-install-panel');
+  if (installPanel) {
+    installPanel.classList.remove('hidden');
+  }
+});
+
+// Handle custom install button click (use Event Delegation since it's in a template)
+document.addEventListener('click', async (e) => {
+  if (e.target && e.target.id === 'btn-install-pwa') {
+    if (!deferredPrompt) return;
+    
+    deferredPrompt.prompt();
+    
+    const { outcome } = await deferredPrompt.userChoice;
+    console.log(`User response to the install prompt: ${outcome}`);
+    
+    deferredPrompt = null;
+    
+    const installPanel = document.getElementById('pwa-install-panel');
+    if (installPanel) installPanel.classList.add('hidden');
+  }
+});
+
+window.addEventListener('appinstalled', () => {
+  console.log('NutriPlan Lite was installed securely.');
+  const installPanel = document.getElementById('pwa-install-panel');
+  if (installPanel) installPanel.classList.add('hidden');
 });

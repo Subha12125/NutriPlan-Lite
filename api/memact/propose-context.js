@@ -51,9 +51,10 @@ export default async function handler(request, response) {
     });
 
     const payload = await memactResponse.json().catch(() => ({}));
-    return response.status(memactResponse.ok ? 200 : memactResponse.status).json({
-      accepted: memactResponse.ok,
-      ...payload
+    const accepted = memactResponse.ok && payload.accepted === true;
+    return response.status(accepted ? 200 : memactResponse.status).json({
+      ...payload,
+      accepted
     });
   } catch (error) {
     if (isAbortError(error)) {

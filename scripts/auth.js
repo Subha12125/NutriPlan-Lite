@@ -68,8 +68,14 @@ window.Auth = (() => {
       closeModal();
       renderAuthWidgets();
 
-      // Full sync from server then refresh UI
-      await Storage.sync();
+      // Push offline data to cloud FIRST
+      if (window.Storage && window.Storage.syncLocalToCloud) {
+        await window.Storage.syncLocalToCloud();
+      } else {
+        // Fallback Full sync from server
+        await Storage.sync();
+      }
+
       if (window.App) window.App.refresh();
 
     } catch (err) {
@@ -93,7 +99,14 @@ window.Auth = (() => {
       closeModal();
       renderAuthWidgets();
 
-      await Storage.sync();
+      // Push offline data to cloud FIRST
+      if (window.Storage && window.Storage.syncLocalToCloud) {
+        await window.Storage.syncLocalToCloud();
+      } else {
+        // Fallback Full sync from server
+        await Storage.sync();
+      }
+      
       if (window.App) window.App.refresh();
 
     } catch (err) {
@@ -103,12 +116,28 @@ window.Auth = (() => {
       _setSubmitLoading(false, 'Register');
     }
   }
+  
+  async function logout() {
+    // Notify the backend first so it increments token_version, instantly
+    // invalidating every outstanding JWT for this user (including copies
+    // held by other sessions or devices).
+    //
+    // If the call fails (e.g. network down, token already expired) we still
+    // clear the local session so the user is signed out on this device.
+    // A failed backend call is logged as a warning, not shown to the user.
+    try {
+      await ApiService.auth.logout();
+    } catch (err) {
+      console.warn('[Auth] Backend logout call failed; clearing local session anyway.', err);
+    }
 
-  function logout() {
     window.Session.clear();
 
     // Reset local DB to go back to demo defaults
     localStorage.removeItem('nutriplan_v2');
+    if (window.Storage && window.Storage.clearDB) {
+      window.Storage.clearDB();
+    }
 
     Toast.show('Signed out. Local Demo mode active.', 'info');
     renderAuthWidgets();
@@ -203,4 +232,19 @@ window.Auth = (() => {
 // Initialize Auth module when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
   window.Auth.init();
+});
+
+// Password Visibility Toggle Logic
+document.addEventListener('DOMContentLoaded', () => {
+  const toggleBtn = document.getElementById('toggle-password-btn');
+  const passwordInput = document.getElementById('auth-password');
+
+  if (toggleBtn && passwordInput) {
+    toggleBtn.addEventListener('click', () => {
+      const isPassword = passwordInput.getAttribute('type') === 'password';
+      passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
+      
+      toggleBtn.textContent = isPassword ? '🙈' : '👁️'; 
+    });
+  }
 });

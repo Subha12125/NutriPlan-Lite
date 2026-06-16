@@ -6,11 +6,34 @@
 [![AI-Coach: Gemini](https://img.shields.io/badge/AI--Coach-Gemini-blue)](https://deepmind.google/technologies/gemini/)
 [![Vanilla JS](https://img.shields.io/badge/Vanilla-JS-yellow)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 
-NutriplanLite is a modern, lightweight, and privacy-first single-page web application (SPA) designed to help users log food, track daily macronutrients, monitor hydration, and receive intelligent advice from an AI nutrition coach.
+A privacy-first nutrition tracker that works offline, tracks calories, macros, hydration, and provides intelligent nutrition guidance.
 
-The application operates in a dual-mode model: by default, it functions as a local-first application using browser `localStorage` ("Local Demo Mode"), enabling instant offline use with zero setup. When configured with a **Supabase** backend, it seamlessly upgrades to "Online Sync Mode", providing secure multi-user authentication and real-time cloud data synchronization.
+✅ Works offline by default
+✅ No account required
+✅ Optional cloud sync with Supabase
+✅ Lightweight Vanilla JavaScript SPA
+✅ AI-assisted nutrition coaching
+
+NutriplanLite is a modern, lightweight, and privacy-first single-page web application designed to help users log food, track macronutrients, monitor hydration, and receive personalized nutrition insights. It works offline out of the box using local storage and can optionally connect to Supabase for cloud synchronization and authentication.
+
+## Quick Start
+
+```bash
+git clone https://github.com/Subha12125/NutriPlan-Lite.git
+
+cd NutriPlan-Lite
+
+python -m http.server 8000
+```
+
+Open your browser and visit:
+
+```text
+http://localhost:8000
+```
 
 ---
+
 
 ## Features
 
@@ -333,36 +356,53 @@ This project is licensed under the MIT License. See the [LICENSE](TODO: Add LICE
 - For support inquiries, contact the maintenance team: [TODO: Add support email address]
 # NutriPlan Lite
 
-NutriPlan Lite is a local-first fitness nutrition planner for calories, macros, hydration, and personal goals.
+NutriPlan Lite is a lightweight fitness and nutrition planner for calories, macros, hydration, and personal goals.
 
-The app keeps the original lightweight project kernel: static HTML, CSS, and vanilla JavaScript. It works without an account through `localStorage`, and it can be connected to Supabase or Memact later.
+The project keeps its original kernel: static HTML, CSS, and vanilla JavaScript. It can run locally with `localStorage`, connect to Supabase for account sync, and optionally use Memact after user consent.
 
 ## What It Does
 
 - Calculates nutrition targets from age, height, weight, activity level, and goal.
 - Tracks meals, calories, protein, carbs, fat, and water.
 - Shows daily progress, weekly charts, and simple coach-style recommendations.
-- Runs locally by default with no required signup.
-- Can optionally use Memact fitness context after user consent.
+- Works without a required account in local mode.
+- Can reuse approved Memact fitness memory so users do not repeat setup questions.
 
-## Memact Integration
+## How Memact Helps The UX
 
 Memact is optional. NutriPlan still works if the user denies consent.
 
-Flow:
+When a user connects Memact, NutriPlan can ask for approved fitness memory such as goals, activity level, dietary preference, allergies, and hydration targets. If enough memory already exists, NutriPlan fills those setup fields and skips repeated onboarding questions. If anything is missing, NutriPlan asks only for the missing details.
 
-1. User opens NutriPlan setup.
-2. User may connect Memact.
-3. If Memact has enough approved fitness context, NutriPlan fills setup fields and skips repeated questions.
-4. If context is missing, NutriPlan asks only the missing fitness questions.
-5. When the user saves those answers, NutriPlan proposes the new fitness context back to Memact Wiki for user control.
+When the user saves new fitness details, NutriPlan proposes that context back to Memact Wiki. The user can later review, edit, reject, or delete it there.
 
-Server environment variables:
+This keeps the app simple:
+
+1. NutriPlan asks before using Memact.
+2. The user can connect Memact or set up manually.
+3. NutriPlan reads only approved fitness memory.
+4. Missing fitness details are still asked inside NutriPlan.
+5. New answers are proposed back to Memact Wiki for user control.
+
+## Memact Server Setup
+
+Memact API keys must stay on the server. Do not put a private Memact API key in browser code, public repos, logs, or user-facing settings.
 
 ```env
+# Memact API endpoint, for example https://api.memact.com
 MEMACT_BASE_URL=https://api.memact.com
+
+# Server-side Memact API key. Keep private; keys usually start with mka_.
 MEMACT_API_KEY=mka_your_server_side_key
+
+# App identifier sent to Memact API calls, for example nutriplan-lite.
 MEMACT_APP_ID=nutriplan-lite
+
+# Signs Memact connect state tokens for this deployment.
+MEMACT_SESSION_SECRET=replace_with_a_long_random_secret
+
+# Optional outbound Memact API timeout in milliseconds.
+MEMACT_TIMEOUT_MS=8000
 ```
 
 Frontend configuration can be set before `scripts/memact.js` loads:
@@ -375,7 +415,13 @@ Frontend configuration can be set before `scripts/memact.js` loads:
 </script>
 ```
 
-Never put a private Memact API key in browser code.
+## Memact Integration Files
+
+- `scripts/memact.js` starts the consent flow, reads approved fitness memory, fills known setup fields, and proposes newly entered fitness context back to Memact Wiki.
+- `api/memact/session.js` creates a signed one-time state value for the connect flow.
+- `api/memact/fitness-context.js` reads approved fitness memory from Memact through the server.
+- `api/memact/propose-context.js` proposes saved fitness details back to Memact Wiki.
+- `api/memact/_auth.js` verifies the signed state and applies outbound Memact API timeouts.
 
 ## Tech Stack
 
@@ -385,16 +431,28 @@ Never put a private Memact API key in browser code.
 - LocalStorage fallback
 - Optional Supabase tables in `supabase_setup.sql`
 - Optional Vercel-style API routes in `api/memact/`
+- Optional Gemini integrations already present in the app
 
 ## Local Development
 
 ```bash
 npm install
 npm run check
+npm run build
 ```
 
-Then open `index.html` or serve the folder with any static server.
+Then serve the folder locally:
+
+```bash
+npm run dev
+```
 
 ## Notes
 
-The coach is rule-based in this version. It does not require an AI API. Future API integrations can be added behind server-side routes without breaking the local-first app.
+- The Memact integration is designed to reduce onboarding friction, not replace NutriPlan’s own preference form.
+- If Memact is unavailable or not configured, NutriPlan falls back to manual setup.
+- The coach features can evolve behind server-side routes without exposing private keys in browser code.
+
+## License
+
+This project is licensed under the MIT License.

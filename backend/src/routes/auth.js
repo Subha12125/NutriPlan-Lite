@@ -21,9 +21,7 @@ const router = express.Router();
 // Public routes (Rate Limited)
 router.post('/register', authLimiter, validateRegister, register);
 router.post('/login', authLimiter, validateLogin, login);
-
-// Public routes (No rate limiting needed)
-router.post('/logout', logout);
+router.post('/logout', authLimiter, logout);
 
 // Protected routes (Require valid token header)
 router.get('/profile', protect, getProfile);

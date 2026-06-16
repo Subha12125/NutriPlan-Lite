@@ -3,45 +3,68 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem('nutriplan-theme');
+      if (savedTheme) {
+        document.documentElement.dataset.theme = savedTheme;
+      } else {
+        const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.dataset.theme = systemDark ? 'dark' : 'light';
+      }
+    })();
+  </script>
   <title>NutriPlan Lite - Fitness Nutrition Planner</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#000000">
   <meta name="description" content="A fitness nutrition planner for calories, macros, hydration, and personal goals.">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
-  <!-- Styles -->
+  
   <link rel="stylesheet" href="styles/base.css">
+  <link rel="stylesheet" href="styles/layout.css">
+  <link rel="stylesheet" href="styles/landing.css">
   <link rel="stylesheet" href="styles/dashboard.css">
   <link rel="stylesheet" href="styles/tracker.css">
-  <link rel="stylesheet" href="styles/hydration.css">
+  <link rel="stylesheet" href="styles/ai.css">
   <link rel="stylesheet" href="styles/ai-panel.css">
   <link rel="stylesheet" href="styles/animations.css">
-  <link rel="stylesheet" href="styles/responsive.css">
-  <link rel="stylesheet" href="styles/components.css">
-  <link rel="stylesheet" href="styles/landing.css">
-  <link rel="stylesheet" href="styles/ai.css">
-  <link rel="stylesheet" href="styles/memact.css">
   <link rel="stylesheet" href="styles/charts-dashboard.css">
+  <link rel="stylesheet" href="styles/chat.css">
+  <link rel="stylesheet" href="styles/components.css">
+  <link rel="stylesheet" href="styles/hydration.css">
+  <link rel="stylesheet" href="styles/memact.css">
+  <link rel="stylesheet" href="styles/responsive.css">
+  <link rel="stylesheet" href="styles/sidebar.css">
+  <link rel="stylesheet" href="styles/grocery.css">
+  <link rel="stylesheet" href="styles/reminders.css">
   
-  <!-- GSAP & ScrollTrigger -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js" defer></script>
-  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
   
-  <!-- Scripts (load order matters) -->
-  <script src="scripts/api.js" defer></script>
-  <script src="scripts/session.js" defer></script>
-  <script src="scripts/storage.js" defer></script>
-  <script src="scripts/auth.js" defer></script>
-  <script src="scripts/analytics.js" defer></script>
-  <script src="scripts/tracker.js" defer></script>
-  <script src="scripts/hydration.js" defer></script>
-  <script src="scripts/dashboard.js" defer></script>
-  <script src="scripts/ai.js" defer></script>
-  <script src="scripts/memact.js" defer></script>
-  <script src="scripts/navigation.js" defer></script>
-  <script src="scripts/app.js" defer></script>
-  <script src="scripts/landing-animations.js" defer></script>
+  <script type="module" src="scripts/theme.js"></script>
+  <script type="module" src="scripts/ui.js"></script>
+  <script type="module" src="scripts/session.js"></script>
+  <script type="module" src="scripts/api.js"></script>
+  <script type="module" src="scripts/db.js"></script>
+  <script type="module" src="scripts/storage.js"></script>
+  <script type="module" src="scripts/auth.js"></script>
+  <script type="module" src="scripts/sync.js"></script>
+  <script type="module" src="scripts/tracker.js"></script>
+  <script type="module" src="scripts/hydration.js"></script>
+  <script type="module" src="scripts/analytics.js"></script>
+  <script type="module" src="scripts/ai.js"></script>
+  <script type="module" src="scripts/onboarding.js"></script>
+  <script type="module" src="scripts/reports.js"></script>
+  <script type="module" src="scripts/dashboard.js"></script>
+  <script type="module" src="scripts/grocery.js"></script>
+  <script type="module" src="scripts/reminders.js"></script>
+  <script type="module" src="scripts/app.js"></script>
 </head>
 <body>
   <!-- Toast container -->
@@ -60,6 +83,8 @@
           <a href="#landing" data-nav="landing">Home</a>
           <a href="#features">Features</a>
           <a href="#dashboard" data-nav="dashboard">Dashboard</a>
+          <a href="#grocery" data-nav="grocery">Grocery</a>
+          <a href="#reminders" data-nav="reminders">Reminders</a>
           <a href="#ai-helper" data-nav="ai-helper">Coach</a>
         </nav>
 
@@ -94,12 +119,16 @@
       <nav class="desktop-nav" aria-label="Primary">
         <a href="#landing" data-nav="landing">Home</a>
         <a href="#dashboard" data-nav="dashboard">Dashboard</a>
+        <a href="#grocery" data-nav="grocery">Grocery</a>
+        <a href="#reminders" data-nav="reminders">Reminders</a>
         <a href="#ai-helper" data-nav="ai-helper">Coach</a>
       </nav>
 
       <div class="header-actions">
         <div id="auth-status-container" class="auth-status-container"></div>
+        <button id="btn-replay-tour" class="icon-button" type="button" aria-label="Onboarding Tour" title="Start interactive tour">❓</button>
         <button id="theme-toggle" class="icon-button" type="button" aria-label="Toggle theme" title="Toggle theme">☀️</button>
+        <button class="icon-button mobile-menu-btn app-header-menu-btn" type="button" aria-label="Open menu">☰</button>
       </div>
     </header>
 
@@ -112,7 +141,8 @@
     <nav class="bottom-nav" aria-label="Mobile navigation">
       <a href="#landing" data-nav="landing">🏠<span>Home</span></a>
       <a href="#dashboard" data-nav="dashboard">📊<span>Dashboard</span></a>
-      <button type="button" data-open-food-drawer class="bottom-nav-add">＋</button>
+      <a href="#grocery" data-nav="grocery">🛒<span>Grocery</span></a>
+      <a href="#reminders" data-nav="reminders">🔔<span>Alerts</span></a>
       <a href="#ai-helper" data-nav="ai-helper">💬<span>Coach</span></a>
     </nav>
   </div>
@@ -187,48 +217,122 @@
   <!-- ── Onboarding Modal ─────────────────────────────────────── -->
   <div id="onboarding-modal" class="drawer hidden" role="dialog" aria-modal="true" aria-labelledby="onboarding-title">
     <div class="drawer-backdrop" aria-hidden="true"></div>
-    <aside class="drawer-card">
+    <aside class="drawer-card onboarding-wizard-card">
+      <!-- Onboarding Wizard Header Progress -->
+      <div class="onboarding-wizard-progress-bar">
+        <div id="onboarding-progress-fill" class="onboarding-progress-fill" style="width: 20%;"></div>
+      </div>
+      
       <div class="drawer-header">
         <div>
-          <p class="eyebrow">Welcome to NutriPlan Lite</p>
-          <h2 id="onboarding-title">Set up your profile</h2>
+          <p class="eyebrow" id="onboarding-eyebrow">Step 1 of 5 • Welcome</p>
+          <h2 id="onboarding-title">Welcome to NutriPlan</h2>
         </div>
       </div>
 
       <div class="profile-form">
-        <div class="form-row-2">
-          <label>
-            <span>Age</span>
-            <input id="age" type="number" min="1" max="120" value="25" placeholder="25">
-          </label>
-          <label>
-            <span>Weight (kg)</span>
-            <input id="weight" type="number" min="20" max="300" step="0.1" value="70" placeholder="70">
-          </label>
+        <!-- STEP 1: Welcome Screen -->
+        <div id="onboarding-step-1" class="onboarding-step-panel active">
+          <div class="welcome-wizard-content">
+            <p class="welcome-tagline">Your personal, 100% private, local-first fitness and nutrition companion.</p>
+            <div class="welcome-features-list">
+              <div class="welcome-feature-item">
+                <span class="feature-emoji">🛡️</span>
+                <div>
+                  <h4>100% Client-Side Privacy</h4>
+                  <p>All logs and physical metrics remain securely on your device. We never sell or upload your personal information.</p>
+                </div>
+              </div>
+              <div class="welcome-feature-item">
+                <span class="feature-emoji">📊</span>
+                <div>
+                  <h4>Goal-Aware Analytics</h4>
+                  <p>Track calories, protein ratios, and hydration in real-time. Instantly generate downloadable PDF Weekly Reports.</p>
+                </div>
+              </div>
+              <div class="welcome-feature-item">
+                <span class="feature-emoji">🤖</span>
+                <div>
+                  <h4>AI Wellness Coach</h4>
+                  <p>Receive tailored food advice and habit coaching context-aware recipes on demand.</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="form-row-2">
-          <label>
-            <span>Height (cm)</span>
-            <input id="height" type="number" min="50" max="280" value="175" placeholder="175">
-          </label>
-          <label>
-            <span>Gender</span>
-            <select id="gender">
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-            </select>
-          </label>
+
+        <!-- STEP 2: Physical Metrics -->
+        <div id="onboarding-step-2" class="onboarding-step-panel hidden">
+          <p class="step-instruction">Enter your core metrics so we can calculate your baseline metabolic rates.</p>
+          <div class="form-row-2">
+            <label>
+              <span>Age</span>
+              <input id="age" type="number" min="1" max="120" value="25" placeholder="25" required>
+            </label>
+            <label>
+              <span>Weight (kg)</span>
+              <input id="weight" type="number" min="20" max="300" step="0.1" value="70" placeholder="70" required>
+            </label>
+          </div>
+          <div class="form-row-2">
+            <label>
+              <span>Height (cm)</span>
+              <input id="height" type="number" min="50" max="280" value="175" placeholder="175" required>
+            </label>
+            <label>
+              <span>Gender</span>
+              <select id="gender">
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+              </select>
+            </label>
+          </div>
         </div>
+
+        <!-- STEP 3: Goals & Activity -->
+        <div id="onboarding-step-3" class="onboarding-step-panel hidden">
+          <p class="step-instruction">Define your destination and physical activity thresholds.</p>
           <label>
             <span>Activity level</span>
             <select id="activity">
-            <option value="1.2">Sedentary (desk job)</option>
-            <option value="1.375">Light (1-3 days/week)</option>
-            <option value="1.55" selected>Moderate (3-5 days)</option>
-            <option value="1.725">Active (6-7 days)</option>
-            <option value="1.9">Very active (athlete)</option>
+              <option value="1.2">Sedentary (desk job)</option>
+              <option value="1.375">Light (1-3 days/week)</option>
+              <option value="1.55" selected>Moderate (3-5 days)</option>
+              <option value="1.725">Active (6-7 days)</option>
+              <option value="1.9">Very active (athlete)</option>
             </select>
           </label>
+          <div class="form-row-2">
+            <label>
+              <span>Goal</span>
+              <select id="goal">
+                <option value="lose">Lose weight</option>
+                <option value="maintain" selected>Maintain</option>
+                <option value="gain">Gain muscle</option>
+              </select>
+            </label>
+            <label>
+              <span>Macro split</span>
+              <select id="macroSplit">
+                <option value="balanced" selected>Balanced</option>
+                <option value="highprotein">High protein</option>
+                <option value="lowcarb">Low carb</option>
+                <option value="custom">Custom</option>
+              </select>
+            </label>
+          </div>
+          <div id="custom-macros-panel" class="hidden custom-macros">
+            <div class="form-row-3">
+              <label><span>Protein %</span><input id="customProtein" type="number" min="0" max="100" value="25"></label>
+              <label><span>Carbs %</span><input id="customCarbs" type="number" min="0" max="100" value="45"></label>
+              <label><span>Fat %</span><input id="customFat" type="number" min="0" max="100" value="30"></label>
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 4: Preferences & Hydration -->
+        <div id="onboarding-step-4" class="onboarding-step-panel hidden">
+          <p class="step-instruction">Customize dietary guidelines and water hydration parameters.</p>
           <label data-context-key="dietaryPreference">
             <span>Diet preference</span>
             <select id="dietaryPreference">
@@ -243,49 +347,42 @@
             <span>Allergies or restrictions</span>
             <input id="allergies" type="text" placeholder="e.g. lactose, peanuts, none">
           </label>
-        <div class="form-row-2">
           <label>
-            <span>Goal</span>
-            <select id="goal">
-              <option value="lose">Lose weight</option>
-              <option value="maintain" selected>Maintain</option>
-              <option value="gain">Gain muscle</option>
-            </select>
-          </label>
-          <label>
-            <span>Macro split</span>
-            <select id="macroSplit">
-              <option value="balanced" selected>Balanced</option>
-              <option value="highprotein">High protein</option>
-              <option value="lowcarb">Low carb</option>
-              <option value="custom">Custom</option>
-            </select>
+            <span>Water target (ml)</span>
+            <input id="waterTarget" type="number" min="500" max="10000" step="100" value="2500" required>
           </label>
         </div>
-        <div id="custom-macros-panel" class="hidden custom-macros">
-          <div class="form-row-3">
-            <label><span>Protein %</span><input id="customProtein" type="number" min="0" max="100" value="25"></label>
-            <label><span>Carbs %</span><input id="customCarbs" type="number" min="0" max="100" value="45"></label>
-            <label><span>Fat %</span><input id="customFat" type="number" min="0" max="100" value="30"></label>
-          </div>
+
+        <!-- STEP 5: Memact Context -->
+        <div id="onboarding-step-5" class="onboarding-step-panel hidden">
+          <p class="step-instruction">Connect your external fitness context to automatically fill targets.</p>
+          <section class="memact-onboarding-panel">
+            <div>
+              <p class="eyebrow">Optional Memact</p>
+              <h3>Use your fitness context</h3>
+              <p>Connect Memact to reuse approved fitness preferences. If there is enough context, NutriPlan skips setup questions it already knows.</p>
+            </div>
+            <div class="memact-actions">
+              <button id="memact-connect-btn" class="secondary-button full-width" type="button">Connect Memact</button>
+              <button id="memact-skip-btn" class="text-button" type="button">Set up manually</button>
+            </div>
+            <p id="memact-status" class="memact-status" role="status" aria-live="polite" aria-atomic="true">Private by default. API keys stay on the server.</p>
+          </section>
         </div>
-        <label>
-          <span>Water target (ml)</span>
-          <input id="waterTarget" type="number" min="500" max="10000" step="100" value="2500">
-        </label>
-        <section class="memact-onboarding-panel">
-          <div>
-            <p class="eyebrow">Optional Memact</p>
-            <h3>Use your fitness context</h3>
-            <p>Connect Memact to reuse approved fitness preferences. If there is enough context, NutriPlan skips setup questions it already knows.</p>
+
+        <!-- Wizard Navigation Footer -->
+        <div class="onboarding-wizard-footer" style="display:flex; justify-content:space-between; align-items:center; margin-top:2rem; gap:1.25rem;">
+          <button id="btn-onboarding-back" class="secondary-button hidden" type="button" style="min-height:36px; padding:0 0.9rem;">← Back</button>
+          <div class="onboarding-step-dots" style="display:flex; gap:0.45rem;">
+            <span class="step-dot active"></span>
+            <span class="step-dot"></span>
+            <span class="step-dot"></span>
+            <span class="step-dot"></span>
+            <span class="step-dot"></span>
           </div>
-          <div class="memact-actions">
-            <button id="memact-connect-btn" class="secondary-button full-width" type="button">Connect Memact</button>
-            <button id="memact-skip-btn" class="text-button" type="button">Set up manually</button>
-          </div>
-          <p id="memact-status" class="memact-status" role="status" aria-live="polite" aria-atomic="true">Private by default. API keys stay on the server.</p>
-        </section>
-        <button id="save-profile-btn" class="primary-button full-width" type="button">Complete Setup</button>
+          <button id="btn-onboarding-next" class="primary-button" type="button" style="min-height:36px; padding:0 0.9rem;">Next →</button>
+          <button id="save-profile-btn" class="primary-button hidden" type="button" style="min-height:36px; padding:0 0.9rem;">Complete Setup ✓</button>
+        </div>
       </div>
     </aside>
   </div>
@@ -297,8 +394,13 @@
       <section class="landing-hero">
         <div class="container hero-content">
           <div class="hero-text-block">
-            <h1 class="landing-title">NutriPlan Lite.<br><span class="text-gradient">Plan meals around your goal.</span></h1>
-            <p class="landing-subtitle">A cleaner fitness dashboard for calories, macros, hydration, and personal nutrition routines.</p>
+            <h1 class="landing-title">
+              <span class="reveal-wrap"><span class="reveal-text">NutriPlan Lite.</span></span><br>
+              <span class="reveal-wrap"><span class="reveal-text text-gradient">Plan meals around your goal.</span></span>
+            </h1>
+            <p class="landing-subtitle">
+              <span class="reveal-wrap"><span class="reveal-text">A cleaner fitness dashboard for calories, macros, hydration, and personal nutrition routines.</span></span>
+            </p>
             <div class="hero-cta">
               <a href="#dashboard" class="primary-button cta-button">Go to Dashboard</a>
               <a href="#ai-helper" class="secondary-button cta-button">Open Coach</a>
@@ -308,13 +410,22 @@
             <div class="glass-panel mock-card">
               <div class="mock-header">
                 <span>Daily Readiness</span>
-                <strong>92/100</strong>
+                <strong><span class="animated-counter">0</span>/100</strong>
               </div>
               <div class="mock-progress progress-fill fill-green" style="width: 92%"></div>
             </div>
             <div class="glass-panel mock-card ai-mock">
               <strong>Daily coach</strong>
               <p>You hit your protein goal. Add one glass of water before bed.</p>
+            </div>
+          </div>
+          
+          <div class="scroll-indicator">
+            <div class="mouse">
+              <div class="wheel"></div>
+            </div>
+            <div class="arrows">
+              <span class="arrow-down"></span>
             </div>
           </div>
         </div>
@@ -352,6 +463,11 @@
             <div class="feature-icon">🤖</div>
             <h3>AI Nutrition Coach</h3>
             <p>Your personal 24/7 nutrition guide. Receive tailored recipes, wellness feedback, and action suggestions instantly.</p>
+          </div>
+          <div class="feature-card glass-panel card-bmi">
+            <div class="feature-icon">📊</div>
+            <h3>BMI Calculator</h3>
+            <p>Quickly assess your body mass index with our accurate calculator and receive personalized health insights.</p>
           </div>
           <div class="feature-card glass-panel card-goals">
             <div class="feature-icon">🏆</div>
@@ -401,38 +517,74 @@
         </div>
       </section>
     
+      <!-- Footer Divider -->
+      <div class="footer-divider"></div>
+
       <!-- Footer -->
       <footer class="landing-footer container">
-        <div class="footer-grid">
-          <div class="footer-col-brand">
+        <!-- Footer Top Section -->
+        <div class="footer-top">
+          <!-- Brand Column -->
+          <div class="footer-column footer-col-brand">
             <a class="footer-brand" href="#landing">
               <span class="brand-mark small-mark">N</span>
               <strong>NutriPlan Lite</strong>
             </a>
             <p class="footer-tagline">Your local-first fitness and nutrition companion. Plan, track, and sustain healthy habits without compromising your privacy.</p>
+            <div class="footer-badges">
+              <span class="badge-item">Local-First</span>
+              <span class="badge-item">Open Source</span>
+              <span class="badge-item">Privacy-Focused</span>
+            </div>
           </div>
-          <div class="footer-col-links">
-            <div class="footer-nav-col">
-              <h4>Product</h4>
+
+          <!-- Product Column -->
+          <div class="footer-column footer-nav-col">
+            <h4 class="footer-col-title">Product</h4>
+            <nav class="footer-links">
               <a href="#landing" data-nav="landing">Home</a>
               <a href="#features">Features</a>
               <a href="#dashboard" data-nav="dashboard">Dashboard</a>
               <a href="#ai-helper" data-nav="ai-helper">Coach</a>
-            </div>
-            <div class="footer-nav-col">
-              <h4>Resources</h4>
-              <a href="#" onclick="alert('Privacy Policy: All data is stored locally in your browser/device localStorage and is never transmitted to our servers.')">Privacy Policy</a>
-              <a href="https://github.com" target="_blank" rel="noopener">Github</a>
-              <a href="#" onclick="alert('NutriPlan Lite is a local-first web app. No account setup or billing needed.')">FAQ Support</a>
-            </div>
+            </nav>
+          </div>
+
+          <!-- Resources Column -->
+          <div class="footer-column footer-nav-col">
+            <h4 class="footer-col-title">Resources</h4>
+            <nav class="footer-links">
+              <a href="#privacy" data-nav="privacy">Privacy Policy</a>
+              <a href="https://github.com/Subha12125" target="_blank" rel="noopener">Github</a>
+              <a href="#faq" data-nav="faq">FAQ & Support</a>
+            </nav>
+          </div>
+
+          <!-- Connect Column -->
+          <div class="footer-column footer-nav-col">
+            <h4 class="footer-col-title">Connect</h4>
+            <nav class="footer-links">
+              <a href="https://github.com/Subha12125" target="_blank" rel="noopener">GitHub</a>
+              <a href="#" onclick="alert('Join our community to share feedback and feature requests!')">Community</a>
+              <a href="#" onclick="alert('For inquiries: contact@nutriplan.local')">Contact Us</a>
+            </nav>
           </div>
         </div>
+
+        <!-- Footer Divider Line -->
+        <div class="footer-divider-line"></div>
+
+        <!-- Footer Bottom Section -->
         <div class="footer-bottom">
-          <p class="muted">© 2026 NutriPlan Lite. All rights reserved. Built for a healthier tomorrow.</p>
-          <div class="footer-bottom-links">
-            <span>Local-First</span>
-            <span>•</span>
-            <span>Open Source</span>
+          <div class="footer-bottom-left">
+            <p class="footer-copyright">© 2026 NutriPlan Lite. All rights reserved.</p>
+            <p class="footer-tagline-small">Built for a healthier tomorrow.</p>
+          </div>
+          <div class="footer-bottom-right">
+            <a href="#" class="footer-bottom-link">Privacy</a>
+            <span class="separator">•</span>
+            <a href="#" class="footer-bottom-link">Terms</a>
+            <span class="separator">•</span>
+            <span class="footer-status">No trackers • Local storage only</span>
           </div>
         </div>
       </footer>
@@ -631,11 +783,14 @@
               <p class="eyebrow">Weekly Analytics</p>
               <h2>Nutrition Dashboard</h2>
             </div>
-            <!-- Chart Tabs -->
-            <div class="analytics-tabs" role="tablist" aria-label="Nutrition analytics charts">
-              <button class="tab-btn active" data-chart-tab="calorie" type="button" role="tab" aria-selected="true">Calorie Trends</button>
-              <button class="tab-btn" data-chart-tab="macro" type="button" role="tab" aria-selected="false">Macro Ratios</button>
-              <button class="tab-btn" data-chart-tab="water" type="button" role="tab" aria-selected="false">Hydration Log</button>
+            <div class="analytics-header-actions" style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+              <!-- Chart Tabs -->
+              <div class="analytics-tabs" role="tablist" aria-label="Nutrition analytics charts">
+                <button class="tab-btn active" data-chart-tab="calorie" type="button" role="tab" aria-selected="true">Calorie Trends</button>
+                <button class="tab-btn" data-chart-tab="macro" type="button" role="tab" aria-selected="false">Macro Ratios</button>
+                <button class="tab-btn" data-chart-tab="water" type="button" role="tab" aria-selected="false">Hydration Log</button>
+              </div>
+              <button id="btn-generate-report" class="secondary-button" type="button" style="gap:0.4rem; min-height:36px; font-size:0.8rem; border-radius:99px; font-weight:800; padding:0 0.85rem;" title="Generate Weekly PDF Report">📄 Report</button>
             </div>
           </div>
 
@@ -707,6 +862,21 @@
         </section>
 
         <!-- Recommendations -->
+        <section class="backup-panel glass-panel" style="margin-bottom: 1.5rem;">
+          <div class="section-heading compact">
+            <div>
+              <p class="eyebrow">Data Management</p>
+              <h2>Backup & Restore</h2>
+            </div>
+          </div>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">Export your local data as a JSON file or restore from a previous backup.</p>
+          <div style="display: flex; gap: 0.5rem; flex-direction: column;">
+            <button id="exportBtn" class="primary-button full-width" type="button">💾 Download Backup</button>
+            <button id="restoreBtn" class="secondary-button full-width" type="button">📂 Restore Backup</button>
+            <input type="file" id="importFile" accept=".json" style="display: none;">
+          </div>
+        </section>
+
         <section class="recommendations glass-panel">
           <div class="section-heading compact">
             <div>
@@ -745,6 +915,78 @@
     
       </aside>
     </div>
+
+    <!-- Footer Divider -->
+    <div class="footer-divider"></div>
+
+    <!-- Footer -->
+    <footer class="landing-footer container">
+      <!-- Footer Top Section -->
+      <div class="footer-top">
+        <!-- Brand Column -->
+        <div class="footer-column footer-col-brand">
+          <a class="footer-brand" href="#landing">
+            <span class="brand-mark small-mark">N</span>
+            <strong>NutriPlan Lite</strong>
+          </a>
+          <p class="footer-tagline">Your local-first fitness and nutrition companion. Plan, track, and sustain healthy habits without compromising your privacy.</p>
+          <div class="footer-badges">
+            <span class="badge-item">Local-First</span>
+            <span class="badge-item">Open Source</span>
+            <span class="badge-item">Privacy-Focused</span>
+          </div>
+        </div>
+
+        <!-- Product Column -->
+        <div class="footer-column footer-nav-col">
+          <h4 class="footer-col-title">Product</h4>
+          <nav class="footer-links">
+            <a href="#landing" data-nav="landing">Home</a>
+            <a href="#features">Features</a>
+            <a href="#dashboard" data-nav="dashboard">Dashboard</a>
+            <a href="#ai-helper" data-nav="ai-helper">Coach</a>
+          </nav>
+        </div>
+
+        <!-- Resources Column -->
+        <div class="footer-column footer-nav-col">
+          <h4 class="footer-col-title">Resources</h4>
+          <nav class="footer-links">
+            <a href="#privacy" data-nav="privacy">Privacy Policy</a>
+            <a href="https://github.com/Subha12125" target="_blank" rel="noopener">Github</a>
+            <a href="#faq" data-nav="faq">FAQ & Support</a>
+          </nav>
+        </div>
+
+        <!-- Connect Column -->
+        <div class="footer-column footer-nav-col">
+          <h4 class="footer-col-title">Connect</h4>
+          <nav class="footer-links">
+            <a href="https://github.com/Subha12125" target="_blank" rel="noopener">GitHub</a>
+            <a href="#" onclick="alert('Join our community to share feedback and feature requests!')">Community</a>
+            <a href="#" onclick="alert('For inquiries: contact@nutriplan.local')">Contact Us</a>
+          </nav>
+        </div>
+      </div>
+
+      <!-- Footer Divider Line -->
+      <div class="footer-divider-line"></div>
+
+      <!-- Footer Bottom Section -->
+      <div class="footer-bottom">
+        <div class="footer-bottom-left">
+          <p class="footer-copyright">© 2026 NutriPlan Lite. All rights reserved.</p>
+          <p class="footer-tagline-small">Built for a healthier tomorrow.</p>
+        </div>
+        <div class="footer-bottom-right">
+          <a href="#" class="footer-bottom-link">Privacy</a>
+          <span class="separator">•</span>
+          <a href="#" class="footer-bottom-link">Terms</a>
+          <span class="separator">•</span>
+          <span class="footer-status">No trackers • Local storage only</span>
+        </div>
+      </div>
+    </footer>
   </template>
 
   <template id="template-ai-helper">
@@ -776,12 +1018,89 @@
           <button class="prompt-btn">Give me a health tip</button>
         </div>
     
-        <form class="ai-chat-input-area" id="main-ai-form">
-          <input type="text" id="main-ai-input" placeholder="Ask about meals, macros, or hydration..." autocomplete="off">
+        <form class="ai-chat-input-area" id="main-ai-form" style="display: flex; gap: 0.5rem; align-items: center;">
+          <button type="button" id="voice-input-btn" class="icon-button mic-btn" aria-label="Start voice input" title="Voice Input" style="font-size: 1.2rem; background: transparent; border: none; cursor: pointer; transition: transform 0.2s;">🎤</button>
+          
+          <label for="image-upload-input" class="icon-button camera-btn" aria-label="Upload food image" title="Snap & Log" style="font-size: 1.2rem; background: transparent; border: none; cursor: pointer; transition: transform 0.2s; margin: 0;">📸</label>
+          <input type="file" id="image-upload-input" accept="image/*" capture="environment" style="display: none;">
+          
+          <input type="text" id="main-ai-input" placeholder="Ask about meals or snap a photo..." autocomplete="off" style="flex: 1;">
           <button type="submit" class="primary-button send-btn" aria-label="Send message">↑</button>
         </form>
       </div>
     </div>
+
+    <!-- Footer Divider -->
+    <div class="footer-divider"></div>
+
+    <!-- Footer -->
+    <footer class="landing-footer container">
+      <!-- Footer Top Section -->
+      <div class="footer-top">
+        <!-- Brand Column -->
+        <div class="footer-column footer-col-brand">
+          <a class="footer-brand" href="#landing">
+            <span class="brand-mark small-mark">N</span>
+            <strong>NutriPlan Lite</strong>
+          </a>
+          <p class="footer-tagline">Your local-first fitness and nutrition companion. Plan, track, and sustain healthy habits without compromising your privacy.</p>
+          <div class="footer-badges">
+            <span class="badge-item">Local-First</span>
+            <span class="badge-item">Open Source</span>
+            <span class="badge-item">Privacy-Focused</span>
+          </div>
+        </div>
+
+        <!-- Product Column -->
+        <div class="footer-column footer-nav-col">
+          <h4 class="footer-col-title">Product</h4>
+          <nav class="footer-links">
+            <a href="#landing" data-nav="landing">Home</a>
+            <a href="#features">Features</a>
+            <a href="#dashboard" data-nav="dashboard">Dashboard</a>
+            <a href="#ai-helper" data-nav="ai-helper">Coach</a>
+          </nav>
+        </div>
+
+        <!-- Resources Column -->
+        <div class="footer-column footer-nav-col">
+          <h4 class="footer-col-title">Resources</h4>
+          <nav class="footer-links">
+            <a href="#privacy" data-nav="privacy">Privacy Policy</a>            
+            <a href="https://github.com/Subha12125" target="_blank" rel="noopener">Github</a>
+            <a href="#faq" data-nav="faq">FAQ & Support</a>
+          </nav>
+        </div>
+
+        <!-- Connect Column -->
+        <div class="footer-column footer-nav-col">
+          <h4 class="footer-col-title">Connect</h4>
+          <nav class="footer-links">
+            <a href="https://github.com/Subha12125" target="_blank" rel="noopener">GitHub</a>
+            <a href="#" onclick="alert('Join our community to share feedback and feature requests!')">Community</a>
+            <a href="#" onclick="alert('For inquiries: contact@nutriplan.local')">Contact Us</a>
+          </nav>
+        </div>
+      </div>
+
+      <!-- Footer Divider Line -->
+      <div class="footer-divider-line"></div>
+
+      <!-- Footer Bottom Section -->
+      <div class="footer-bottom">
+        <div class="footer-bottom-left">
+          <p class="footer-copyright">© 2026 NutriPlan Lite. All rights reserved.</p>
+          <p class="footer-tagline-small">Built for a healthier tomorrow.</p>
+        </div>
+        <div class="footer-bottom-right">
+          <a href="#" class="footer-bottom-link">Privacy</a>
+          <span class="separator">•</span>
+          <a href="#" class="footer-bottom-link">Terms</a>
+          <span class="separator">•</span>
+          <span class="footer-status">No trackers • Local storage only</span>
+        </div>
+      </div>
+    </footer>
   </template>
 
   <!-- ── Mobile Menu Drawer ───────────────────────────────────── -->
@@ -801,10 +1120,156 @@
         <a href="#landing" data-nav="landing">Home</a>
         <a href="#features">Features</a>
         <a href="#dashboard" data-nav="dashboard">Dashboard</a>
+        <a href="#grocery" data-nav="grocery">Grocery</a>
+        <a href="#reminders" data-nav="reminders">Reminders</a>
         <a href="#ai-helper" data-nav="ai-helper">Coach</a>
+        <a href="#" id="mobile-btn-replay-tour" class="mobile-nav-tour-link">❓ Start Onboarding Tour</a>
         <hr class="mobile-nav-divider">
         <div id="mobile-menu-auth-status" class="mobile-menu-auth-status"></div>
       </nav>
+    </aside>
+  </div>
+
+  <!-- ── Weekly Report Modal ──────────────────────────────────── -->
+  <div id="weekly-report-modal" class="drawer hidden" role="dialog" aria-modal="true" aria-labelledby="report-modal-title">
+    <button class="drawer-backdrop" type="button" id="close-report-backdrop" aria-label="Close report overlay"></button>
+    <aside class="drawer-card report-drawer-card">
+      <div class="drawer-handle" aria-hidden="true"></div>
+      <div class="drawer-header">
+        <div>
+          <p class="eyebrow">Export Center</p>
+          <h2 id="report-modal-title">Weekly Report</h2>
+        </div>
+        <div class="drawer-header-actions" style="display:flex; gap:0.5rem; align-items:center;">
+          <button id="btn-export-pdf" class="primary-button" type="button" style="min-height:34px; padding:0 0.8rem; font-size:0.78rem;">Download PDF</button>
+          <button id="btn-export-csv" class="secondary-button" type="button" style="min-height:34px; padding:0 0.8rem; font-size:0.78rem;">Export CSV</button>
+          <button class="icon-button" type="button" id="close-report-x" style="min-height:34px; width:34px;" aria-label="Close report modal">×</button>
+        </div>
+      </div>
+
+      <!-- Scrollable Printable Report Container -->
+      <div class="report-scroll-container">
+        <div id="nutrition-report-print" class="nutrition-report-print">
+          <!-- Report Header -->
+          <div class="report-print-header">
+            <div class="report-print-brand">
+              <span class="brand-mark small-mark">N</span>
+              <div>
+                <h2>NutriPlan Lite</h2>
+                <small>Fitness & Nutrition Analytics Summary</small>
+              </div>
+            </div>
+            <div class="report-print-date-range">
+              <span class="report-badge">WEEKLY REPORT</span>
+              <strong id="report-date-range">May 19 - May 25, 2026</strong>
+            </div>
+          </div>
+
+          <hr class="report-divider">
+
+          <!-- 4 Stat Badges Row -->
+          <div class="report-print-stats-row">
+            <div class="print-stat-card">
+              <small>Calorie Intake</small>
+              <h3 id="report-stat-calories">0 kcal</h3>
+              <span id="report-meta-calories" class="print-meta-text">0% Adherence</span>
+            </div>
+            <div class="print-stat-card">
+              <small>Hydration Status</small>
+              <h3 id="report-stat-water">0 L</h3>
+              <span id="report-meta-water" class="print-meta-text">0 ml / day</span>
+            </div>
+            <div class="print-stat-card">
+              <small>Protein Average</small>
+              <h3 id="report-stat-protein">0 g</h3>
+              <span id="report-meta-protein" class="print-meta-text">0% of target</span>
+            </div>
+            <div class="print-stat-card">
+              <small>Consistency Index</small>
+              <h3 id="report-stat-consistency">0%</h3>
+              <span id="report-meta-streak" class="print-meta-text">0-day streak</span>
+            </div>
+          </div>
+
+          <!-- Dynamic Charts Screen Captures or Mini SVGs -->
+          <div class="report-charts-snapshot">
+            <h4>Intake Performance Highlights</h4>
+            <div class="print-chart-box">
+              <h5>Calorie Log against goal</h5>
+              <div id="print-weekly-calories-bars" class="report-mini-bar-grid"></div>
+            </div>
+            <div class="print-chart-box">
+              <h5>Water Intake logs</h5>
+              <div id="print-weekly-water-bars" class="report-mini-bar-grid"></div>
+            </div>
+          </div>
+
+          <!-- Printable tabular summary of the 7-day logs -->
+          <div class="report-table-section">
+            <h4>7-Day Nutrition Averages</h4>
+            <table class="report-print-table">
+              <thead>
+                <tr>
+                  <th>Day</th>
+                  <th style="text-align:right;">Calories (kcal)</th>
+                  <th style="text-align:right;">Protein (g)</th>
+                  <th style="text-align:right;">Carbs (g)</th>
+                  <th style="text-align:right;">Fat (g)</th>
+                  <th style="text-align:right;">Water (ml)</th>
+                </tr>
+              </thead>
+              <tbody id="report-table-body">
+                <!-- Log rows filled dynamically -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Smart habit insights and AI suggestions -->
+          <div class="report-insights-section">
+            <h4>Smart Nutrition Insights & Recommendations</h4>
+            <div id="report-insights-list" class="report-insights-list">
+              <!-- Dynamically populated report advice -->
+            </div>
+          </div>
+
+          <!-- Nutrient Deficiency Detection & Smart Health Recommendations -->
+          <div class="report-insights-section deficiency-container" style="margin-top: 1.5rem; border-top: 1px solid #cbd5e1; padding-top: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h4 style="margin: 0; color: #1e293b; font-size: 0.95rem; font-weight: 850;">🩺 Nutrient Deficiency & Health Recommendations</h4>
+              <button id="btn-run-deficiency-check" class="primary-button" type="button" style="min-height: 32px; padding: 0 0.8rem; font-size: 0.76rem; background: linear-gradient(135deg, #10b981, #3b82f6); color: white; border: 0; border-radius: 8px; font-weight: 700; cursor: pointer; transition: transform 0.2s ease;">
+                Run Deficiency Check
+              </button>
+            </div>
+            
+            <div id="report-deficiency-content">
+              <div class="deficiency-placeholder" style="text-align: center; padding: 1.5rem; color: #64748b; font-size: 0.82rem; border: 1px dashed #cbd5e1; border-radius: 12px; background: #f8fafc;">
+                <p style="margin: 0;">Click "Run Deficiency Check" to analyze your weekly meals, calculate your Nutrient Sufficiency Score, check trends, and get smart food recommendations.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- AI Health Insights & Trend Analysis -->
+          <div class="report-insights-section ai-insights-container" style="margin-top: 1.5rem; border-top: 1px solid #cbd5e1; padding-top: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h4 style="margin: 0; color: #1e293b; font-size: 0.95rem; font-weight: 850;">🤖 AI Health Insights & Trend Analysis</h4>
+              <button id="btn-generate-ai-report" class="primary-button" type="button" style="min-height: 32px; padding: 0 0.8rem; font-size: 0.76rem; background: linear-gradient(135deg, #10b981, #06b6d4); color: white; border: 0; border-radius: 8px; font-weight: 700; cursor: pointer; transition: transform 0.2s ease;">
+                Generate AI Insights
+              </button>
+            </div>
+            
+            <div id="report-ai-insights-content">
+              <div class="ai-insights-placeholder" style="text-align: center; padding: 1.5rem; color: #64748b; font-size: 0.82rem; border: 1px dashed #cbd5e1; border-radius: 12px; background: #f8fafc;">
+                <p style="margin: 0;">Click "Generate AI Insights" to analyze your week-over-week trends, compute your Weekly Nutrition Score, and fetch personalized AI advice.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="report-print-footer">
+            <p>NutriPlan Lite is 100% free, offline-first, and private by design. Your metrics remain secure on your device.</p>
+            <small>© 2026 NutriPlan Lite. Generated on <span id="report-generation-time">May 25, 2026</span>.</small>
+          </div>
+        </div>
+      </div>
     </aside>
   </div>
 
@@ -833,12 +1298,194 @@
         </label>
         <label>
           <span>Password</span>
+          <div class="password-wrapper"></div>
           <input id="auth-password" type="password" placeholder="••••••••" required autocomplete="current-password">
+          <button type="button" id="toggle-password-btn" class="password-toggle-btn" aria-label="Toggle password visibility" title="Show/Hide Password">
+      👁️
+    </button>
+          </div>
         </label>
         <button id="auth-submit-btn" class="primary-button full-width" type="submit">Sign In</button>
       </form>
     </aside>
   </div>
 
+  <!-- ── Interactive Onboarding Spotlight & Tooltip Tour Overlay ── -->
+  <div id="tour-spotlight-overlay" class="tour-spotlight-overlay hidden"></div>
+  <div id="tour-tooltip-container" class="tour-tooltip-container hidden" role="dialog" aria-live="polite">
+    <div class="tour-tooltip-arrow"></div>
+    <div class="tour-tooltip-card">
+      <div class="tour-tooltip-header">
+        <h4 id="tour-step-title">Step Title</h4>
+        <button id="btn-tour-close" class="tour-close-btn" type="button" aria-label="Close walkthrough">×</button>
+      </div>
+      <p id="tour-step-desc">Step description details...</p>
+      <div class="tour-tooltip-progress-wrap">
+        <div class="tour-tooltip-progress-bar">
+          <div id="tour-progress-fill" style="width: 16.6%;"></div>
+        </div>
+        <span id="tour-step-counter">1 of 6</span>
+      </div>
+      <div class="tour-tooltip-footer">
+        <button id="btn-tour-skip" class="text-button" type="button">Skip Tour</button>
+        <div class="tour-nav-btns">
+          <button id="btn-tour-back" class="secondary-button compact-btn hidden" type="button">← Back</button>
+          <button id="btn-tour-next" class="primary-button compact-btn" type="button">Next →</button>
+          <button id="btn-tour-finish" class="primary-button compact-btn hidden" type="button">Finish ✓</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <template id="template-grocery">
+    <div class="grocery-layout container" style="padding-top: 8rem; padding-bottom: 4rem; min-height: 80vh;">
+      <section class="grocery-hero glass-panel">
+        <div class="grocery-hero-text">
+          <p class="eyebrow">Smart Planner</p>
+          <h1>Weekly Grocery List</h1>
+          <p>Your personalized shopping items computed automatically to match your demographic baseline and nutritional targets.</p>
+        </div>
+        <div class="grocery-progress-card">
+          <div class="grocery-progress-ring" id="grocery-progress-ring">
+            <span>0%</span>
+          </div>
+          <small class="eyebrow">Shopping Progress</small>
+        </div>
+      </section>
+
+      <section id="grocery-timeline" aria-live="polite">
+        <!-- Structured lists filled dynamically by scripts/grocery.js -->
+      </section>
+
+      <div class="grocery-action-bar">
+        <button id="grocery-btn-reset" class="secondary-button" type="button">Reset Shopping Checklist</button>
+        <button id="grocery-btn-copy" class="primary-button" type="button">Copy List to Clipboard</button>
+      </div>
+    </div>
+
+    <!-- Footer Divider -->
+    <div class="footer-divider"></div>
+
+    <!-- Footer -->
+    <footer class="landing-footer container">
+      <div class="footer-bottom" style="justify-content: center;">
+        <p class="muted">© 2026 NutriPlan Lite. All rights reserved. Built for a healthier tomorrow.</p>
+      </div>
+    </footer>
+  </template>
+
+  <template id="template-reminders">
+    <div class="reminders-layout container" style="padding-top: 8rem; padding-bottom: 4rem; min-height: 80vh;">
+      <section class="reminders-hero glass-panel">
+        <div class="reminders-hero-text">
+          <p class="eyebrow">Smart System</p>
+          <h1>Meal Reminders & Habit Compliance</h1>
+          <p>Schedule meal time triggers, configure browser push alerts, and track daily consistency habits automatically calculated for your constraints.</p>
+        </div>
+      </section>
+
+      <section id="reminders-timeline" aria-live="polite">
+        <!-- Reminders and Habits filled dynamically by scripts/reminders.js -->
+      </section>
+    </div>
+
+    <!-- Footer Divider -->
+    <div class="footer-divider"></div>
+
+    <!-- Footer -->
+    <footer class="landing-footer container">
+      <div class="footer-bottom" style="justify-content: center;">
+        <p class="muted">© 2026 NutriPlan Lite. All rights reserved. Built for a healthier tomorrow.</p>
+      </div>
+    </footer>
+  </template>
+
+  <template id="template-faq">
+    <div class="landing-page">
+      <section class="container" style="padding-top: 8rem; padding-bottom: 4rem; min-height: 80vh;">
+        <div class="section-header text-center">
+          <p class="eyebrow">Support & Help</p>
+          <h2>Frequently Asked <span class="text-gradient">Questions</span></h2>
+          <p>Everything you need to know about NutriPlan Lite and your privacy.</p>
+        </div>
+
+        <div class="features-grid" style="grid-template-columns: 1fr; max-width: 800px; margin: 0 auto; gap: 1.5rem;">
+          
+          <div class="glass-panel" style="padding: 2rem; text-align: left;">
+            <h3 style="margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;"><span style="font-size: 1.5rem;">⚡</span> Do I need to create an account?</h3>
+            <p style="color: var(--text-muted);">No, NutriPlan Lite is a completely local-first web app. There is no account setup, and no billing is required. You can start tracking your health immediately.</p>
+          </div>
+
+          <div class="glass-panel" style="padding: 2rem; text-align: left;">
+            <h3 style="margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;"><span style="font-size: 1.5rem;">🛡️</span> Where is my data stored?</h3>
+            <p style="color: var(--text-muted);">Your privacy is our highest priority. All your logs, fitness metrics, and preferences are stored securely in your device's browser (Local Storage). We never transmit or sell your personal data to external servers.</p>
+          </div>
+
+          <div class="glass-panel" style="padding: 2rem; text-align: left;">
+            <h3 style="margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;"><span style="font-size: 1.5rem;">💰</span> Is there a premium or paid version?</h3>
+            <p style="color: var(--text-muted);">NutriPlan Lite is 100% free and open-source. There are no paywalls, hidden fees, or premium subscriptions.</p>
+          </div>
+
+          <div class="glass-panel" style="padding: 2rem; text-align: left;">
+            <h3 style="margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;"><span style="font-size: 1.5rem;">🤖</span> How does the AI Coach work offline?</h3>
+            <p style="color: var(--text-muted);">The AI Coach utilizes an API key that securely communicates directly from your browser to the AI service. It only sends the specific context you approve, keeping the rest of your data safely on your device.</p>
+          </div>
+
+        </div>
+      </section>
+      
+      <div class="footer-divider"></div>
+      
+      <footer class="landing-footer container">
+        <div class="footer-bottom" style="justify-content: center;">
+          <p class="muted">© 2026 NutriPlan Lite. All rights reserved. Built for a healthier tomorrow.</p>
+        </div>
+      </footer>
+    </div>
+  </template>
+<div class="custom-cursor-dot" id="cursorDot"></div>
+<div class="custom-cursor-outline" id="cursorOutline"></div>
+
+  <template id="template-privacy">
+    <div class="landing-page">
+      <section class="container" style="padding-top: 8rem; padding-bottom: 4rem; min-height: 80vh;">
+        <div class="section-header text-center">
+          <p class="eyebrow">Trust & Transparency</p>
+          <h2>Privacy <span class="text-gradient">Policy</span></h2>
+          <p>Your data belongs to you. Here is how we ensure it stays that way.</p>
+        </div>
+
+        <div class="features-grid" style="grid-template-columns: 1fr; max-width: 800px; margin: 0 auto; gap: 1.5rem;">
+          
+          <div class="glass-panel" style="padding: 2rem; text-align: left;">
+            <h3 style="margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;"><span style="font-size: 1.5rem;">💾</span> Local Storage Only</h3>
+            <p style="color: var(--muted);">NutriPlan Lite is a local-first application. All your nutritional logs, goals, and physical metrics are stored securely within your device's browser using `localStorage`. We do not have servers to store or process your personal data.</p>
+          </div>
+
+          <div class="glass-panel" style="padding: 2rem; text-align: left;">
+            <h3 style="margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;"><span style="font-size: 1.5rem;">🚫</span> No Tracking or Telemetry</h3>
+            <p style="color: var(--muted);">We do not use tracking cookies, analytics scripts, or any third-party telemetry. Your usage patterns and daily habits remain completely private and unmonitored.</p>
+          </div>
+
+          <div class="glass-panel" style="padding: 2rem; text-align: left;">
+            <h3 style="margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;"><span style="font-size: 1.5rem;">🤖</span> AI Coach Privacy</h3>
+            <p style="color: var(--muted);">If you use the AI Coach feature, only the specific context (like your current macros or food logs) that you explicitly approve is sent to the AI provider. No personally identifiable information is ever transmitted.</p>
+          </div>
+
+        </div>
+      </section>
+      
+      <div class="footer-divider"></div>
+      
+      <footer class="landing-footer container">
+        <div class="footer-bottom" style="justify-content: center;">
+          <p class="muted">© 2026 NutriPlan Lite. All rights reserved. Built for a healthier tomorrow.</p>
+        </div>
+      </footer>
+    </div>
+  </template>
+
+<script type="module" src="scripts/memact.js"></script>
+<script type="module" src="/scripts/navigation.js"></script>
 </body>
 </html>
