@@ -1625,3 +1625,29 @@ function navigateTo(route) {
     // Add title update
     updatePageTitle(route);
 }
+
+function validateCustomMacros() {
+    const protein = parseInt(document.getElementById('protein-input').value) || 0;
+    const carbs = parseInt(document.getElementById('carbs-input').value) || 0;
+    const fat = parseInt(document.getElementById('fat-input').value) || 0;
+
+    const total = protein + carbs + fat;
+    const errorEl = document.getElementById('macro-error');
+    const nextBtn = document.getElementById('onboarding-next-btn');
+
+    if (total !== 100) {
+        errorEl.classList.remove('hidden');
+        nextBtn.disabled = true;
+        return false;
+    } else {
+        errorEl.classList.add('hidden');
+        nextBtn.disabled = false;
+        return true;
+    }
+}
+
+// Attach validation on input change
+['protein-input','carbs-input','fat-input'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', validateCustomMacros);
+});
