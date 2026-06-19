@@ -110,6 +110,9 @@ window.Dashboard = (() => {
     // Challenge panel
     if (window.Challenge) window.Challenge.render();
 
+    // Achievements evaluation
+    if (window.Achievements) window.Achievements.evaluate();
+
     // Chart Tabs wire up
     initChartTabs();
   }
