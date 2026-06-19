@@ -1019,3 +1019,52 @@ body:not(.page-landing) #landing-header {
 .primary-button.cta-button:hover {
   background: #3efaa6;
 }
+
+.feature-card {
+  padding: 1.5rem;
+  border-radius: 12px;
+  background: var(--atlas-bg-tertiary);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+}
+.feature-icon {
+  font-size: 2rem;
+  margin-bottom: 0.75rem;
+}
+
+.cta-button {
+  background: linear-gradient(90deg, #00ffcc, #0099ff);
+  color: #000;
+  font-weight: 700;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+.cta-button:hover {
+  background: #0099ff;
+  color: #fff;
+  box-shadow: 0 0 12px rgba(0,153,255,0.6);
+  transform: translateY(-2px);
+}
+
+.landing-cta h2 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+.text-gradient {
+  background: linear-gradient(90deg, #00ffcc, #0099ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.badge-item {
+  background: var(--atlas-bg-tertiary);
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
