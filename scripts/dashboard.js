@@ -107,6 +107,9 @@ window.Dashboard = (() => {
     // Date label
     Tracker.updateDateLabel();
 
+    // Challenge panel
+    if (window.Challenge) window.Challenge.render();
+
     // Chart Tabs wire up
     initChartTabs();
   }
