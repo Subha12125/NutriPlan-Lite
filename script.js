@@ -1599,3 +1599,29 @@ document.addEventListener('change', (e) => {
         reader.readAsText(file);
     }
 });
+
+// Update document title based on route
+function updatePageTitle(route) {
+    switch (route) {
+        case 'dashboard':
+            document.title = 'NutriPlan Lite | Dashboard';
+            break;
+        case 'grocery':
+            document.title = 'NutriPlan Lite | Grocery';
+            break;
+        case 'coach':
+            document.title = 'NutriPlan Lite | Coach';
+            break;
+        default:
+            document.title = 'NutriPlan Lite';
+    }
+}
+
+// Example navigation handler
+function navigateTo(route) {
+    // existing rendering logic...
+    renderPage(route);
+
+    // Add title update
+    updatePageTitle(route);
+}
