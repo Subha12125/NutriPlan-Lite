@@ -69,3 +69,14 @@ window.Hydration = (() => {
 
   return { init, render, addWater, resetWater };
 })();
+
+document.addEventListener('DOMContentLoaded', () => {
+  const buttons = document.querySelectorAll('.water-actions button.ripple');
+  buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      btn.classList.remove('clicked'); // reset
+      void btn.offsetWidth; // force reflow
+      btn.classList.add('clicked');
+    });
+  });
+});

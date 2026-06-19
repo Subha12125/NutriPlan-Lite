@@ -492,3 +492,87 @@ window.Tracker = (() => {
     updateDateLabel
   };
 })();
+
+document.addEventListener('DOMContentLoaded', () => {
+  const clearBtn = document.getElementById('clear-log-btn');
+  if (clearBtn) {
+    clearBtn.addEventListener('click', clearTodayLog);
+  }
+});
+
+function clearTodayLog() {
+  if (!confirm("Are you sure you want to clear all food entries for today?")) {
+    return;
+  }
+
+  const today = getLocalDateString(new Date());
+  if (localState.history[today]) {
+    localState.history[today].loggedEntries = [];
+    localState.history[today].waterConsumed = 0; // optional reset
+  }
+
+  // Clear UI
+  const list = document.getElementById('food-log-list');
+  if (list) list.innerHTML = '';
+
+  notify("Today's food log has been cleared.", "success");
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const list = document.getElementById('food-log-list');
+  if (list) {
+    list.addEventListener('click', (e) => {
+      if (e.target.classList.contains('edit-btn')) {
+        const entryId = e.target.getAttribute('data-entry-id');
+        openEditFoodModal(entryId);
+      }
+    });
+  }
+});
+
+function openEditFoodModal(entryId) {
+  const today = getLocalDateString(new Date());
+  const entry = localState.history[today]?.loggedEntries.find(e => e.id == entryId);
+  if (!entry) return;
+
+  // Pre-fill modal inputs
+  document.getElementById('food-input').value = entry.name;
+  document.getElementById('calories-input').value = entry.calories;
+  document.getElementById('protein-input').value = entry.protein;
+  document.getElementById('carbs-input').value = entry.carbs;
+  document.getElementById('fat-input').value = entry.fat;
+
+  // Store editing state
+  document.getElementById('food-modal').setAttribute('data-edit-id', entryId);
+  document.getElementById('food-modal').classList.remove('hidden');
+}
+
+function saveFoodEntry() {
+  const modal = document.getElementById('food-modal');
+  const editId = modal.getAttribute('data-edit-id');
+  const today = getLocalDateString(new Date());
+
+  const newEntry = {
+    id: editId || Date.now(),
+    name: document.getElementById('food-input').value,
+    calories: parseInt(document.getElementById('calories-input').value) || 0,
+    protein: parseInt(document.getElementById('protein-input').value) || 0,
+    carbs: parseInt(document.getElementById('carbs-input').value) || 0,
+    fat: parseInt(document.getElementById('fat-input').value) || 0
+  };
+
+  if (editId) {
+    // Update existing entry
+    const entries = localState.history[today].loggedEntries;
+    const idx = entries.findIndex(e => e.id == editId);
+    if (idx > -1) entries[idx] = newEntry;
+  } else {
+    // Add new entry
+    localState.history[today].loggedEntries.push(newEntry);
+  }
+
+  modal.classList.add('hidden');
+  modal.removeAttribute('data-edit-id');
+  renderFoodLog(today);
+  notify("Food entry updated successfully.", "success");
+}

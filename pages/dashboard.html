@@ -161,8 +161,19 @@
         <p class="eyebrow">Nutrition Tracking</p>
         <h2>Meal timeline</h2>
       </div>
-      <button class="primary-button" type="button" data-open-food-drawer>+ Add Food</button>
+      <button class="primary-button" type="button" data-open-food-drawer aria-label="Add new food entry">+ Add Food</button>
     </div>
+
+    <ul id="food-log-list">
+  <!-- Example entry -->
+  <li class="food-entry">
+    <span class="food-name">Apple</span>
+    <span class="food-calories">52 kcal</span>
+    <button class="edit-btn" data-entry-id="123" aria-label="Edit food entry">✏️</button>
+    <button class="delete-btn" data-entry-id="123" aria-label="Delete food entry">🗑️</button>
+  </li>
+</ul>
+
 
     <!-- Search & filter -->
     <div class="glass-panel search-panel">
@@ -178,6 +189,16 @@
         <button type="button" data-filter="snacks">Snacks</button>
       </div>
     </div>
+
+    <section id="food-log">
+    <h2>Today's Food Log</h2>
+    <ul id="food-log-list"></ul>
+
+    <button id="clear-log-btn" class="danger-button">
+      🗑️ Clear Today's Log
+    </button>
+    </section>
+
 
     <!-- Meal timeline list -->
     <div id="meal-timeline" class="meal-timeline" aria-live="polite"></div>
