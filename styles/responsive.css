@@ -176,7 +176,7 @@
   }
 }
 .bottom-nav {
-    display: none;
+    display: flex;
 }
 
 @media (max-width: 640px) {
