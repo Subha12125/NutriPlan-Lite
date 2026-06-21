@@ -6,7 +6,11 @@ window.Navigation = {
   routes: {
     'landing': 'pages/landing.html',
     'dashboard': 'pages/dashboard.html',
-    'ai-helper': 'pages/ai-helper.html'
+    'grocery': 'pages/grocery.html',
+    'reminders': 'pages/reminders.html',
+    'ai-helper': 'pages/ai-helper.html',
+    'faq': 'pages/faq.html',
+    'privacy': 'pages/privacy.html'
   },
   
   currentPage: null,
@@ -36,7 +40,7 @@ window.Navigation = {
     const closeBtn = document.getElementById('close-mobile-menu-x');
     const closeBackdrop = document.getElementById('close-mobile-menu-backdrop');
 
-    if (!drawer || !menuBtn) return;
+    if (!drawer) return;
 
     const openMenu = () => {
       drawer.classList.remove('hidden');
@@ -50,7 +54,10 @@ window.Navigation = {
       document.body.style.overflow = '';
     };
 
-    menuBtn.addEventListener('click', openMenu);
+    // Bind all hamburger buttons (landing header + dashboard header)
+    document.querySelectorAll('.mobile-menu-btn').forEach(btn => {
+      btn.addEventListener('click', openMenu);
+    });
     if (closeBtn) closeBtn.addEventListener('click', closeMenu);
     if (closeBackdrop) closeBackdrop.addEventListener('click', closeMenu);
 
@@ -141,6 +148,16 @@ window.Navigation = {
       // If it's the AI Helper, trigger AI initialization
       if (hash === 'ai-helper' && window.AI) {
         window.AI.initMainChat();
+      }
+
+      // If it's the Grocery page, trigger Grocery initialization
+      if (hash === 'grocery' && window.Grocery) {
+        window.Grocery.init();
+      }
+
+      // If it's the Reminders page, trigger Reminders initialization
+      if (hash === 'reminders' && window.Reminders) {
+        window.Reminders.init();
       }
 
     } catch (err) {

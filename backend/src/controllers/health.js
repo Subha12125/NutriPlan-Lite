@@ -27,7 +27,10 @@ const getHealth = async (req, res, next) => {
     };
 
     if (dbStatus === 'DOWN') {
-      healthStatus.services.database_error = dbError;
+      // Do not include raw database error messages in the response.
+      // Leaking driver-level error strings to unauthenticated callers can
+      // expose connection strings, table names, or query structure.
+      healthStatus.services.database_error = 'Database connection failed';
       return res.status(503).json(healthStatus);
     }
 

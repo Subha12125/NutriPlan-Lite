@@ -185,20 +185,21 @@ function initSupabase() {
             }
 
             supabaseClient = window.supabase.createClient(config.supabaseUrl, config.supabaseKey);
-            demoBadge.classList.add('hidden');
+            if (demoBadge) demoBadge.classList.add('hidden');
             
             // Listen for authentication changes
             supabaseClient.auth.onAuthStateChange((event, session) => {
                 if (session) {
                     currentUser = session.user;
-                    document.getElementById('user-email').innerText = currentUser.email;
-                    userInfo.classList.remove('hidden');
-                    loginBtn.classList.add('hidden');
+                    const emailEl = document.getElementById('user-email');
+                    if (emailEl) emailEl.innerText = currentUser.email;
+                    if (userInfo) userInfo.classList.remove('hidden');
+                    if (loginBtn) loginBtn.classList.add('hidden');
                     loadUserData();
                 } else {
                     currentUser = null;
-                    userInfo.classList.add('hidden');
-                    loginBtn.classList.remove('hidden');
+                    if (userInfo) userInfo.classList.add('hidden');
+                    if (loginBtn) loginBtn.classList.remove('hidden');
                     loadLocalFallbackData();
                 }
             });
@@ -211,14 +212,15 @@ function initSupabase() {
                     const session = data?.session;
                     if (session) {
                         currentUser = session.user;
-                        document.getElementById('user-email').innerText = currentUser.email;
-                        userInfo.classList.remove('hidden');
-                        loginBtn.classList.add('hidden');
+                        const emailEl = document.getElementById('user-email');
+                        if (emailEl) emailEl.innerText = currentUser.email;
+                        if (userInfo) userInfo.classList.remove('hidden');
+                        if (loginBtn) loginBtn.classList.add('hidden');
                         loadUserData();
                     } else {
                         currentUser = null;
-                        userInfo.classList.add('hidden');
-                        loginBtn.classList.remove('hidden');
+                        if (userInfo) userInfo.classList.add('hidden');
+                        if (loginBtn) loginBtn.classList.remove('hidden');
                         loadLocalFallbackData();
                     }
                 })
@@ -239,9 +241,9 @@ function initSupabase() {
 function setupLocalDemoMode(demoBadge, loginBtn, userInfo) {
     supabaseClient = null;
     currentUser = null;
-    demoBadge.classList.remove('hidden');
-    loginBtn.classList.add('hidden');
-    userInfo.classList.add('hidden');
+    if (demoBadge) demoBadge.classList.remove('hidden');
+    if (loginBtn) loginBtn.classList.add('hidden');
+    if (userInfo) userInfo.classList.add('hidden');
     loadLocalFallbackData();
 }
 
@@ -1517,3 +1519,135 @@ function appendChatMessage(sender, initial, text) {
     return messageId;
 }
 
+// OFFLINE DATA EXPORT & IMPORT LOGIC (#132)
+
+// Using event delegation because elements are inside <template> and rendered dynamically
+document.addEventListener('click', (e) => {
+    if (e.target.id === 'exportBtn') {
+        const backupData = {};
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            backupData[key] = localStorage.getItem(key);
+        }
+        
+        const jsonString = JSON.stringify(backupData, null, 2);
+        const blob = new Blob([jsonString], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        
+        const a = document.createElement("a");
+        a.href = url;
+        const dateStr = new Date().toISOString().split('T')[0];
+        a.download = `nutriplan-backup-${dateStr}.json`;
+        document.body.appendChild(a);
+        a.click();
+        
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        if (typeof notify === 'function') {
+            notify("Backup downloaded successfully!", "success", 3000);
+        } else {
+            alert("✅ Backup downloaded successfully!");
+        }
+    }
+
+    if (e.target.id === 'restoreBtn') {
+        const importInput = document.getElementById('importFile');
+        if (importInput) importInput.click();
+    }
+});
+
+document.addEventListener('change', (e) => {
+    if (e.target.id === 'importFile') {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+            try {
+                const parsedData = JSON.parse(evt.target.result);
+                
+                if (typeof parsedData !== "object" || parsedData === null) {
+                    throw new Error("Invalid JSON format");
+                }
+
+                Object.keys(parsedData).forEach(key => {
+                    localStorage.setItem(key, parsedData[key]);
+                });
+
+                if (typeof notify === 'function') {
+                    notify("Data restored successfully! Reloading...", "success", 2000);
+                } else {
+                    alert("♻️ Data restored successfully! The page will now reload.");
+                }
+                
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+
+            } catch (error) {
+                console.error("Restore Error:", error);
+                if (typeof notify === 'function') {
+                    notify("Invalid backup file. Please upload a valid NutriPlan JSON.", "error", 4000);
+                } else {
+                    alert("❌ Invalid backup file. Please upload a valid NutriPlan JSON backup.");
+                }
+            }
+            
+            e.target.value = ''; 
+        };
+        reader.readAsText(file);
+    }
+});
+
+// Update document title based on route
+function updatePageTitle(route) {
+    switch (route) {
+        case 'dashboard':
+            document.title = 'NutriPlan Lite | Dashboard';
+            break;
+        case 'grocery':
+            document.title = 'NutriPlan Lite | Grocery';
+            break;
+        case 'coach':
+            document.title = 'NutriPlan Lite | Coach';
+            break;
+        default:
+            document.title = 'NutriPlan Lite';
+    }
+}
+
+// Example navigation handler
+function navigateTo(route) {
+    // existing rendering logic...
+    renderPage(route);
+
+    // Add title update
+    updatePageTitle(route);
+}
+
+function validateCustomMacros() {
+    const protein = parseInt(document.getElementById('protein-input').value) || 0;
+    const carbs = parseInt(document.getElementById('carbs-input').value) || 0;
+    const fat = parseInt(document.getElementById('fat-input').value) || 0;
+
+    const total = protein + carbs + fat;
+    const errorEl = document.getElementById('macro-error');
+    const nextBtn = document.getElementById('onboarding-next-btn');
+
+    if (total !== 100) {
+        errorEl.classList.remove('hidden');
+        nextBtn.disabled = true;
+        return false;
+    } else {
+        errorEl.classList.add('hidden');
+        nextBtn.disabled = false;
+        return true;
+    }
+}
+
+// Attach validation on input change
+['protein-input','carbs-input','fat-input'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', validateCustomMacros);
+});

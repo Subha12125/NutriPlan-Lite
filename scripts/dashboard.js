@@ -107,6 +107,12 @@ window.Dashboard = (() => {
     // Date label
     Tracker.updateDateLabel();
 
+    // Challenge panel
+    if (window.Challenge) window.Challenge.render();
+
+    // Achievements evaluation
+    if (window.Achievements) window.Achievements.evaluate();
+
     // Chart Tabs wire up
     initChartTabs();
   }
@@ -126,6 +132,7 @@ window.Dashboard = (() => {
         tabs.forEach(t => {
           t.classList.toggle('active', t === tab);
           t.setAttribute('aria-selected', t === tab ? 'true' : 'false');
+          t.setAttribute('tabindex', t === tab ? '0' : '-1');
         });
 
         // Toggle visibility of chart wrappers
@@ -136,6 +143,29 @@ window.Dashboard = (() => {
         });
       });
     });
+
+    const tabList = document.querySelector('.analytics-tabs');
+    if (tabList && !tabList.dataset.boundKeydown) {
+      tabList.dataset.boundKeydown = 'true';
+      tabList.addEventListener('keydown', e => {
+        const tabsArr = Array.from(tabs);
+        const currentIdx = tabsArr.findIndex(t => t === document.activeElement);
+        if (currentIdx === -1) return;
+
+        let nextIdx;
+        if (e.key === 'ArrowRight') {
+          nextIdx = (currentIdx + 1) % tabsArr.length;
+        } else if (e.key === 'ArrowLeft') {
+          nextIdx = (currentIdx - 1 + tabsArr.length) % tabsArr.length;
+        } else {
+          return;
+        }
+
+        e.preventDefault();
+        tabsArr[nextIdx].focus();
+        tabsArr[nextIdx].click();
+      });
+    }
   }
 
   function getMacroLabel(consumed, targets) {

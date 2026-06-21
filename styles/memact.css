@@ -1,18 +1,21 @@
-/* Memact fitness context integration */
-
 .memact-onboarding-panel,
 .memact-context-card {
   display: grid;
   gap: 1rem;
-  border: 1px solid rgba(56, 242, 166, 0.18);
-  background:
-    linear-gradient(135deg, rgba(56, 242, 166, 0.08), rgba(34, 211, 238, 0.04)),
-    rgba(13, 22, 37, 0.82);
+  border: 1px solid rgba(56, 242, 166, 0.3);
+  background: 
+    linear-gradient(135deg, rgba(56, 242, 166, 0.08), rgba(34, 211, 238, 0.05)),
+    var(--surface, #ffffff);
 }
 
 .memact-onboarding-panel {
   padding: 1rem;
   border-radius: 18px;
+}
+
+.memact-context-card {
+  padding: 1.25rem;
+  border-radius: 18px; 
 }
 
 .memact-onboarding-panel h3,
@@ -21,12 +24,14 @@
 }
 
 .memact-onboarding-panel p,
-.memact-context-card p {
-  color: var(--soft);
+.memact-context-card p,
+.memact-context-list span {
+  color: var(--muted);
 }
 
-.memact-context-card {
-  padding: 1.25rem;
+.memact-context-list strong {
+  color: var(--text);
+  text-align: right;
 }
 
 .memact-actions {
@@ -40,18 +45,18 @@
 }
 
 .text-button {
-  color: var(--soft);
+  color: var(--text);
   background: transparent;
   border: 1px solid var(--line);
   border-radius: 13px;
   min-height: 42px;
   font-weight: 850;
+  transition: all 0.2s ease;
 }
 
 .text-button:hover {
-  color: var(--text);
   border-color: var(--line-strong);
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.04); 
 }
 
 .memact-status {
@@ -68,8 +73,8 @@
   padding: 0 0.75rem;
   border-radius: 999px;
   color: var(--green);
-  background: rgba(56, 242, 166, 0.09);
-  border: 1px solid rgba(56, 242, 166, 0.22);
+  background: rgba(56, 242, 166, 0.15);
+  border: 1px solid rgba(56, 242, 166, 0.3);
   font-size: 0.78rem;
   font-weight: 850;
 }
@@ -86,15 +91,7 @@
   padding: 0.75rem;
   border: 1px solid var(--line);
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.04);
-}
-
-.memact-context-list span {
-  color: var(--muted);
-}
-
-.memact-context-list strong {
-  text-align: right;
+  background: rgba(0, 0, 0, 0.02); 
 }
 
 [data-context-key].context-filled {
@@ -115,8 +112,27 @@
     display: grid;
     gap: 0.25rem;
   }
-
   .memact-context-list strong {
     text-align: left;
   }
 }
+
+[data-theme="dark"] .memact-onboarding-panel,
+[data-theme="dark"] .memact-context-card {
+  border: 1px solid rgba(56, 242, 166, 0.18);
+  background: 
+    linear-gradient(135deg, rgba(56, 242, 166, 0.08), rgba(34, 211, 238, 0.04)),
+    rgba(13, 22, 37, 0.82); 
+}
+
+[data-theme="dark"] .text-button:hover {
+  background: rgba(255, 255, 255, 0.05); 
+}
+
+[data-theme="dark"] .memact-pill {
+  background: rgba(56, 242, 166, 0.09);
+  border-color: rgba(56, 242, 166, 0.22);
+}
+
+[data-theme="dark"] .memact-context-list div {
+  background: rgba(255, 255, 255, 0.04); 

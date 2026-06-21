@@ -159,7 +159,7 @@ window.Onboarding = (() => {
     {
       selector: '.memact-context-card',
       title: 'AI Recommendations & Context',
-      desc: 'Receive personalized action recommendations based on your goals, and manage your high-privacy Memact connections securely.',
+      desc: 'Connect Memact only if you want NutriPlan to reuse approved fitness memory and skip setup questions it already knows.',
       position: 'left'
     },
     {
@@ -171,6 +171,7 @@ window.Onboarding = (() => {
   ];
 
   function startTour() {
+    activeElementBeforeTour = document.activeElement;
     // Hide onboarding wizard drawer if open
     const onboardingModal = document.getElementById('onboarding-modal');
     if (onboardingModal) onboardingModal.classList.add('hidden');
@@ -255,6 +256,12 @@ window.Onboarding = (() => {
 
       // 4. Calculate floating tooltip placement next to targeted element
       positionTooltip(targetEl, step.position);
+
+      // 5. Shift focus to tooltip container to trap focus
+      const container = document.getElementById('tour-tooltip-container');
+      if (container) {
+        container.focus();
+      }
     }, 350);
   }
 
@@ -400,6 +407,10 @@ window.Onboarding = (() => {
 
     window.removeEventListener('resize', repositionSpotlight);
     window.removeEventListener('scroll', repositionSpotlight);
+
+    if (activeElementBeforeTour && typeof activeElementBeforeTour.focus === 'function') {
+      activeElementBeforeTour.focus();
+    }
   }
 
   // ── Global Event Wiring & Delegation ───────────────────────────
@@ -408,6 +419,95 @@ window.Onboarding = (() => {
   function init() {
     if (initialized) return;
     initialized = true;
+
+    document.addEventListener('keydown', e => {
+      // Escape to close open overlays
+      if (e.key === 'Escape') {
+        const onboardingModal = document.getElementById('onboarding-modal');
+        if (onboardingModal && !onboardingModal.classList.contains('hidden')) {
+          const backEl = activeElementBeforeModal;
+          onboardingModal.classList.add('hidden');
+          if (backEl && typeof backEl.focus === 'function') backEl.focus();
+        }
+
+        const tourOverlay = document.getElementById('tour-spotlight-overlay');
+        if (tourOverlay && !tourOverlay.classList.contains('hidden')) closeTour();
+
+        const foodDrawer = document.getElementById('food-drawer');
+        if (foodDrawer && !foodDrawer.classList.contains('hidden')) {
+          foodDrawer.classList.add('hidden');
+          const trigger = document.querySelector('[data-open-food-drawer]');
+          if (trigger) trigger.focus();
+        }
+
+        const goalPanel = document.getElementById('target-goal-panel');
+        if (goalPanel && !goalPanel.classList.contains('hidden')) {
+          goalPanel.classList.add('hidden');
+          const updateGoalBtn = document.getElementById('update-goal-button');
+          if (updateGoalBtn) updateGoalBtn.focus();
+        }
+
+        const authModal = document.getElementById('auth-modal');
+        if (authModal && !authModal.classList.contains('hidden')) {
+          authModal.classList.add('hidden');
+        }
+      }
+
+      // Arrow navigation for Onboarding Wizard
+      const onboardingModal = document.getElementById('onboarding-modal');
+      if (onboardingModal && !onboardingModal.classList.contains('hidden')) {
+        if (e.key === 'ArrowRight') nextWizardStep();
+        if (e.key === 'ArrowLeft') prevWizardStep();
+      }
+      
+      // Arrow navigation for Tour
+      const tourOverlay = document.getElementById('tour-spotlight-overlay');
+      if (tourOverlay && !tourOverlay.classList.contains('hidden')) {
+        if (e.key === 'ArrowRight') nextStep();
+        if (e.key === 'ArrowLeft') prevStep();
+      }
+
+      // Focus trap for Onboarding Wizard
+      if (e.key === 'Tab' && onboardingModal && !onboardingModal.classList.contains('hidden')) {
+        const focusables = getFocusableElements(onboardingModal);
+        if (focusables.length === 0) return;
+        const firstFocusable = focusables[0];
+        const lastFocusable = focusables[focusables.length - 1];
+
+        if (e.shiftKey) {
+          if (document.activeElement === firstFocusable) {
+            lastFocusable.focus();
+            e.preventDefault();
+          }
+        } else {
+          if (document.activeElement === lastFocusable) {
+            firstFocusable.focus();
+            e.preventDefault();
+          }
+        }
+      }
+
+      // Focus trap for Tour Tooltip
+      const tourContainer = document.getElementById('tour-tooltip-container');
+      if (e.key === 'Tab' && tourContainer && !tourContainer.classList.contains('hidden')) {
+        const focusables = getFocusableElements(tourContainer);
+        if (focusables.length === 0) return;
+        const firstFocusable = focusables[0];
+        const lastFocusable = focusables[focusables.length - 1];
+
+        if (e.shiftKey) {
+          if (document.activeElement === firstFocusable) {
+            lastFocusable.focus();
+            e.preventDefault();
+          }
+        } else {
+          if (document.activeElement === lastFocusable) {
+            firstFocusable.focus();
+            e.preventDefault();
+          }
+        }
+      }
+    });
 
     // Document level clicks event delegation
     document.addEventListener('click', e => {
