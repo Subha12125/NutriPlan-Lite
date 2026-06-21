@@ -2,6 +2,7 @@ const express = require('express');
 const {
   register,
   login,
+  verifyEmail,
   logout
 } = require('../controllers/auth');
 const {
@@ -21,6 +22,7 @@ const router = express.Router();
 // Public routes (Rate Limited)
 router.post('/register', authLimiter, validateRegister, register);
 router.post('/login', authLimiter, validateLogin, login);
+router.post('/verify-email', authLimiter, verifyEmail);
 router.post('/logout', authLimiter, logout);
 
 // Protected routes (Require valid token header)
